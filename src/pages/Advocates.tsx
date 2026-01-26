@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Users, Phone, MapPin, Search, ArrowRight, Shield } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface Advocate {
     _id: string;
@@ -149,13 +150,13 @@ export default function Advocates() {
                         <h2 className="text-3xl md:text-5xl font-bold mb-4">Are you an Advocate?</h2>
                         <p className="text-blue-100 text-lg md:text-xl opacity-90">Join our premier network and connect with clients across India.</p>
                     </div>
-                    <a
-                        href="/advocate-registration"
+                    <Link
+                        to="/advocate-registration"
                         className="relative z-10 bg-white text-blue-600 px-10 py-5 rounded-2xl font-bold hover:bg-blue-50 transition-all flex items-center shadow-2xl hover:-translate-y-1 transform active:scale-95"
                     >
                         Register Profile Now
                         <ArrowRight className="h-6 w-6 ml-3" />
-                    </a>
+                    </Link>
                 </div>
             </section>
         </div>
