@@ -1,13 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  Scale, 
-  Building2, 
-  Smartphone, 
-  Globe, 
-  Plane, 
-  TrendingUp, 
-  Heart, 
+import {
+  Scale,
+  Building2,
+  Smartphone,
+  Globe,
+  Plane,
+  TrendingUp,
+  Heart,
   Megaphone,
   ArrowRight,
   CheckCircle,
@@ -89,6 +89,15 @@ export default function Home() {
       description: 'FIR assistance, MLC drafting, insurance claims, and medical legal documentation.',
       link: '/medical-help',
       features: ['FIR Support', 'Insurance Claims', 'Medical Documentation', 'Legal Heir Certificates']
+    },
+    {
+      title: 'Our Advocates',
+      hindi: 'हमारे अधिवक्ता',
+      icon: Users,
+      color: 'blue',
+      description: 'Connect with verified advocates across India for expert legal representation.',
+      link: '/advocates',
+      features: ['Verified Advocates', 'All India Network', 'Direct Connection', 'Expert Consultancy']
     }
   ];
 
@@ -126,14 +135,14 @@ export default function Home() {
               </div>
             </div>
             <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-              <Link 
-                to="/payment" 
+              <Link
+                to="/payment"
                 className="bg-white text-blue-700 px-8 py-4 rounded-xl font-semibold hover:bg-blue-50 transition-all duration-300 transform hover:scale-105 shadow-lg"
               >
                 Pay Online
               </Link>
-              <Link 
-                to="/legal-services" 
+              <Link
+                to="/legal-services"
                 className="border-2 border-white text-white px-8 py-4 rounded-xl font-semibold hover:bg-white hover:text-blue-700 transition-all duration-300"
               >
                 Explore Services
@@ -184,7 +193,7 @@ export default function Home() {
                 <div className={`p-4 bg-${service.color}-100 rounded-xl w-fit mb-4 group-hover:scale-110 transition-transform duration-300`}>
                   <service.icon className={`h-8 w-8 text-${service.color}-600`} />
                 </div>
-                
+
                 <h3 className="text-xl font-bold text-gray-900 mb-2">
                   {service.title}
                 </h3>
@@ -194,7 +203,7 @@ export default function Home() {
                 <p className="text-gray-600 mb-4 text-sm leading-relaxed">
                   {service.description}
                 </p>
-                
+
                 <div className="space-y-2 mb-4">
                   {service.features.map((feature, idx) => (
                     <div key={idx} className="flex items-center text-sm text-gray-500">
@@ -203,7 +212,7 @@ export default function Home() {
                     </div>
                   ))}
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <span className={`text-${service.color}-600 font-semibold group-hover:text-${service.color}-700`}>
                     Learn More
@@ -269,15 +278,15 @@ export default function Home() {
             Contact us today for professional legal and CSC services. Our expert team is ready to assist you with all your needs.
           </p>
           <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <Link 
-              to="/contact" 
+            <Link
+              to="/contact"
               className="bg-blue-600 text-white px-8 py-4 rounded-xl font-semibold hover:bg-blue-700 transition-all duration-300 transform hover:scale-105"
             >
               Contact Us Now
             </Link>
-            <a 
-              href="https://wa.me/919454950104" 
-              target="_blank" 
+            <a
+              href="https://wa.me/919454950104"
+              target="_blank"
               rel="noopener noreferrer"
               className="border-2 border-blue-600 text-blue-600 px-8 py-4 rounded-xl font-semibold hover:bg-blue-600 hover:text-white transition-all duration-300"
             >

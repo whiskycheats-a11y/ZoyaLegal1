@@ -14,6 +14,9 @@ import MedicalHelp from './pages/MedicalHelp';
 import SpecialCampaigns from './pages/SpecialCampaigns';
 import Payment from './pages/Payment';
 import Contact from './pages/Contact';
+import Advocates from './pages/Advocates';
+import AdvocateRegistration from './pages/AdvocateRegistration';
+import AIChatbot from './components/AIChatbot';
 
 function App() {
   return (
@@ -33,10 +36,13 @@ function App() {
             <Route path="/medical-help" element={<MedicalHelp />} />
             <Route path="/special-campaigns" element={<SpecialCampaigns />} />
             <Route path="/contact" element={<Contact />} />
-          <Route path="/payment" element={<Payment />} />
+            <Route path="/payment" element={<Payment />} />
+            <Route path="/advocates" element={<Advocates />} />
+            <Route path="/advocate-registration" element={<AdvocateRegistration />} />
           </Routes>
         </main>
         <Footer />
+        <AIChatbot />
       </div>
     </Router>
   );
