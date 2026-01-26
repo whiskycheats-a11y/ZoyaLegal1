@@ -29,7 +29,8 @@ export default function AdvocateRegistration() {
         setSubmitting(true);
 
         try {
-            const response = await fetch('http://localhost:5000/api/advocates', {
+            const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const response = await fetch(`${API_BASE_URL}/api/advocates`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -182,8 +183,8 @@ export default function AdvocateRegistration() {
                                 type="submit"
                                 disabled={submitting}
                                 className={`w-full py-5 rounded-2xl font-bold text-white shadow-2xl transition-all transform active:scale-[0.98] flex items-center justify-center text-lg ${submitting
-                                        ? 'bg-blue-400 cursor-wait'
-                                        : 'bg-blue-600 hover:bg-blue-700 hover:shadow-blue-100 hover:-translate-y-1'
+                                    ? 'bg-blue-400 cursor-wait'
+                                    : 'bg-blue-600 hover:bg-blue-700 hover:shadow-blue-100 hover:-translate-y-1'
                                     }`}
                             >
                                 {submitting ? (

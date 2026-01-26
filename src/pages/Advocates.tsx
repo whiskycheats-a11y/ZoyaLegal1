@@ -15,7 +15,8 @@ export default function Advocates() {
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
-        fetch('http://localhost:5000/api/advocates')
+        const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+        fetch(`${API_BASE_URL}/api/advocates`)
             .then(res => res.json())
             .then(data => {
                 setAdvocates(data);
