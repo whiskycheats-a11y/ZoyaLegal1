@@ -13,20 +13,20 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' })); // Increased limit for image uploads
 
 // MongoDB Connection
-const MONGODB_URI = "mongodb+srv://babahacket4_db_user:ZoyaLegal123@cluster0.snwxmtr.mongodb.net/zoyaDB?appName=Cluster0";
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://babahacket4_db_user:ZoyaLegal123@cluster0.snwxmtr.mongodb.net/zoyaDB?appName=Cluster0";
 
 mongoose.connect(MONGODB_URI)
     .then(() => console.log('Connected to MongoDB'))
     .catch(err => console.error('Could not connect to MongoDB', err));
 
 // AI Configuration
-const OPENROUTER_API_KEY = "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";
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
 // Cloudinary Configuration
 cloudinary.config({
-    cloud_name: 'dbrc133cd',
-    api_key: '217825911872736',
-    api_secret: 'huJ1EbxwXHTAw36UwwnPGtkTjx4'
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
 // Advocate Schema
