@@ -19,6 +19,7 @@ import Blogs from './pages/Blogs';
 import BlogDetail from './pages/BlogDetail';
 import Admin from './pages/Admin';
 import AIChatbot from './components/AIChatbot';
+import LegalDisclaimer from './components/LegalDisclaimer';
 import { BlogProvider } from './context/BlogContext';
 
 function App() {
@@ -50,6 +51,7 @@ function App() {
           </main>
           <Footer />
           <AIChatbot />
+          <LegalDisclaimer />
         </div>
       </Router>
     </BlogProvider>
