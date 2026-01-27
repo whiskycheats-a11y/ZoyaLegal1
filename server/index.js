@@ -21,11 +21,24 @@ const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://babahacket4_db_use
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
 // Cloudinary Configuration
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET
-});
+if (process.env.CLOUDINARY_URL) {
+    cloudinary.config(true); // Automatically uses CLOUDINARY_URL from env
+    console.log('Cloudinary: Using CLOUDINARY_URL configuration');
+} else {
+    cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET
+    });
+}
+
+// Detailed Diagnostic for Debugging
+console.log('--- Cloudinary Diagnostic ---');
+console.log('CLOUDINARY_CLOUD_NAME:', process.env.CLOUDINARY_CLOUD_NAME || 'MISSING');
+console.log('CLOUDINARY_API_KEY:', process.env.CLOUDINARY_API_KEY ? 'SET (Ends in ' + process.env.CLOUDINARY_API_KEY.slice(-4) + ')' : 'MISSING');
+console.log('CLOUDINARY_API_SECRET:', process.env.CLOUDINARY_API_SECRET ? 'SET (Length: ' + process.env.CLOUDINARY_API_SECRET.length + ')' : 'MISSING');
+console.log('CLOUDINARY_URL:', process.env.CLOUDINARY_URL ? 'SET' : 'NOT SET');
+console.log('---------------------------');
 
 const advocateSchema = new mongoose.Schema({
     name: { type: String, required: true },
