@@ -5,7 +5,8 @@ const LegalDisclaimer: React.FC = () => {
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
-        const hasAgreed = localStorage.getItem('zoya_disclaimer_agreed');
+        // Session storage ensures it appears once per "visit" (until tab is closed)
+        const hasAgreed = sessionStorage.getItem('zoya_disclaimer_agreed');
         if (!hasAgreed) {
             setIsVisible(true);
             // Disable scrolling when modal is open
@@ -14,7 +15,7 @@ const LegalDisclaimer: React.FC = () => {
     }, []);
 
     const handleAgree = () => {
-        localStorage.setItem('zoya_disclaimer_agreed', 'true');
+        sessionStorage.setItem('zoya_disclaimer_agreed', 'true');
         setIsVisible(false);
         document.body.style.overflow = 'auto';
     };

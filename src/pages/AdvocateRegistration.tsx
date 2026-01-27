@@ -43,11 +43,12 @@ export default function AdvocateRegistration() {
                 setSubmitted(true);
                 setTimeout(() => navigate('/advocates'), 3000);
             } else {
-                alert('Failed to register. Please try again.');
+                const errorData = await response.json();
+                alert(`Failed to register: ${errorData.message || 'Unknown error'}. Please try again.`);
             }
         } catch (err) {
             console.error('Error registering advocate:', err);
-            alert('Error connecting to server. Please ensure backend is running.');
+            alert('Error connecting to server. Please check your internet or ensure the backend is running.');
         } finally {
             setSubmitting(false);
         }

@@ -12,12 +12,10 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json({ limit: '10mb' })); // Increased limit for image uploads
 
-// MongoDB Connection
+// MongoDB Connection String
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://babahacket4_db_user:ZoyaLegal123@cluster0.snwxmtr.mongodb.net/zoyaDB?appName=Cluster0";
 
-mongoose.connect(MONGODB_URI)
-    .then(() => console.log('Connected to MongoDB'))
-    .catch(err => console.error('Could not connect to MongoDB', err));
+// MongoDB Connection logic moved to downstream to include seeding
 
 // AI Configuration
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
@@ -33,6 +31,7 @@ const advocateSchema = new mongoose.Schema({
     name: { type: String, required: true },
     phone: { type: String, required: true },
     court: { type: String, required: true },
+    barCouncilId: { type: String },
     photo: { type: String },
     createdAt: { type: Date, default: Date.now }
 });
@@ -229,29 +228,37 @@ app.post('/api/settings', async (req, res) => {
 // --- Blogs ---
 // Register new advocate with Cloudinary Upload
 app.post('/api/advocates', async (req, res) => {
+    console.log('--- Advocate Registration Start ---');
+    console.log('Body keys:', Object.keys(req.body));
     try {
         let photoUrl = '';
 
-        // Upload image to Cloudinary if provided
-        if (req.body.photo) {
+        if (req.body.photo && req.body.photo.startsWith('data:image')) {
+            console.log('Uploading photo to Cloudinary...');
             const uploadResponse = await cloudinary.uploader.upload(req.body.photo, {
                 folder: 'zoya_advocates',
             });
             photoUrl = uploadResponse.secure_url;
+            console.log('Upload success:', photoUrl);
         }
 
         const advocate = new Advocate({
             name: req.body.name,
             phone: req.body.phone,
             court: req.body.court,
+            barCouncilId: req.body.barCouncilId,
             photo: photoUrl
         });
 
         const newAdvocate = await advocate.save();
+        console.log('Advocate saved to DB:', newAdvocate._id);
         res.status(201).json(newAdvocate);
     } catch (err) {
-        console.error('Registration Error:', err);
-        res.status(400).json({ message: err.message });
+        console.error('SERVER REGISTRATION ERROR:', err.message);
+        res.status(400).json({
+            message: err.message,
+            stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+        });
     }
 });
 
