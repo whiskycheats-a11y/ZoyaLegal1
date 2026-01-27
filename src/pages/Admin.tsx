@@ -1,6 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useBlogs } from '../context/BlogContext';
-import { Plus, Edit2, Trash2, X, Image as ImageIcon, Search, LayoutDashboard, Settings as SettingsIcon, MessageSquare, Globe, Phone } from 'lucide-react';
+import {
+    Plus, Edit2, Trash2, X, Image as ImageIcon, Search, LayoutDashboard,
+    Settings as SettingsIcon, MessageSquare, Globe, Phone,
+    Bold, List, ListOrdered, Heading2, Heading3, Type, Code
+} from 'lucide-react';
+
+const EDITOR_STYLES = `
+  .editor-content h2 { font-size: 1.5rem; font-weight: 900; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+  .editor-content h3 { font-size: 1.25rem; font-weight: 800; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+  .editor-content p { margin-bottom: 1rem; }
+  .editor-content ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 1rem; }
+  .editor-content ol { list-style-type: decimal; margin-left: 1.5rem; margin-bottom: 1rem; }
+  .editor-content blockquote { border-left: 4px solid #000; padding-left: 1rem; font-style: italic; margin-bottom: 1rem; }
+`;
 
 export default function Admin() {
     const { blogs, addBlog, updateBlog, deleteBlog, loading, settings, updateSettings } = useBlogs();
@@ -8,11 +21,15 @@ export default function Admin() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
+    const [isCodeView, setIsCodeView] = useState(false);
+
+    // Editor Ref
+    const editorRef = useRef<HTMLDivElement>(null);
 
     const [formData, setFormData] = useState({
         title: "",
         description: "",
-        content: "",
+        content: "", // This will still hold the HTML string
         image: "",
         category: "Legal Insights",
         author: "Zoya Legal Team",
@@ -37,6 +54,27 @@ export default function Admin() {
             setSettingsData(settings);
         }
     }, [settings]);
+
+    // Update editor content when editing starts or modal opens with data
+    useEffect(() => {
+        if (isModalOpen && editorRef.current && !isCodeView) {
+            // Only set innerHTML if it's different to avoid cursor jumps
+            if (editorRef.current.innerHTML !== formData.content) {
+                editorRef.current.innerHTML = formData.content;
+            }
+        }
+    }, [isModalOpen, formData.content, isCodeView]);
+
+    const handleEditorChange = () => {
+        if (editorRef.current) {
+            setFormData(prev => ({ ...prev, content: editorRef.current!.innerHTML }));
+        }
+    };
+
+    const execCommand = (command: string, value: string | undefined = undefined) => {
+        document.execCommand(command, false, value);
+        handleEditorChange();
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -75,6 +113,7 @@ export default function Admin() {
         });
         setEditingId(null);
         setIsModalOpen(false);
+        setIsCodeView(false);
     };
 
     const handleEdit = (blog: any) => {
@@ -119,7 +158,7 @@ export default function Admin() {
                 <nav className="space-y-2">
                     <button
                         onClick={() => setActiveTab('blogs')}
-                        className={`w-full flex items-center space-x-3 p-4 rounded-2xl transition-all ${activeTab === 'blogs' ? 'bg-white text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                        className={`w - full flex items - center space - x - 3 p - 4 rounded - 2xl transition - all ${activeTab === 'blogs' ? 'bg-white text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'} `}
                     >
                         <MessageSquare className="h-5 w-5" />
                         <span className="font-black uppercase text-xs tracking-widest">Blogs</span>
@@ -127,7 +166,7 @@ export default function Admin() {
 
                     <button
                         onClick={() => setActiveTab('settings')}
-                        className={`w-full flex items-center space-x-3 p-4 rounded-2xl transition-all ${activeTab === 'settings' ? 'bg-white text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                        className={`w - full flex items - center space - x - 3 p - 4 rounded - 2xl transition - all ${activeTab === 'settings' ? 'bg-white text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'} `}
                     >
                         <SettingsIcon className="h-5 w-5" />
                         <span className="font-black uppercase text-xs tracking-widest">Settings</span>
@@ -366,15 +405,63 @@ export default function Admin() {
                                 />
                             </div>
 
+                            {/* Visual Editor Section */}
                             <div>
-                                <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Full Content (HTML Supported)</label>
-                                <textarea
-                                    required
-                                    rows={6}
-                                    className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition-all font-bold"
-                                    value={formData.content}
-                                    onChange={e => setFormData({ ...formData, content: e.target.value })}
-                                />
+                                <div className="flex justify-between items-center mb-2">
+                                    <label className="block text-xs font-black uppercase tracking-widest text-gray-500">Write Blog Content Here (Visual Editor)</label>
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsCodeView(!isCodeView)}
+                                        className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-black flex items-center transition-all"
+                                    >
+                                        <Code className="h-3 w-3 mr-1" />
+                                        {isCodeView ? "Switch to Visual" : "Switch to HTML"}
+                                    </button>
+                                </div>
+
+                                {!isCodeView ? (
+                                    <div className="border-2 border-gray-100 rounded-3xl overflow-hidden focus-within:border-black transition-all">
+                                        {/* Toolbar */}
+                                        <div className="bg-gray-50 p-2 border-b border-gray-100 flex flex-wrap gap-1">
+                                            <button type="button" onClick={() => execCommand('bold')} className="p-2 hover:bg-white rounded-lg transition-all" title="Bold">
+                                                <Bold className="h-4 w-4" />
+                                            </button>
+                                            <button type="button" onClick={() => execCommand('formatBlock', 'h2')} className="p-2 hover:bg-white rounded-lg transition-all" title="Heading 2">
+                                                <Heading2 className="h-4 w-4" />
+                                            </button>
+                                            <button type="button" onClick={() => execCommand('formatBlock', 'h3')} className="p-2 hover:bg-white rounded-lg transition-all" title="Heading 3">
+                                                <Heading3 className="h-4 w-4" />
+                                            </button>
+                                            <div className="w-px h-6 bg-gray-200 mx-1 self-center"></div>
+                                            <button type="button" onClick={() => execCommand('insertUnorderedList')} className="p-2 hover:bg-white rounded-lg transition-all" title="Bullet List">
+                                                <List className="h-4 w-4" />
+                                            </button>
+                                            <button type="button" onClick={() => execCommand('insertOrderedList')} className="p-2 hover:bg-white rounded-lg transition-all" title="Numbered List">
+                                                <ListOrdered className="h-4 w-4" />
+                                            </button>
+                                            <button type="button" onClick={() => execCommand('formatBlock', 'p')} className="p-2 hover:bg-white rounded-lg transition-all" title="Normal Text">
+                                                <Type className="h-4 w-4" />
+                                            </button>
+                                        </div>
+                                        {/* Editable Area */}
+                                        <style>{EDITOR_STYLES}</style>
+                                        <div
+                                            ref={editorRef}
+                                            contentEditable
+                                            onInput={handleEditorChange}
+                                            className="editor-content min-h-[300px] p-6 outline-none prose prose-sm max-w-none font-medium text-gray-700 bg-white"
+                                            style={{ minHeight: '300px' }}
+                                        />
+                                    </div>
+                                ) : (
+                                    <textarea
+                                        required
+                                        rows={12}
+                                        className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition-all font-mono text-sm bg-gray-50"
+                                        value={formData.content}
+                                        onChange={e => setFormData({ ...formData, content: e.target.value })}
+                                    />
+                                )}
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
