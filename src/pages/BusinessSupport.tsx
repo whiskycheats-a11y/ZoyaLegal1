@@ -170,16 +170,17 @@ export default function BusinessSupport() {
       </section>
 
       {/* Featured Startup Kit */}
-      <section className="py-12 bg-gradient-to-r from-orange-500 to-red-500 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-12 bg-black text-white relative overflow-hidden border-y border-gray-800">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-gray-900 to-black opacity-50"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center">
-            <Rocket className="h-12 w-12 mx-auto mb-4" />
-            <h2 className="text-3xl font-bold mb-4">🎉 Special Startup Kit Offer</h2>
-            <p className="text-xl mb-6">Complete Legal Documentation Package for Startups</p>
-            <div className="bg-white/20 backdrop-blur-sm rounded-xl p-6 max-w-2xl mx-auto">
-              <p className="text-2xl font-bold mb-2">Only ₹1,499</p>
-              <p className="mb-4">8 Essential Legal Documents + Compliance Guidance</p>
-              <Link to="/payment?purpose=Startup%20Kit" className="inline-block bg-white text-orange-600 px-8 py-3 rounded-lg font-semibold hover:bg-orange-50 transition-all duration-300">
+            <Rocket className="h-12 w-12 mx-auto mb-4 animate-bounce" />
+            <h2 className="text-3xl font-black mb-4">Special Startup Kit Offer</h2>
+            <p className="text-xl mb-8 text-gray-400">Complete Legal Documentation Package for Startups</p>
+            <div className="bg-gray-900/50 backdrop-blur-md rounded-2xl p-8 max-w-2xl mx-auto border border-gray-800 shadow-2xl">
+              <p className="text-3xl font-black mb-2">Only ₹1,499</p>
+              <p className="mb-6 text-gray-400">8 Essential Legal Documents + Compliance Guidance</p>
+              <Link to="/payment?purpose=Startup%20Kit" className="inline-block bg-white text-black px-10 py-4 rounded-xl font-black hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg">
                 Proceed to Payment
               </Link>
             </div>
@@ -192,14 +193,14 @@ export default function BusinessSupport() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {services.map((service, index) => (
-              <div key={index} className={`bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-500 overflow-hidden border-2 group hover:border-black transform hover:-translate-y-2 ${service.featured ? 'border-orange-500' : service.popular ? 'border-black' : 'border-gray-200'}`}>
+              <div key={index} className={`bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-500 overflow-hidden border-2 group hover:border-black transform hover:-translate-y-2 ${service.featured || service.popular ? 'border-black' : 'border-gray-200'}`}>
                 {service.featured && (
-                  <div className="bg-orange-500 text-white text-center py-2 font-semibold">
+                  <div className="bg-black text-white text-center py-2 font-black tracking-widest text-xs">
                     🔥 SPECIAL OFFER
                   </div>
                 )}
                 {service.popular && (
-                  <div className="bg-purple-500 text-white text-center py-2 font-semibold">
+                  <div className="bg-gray-800 text-white text-center py-2 font-black tracking-widest text-xs">
                     ⭐ MOST POPULAR
                   </div>
                 )}
@@ -230,7 +231,7 @@ export default function BusinessSupport() {
                     <div className="flex justify-between items-center mb-3">
                       <div>
                         <p className="text-sm text-gray-500 font-medium">Starting Price</p>
-                        <p className={`text-lg font-black ${service.featured ? 'text-orange-600' : 'text-black'}`}>
+                        <p className="text-lg font-black text-black">
                           {service.price}
                         </p>
                       </div>
@@ -242,7 +243,7 @@ export default function BusinessSupport() {
 
                     <Link
                       to={`/payment?purpose=${encodeURIComponent(service.title)}${extractAmount(service.price) ? `&amount=${extractAmount(service.price)}` : ''}`}
-                      className={`w-full py-3 rounded-xl font-bold transition-all duration-300 flex items-center justify-center transform hover:scale-105 group/btn ${service.featured ? 'bg-orange-600 hover:bg-orange-700 text-white' : 'bg-black hover:bg-gray-800 text-white'}`}>
+                      className="w-full py-3 rounded-xl font-black bg-black hover:bg-gray-800 text-white transition-all duration-300 flex items-center justify-center transform hover:scale-105 group/btn">
                       <Phone className="h-4 w-4 mr-2 group-hover/btn:rotate-12 transition-transform" />
                       {service.featured ? 'Pay for Offer' : 'Pay & Consult'}
                     </Link>

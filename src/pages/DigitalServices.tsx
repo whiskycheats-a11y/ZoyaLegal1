@@ -253,8 +253,8 @@ export default function DigitalServices() {
 
                     <Link
                       to={`/payment?purpose=${encodeURIComponent(service.title)}${extractAmount(service.price) ? `&amount=${extractAmount(service.price)}` : ''}`}
-                      className="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors duration-200 flex items-center justify-center">
-                      <Phone className="h-4 w-4 mr-2" />
+                      className="w-full bg-black text-white py-3 rounded-xl font-black hover:bg-gray-800 transition-all duration-300 flex items-center justify-center transform hover:scale-105 group/btn">
+                      <Phone className="h-4 w-4 mr-2 group-hover/btn:rotate-12 transition-transform" />
                       Get Quote
                     </Link>
                   </div>
@@ -275,16 +275,16 @@ export default function DigitalServices() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {internships.map((internship, index) => (
-              <div key={index} className="bg-orange-50 rounded-xl p-6 border border-orange-200">
-                <h3 className="text-lg font-bold text-gray-900 mb-2">{internship.title}</h3>
+              <div key={index} className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md hover:border-black transition-all group">
+                <h3 className="text-lg font-black text-black mb-2">{internship.title}</h3>
                 <div className="space-y-2 mb-4">
-                  <p className="text-sm text-gray-600"><span className="font-medium">Duration:</span> {internship.duration}</p>
-                  <p className="text-sm text-gray-600"><span className="font-medium">Stipend:</span> {internship.stipend}</p>
+                  <p className="text-sm text-gray-600"><span className="font-bold text-black">Duration:</span> {internship.duration}</p>
+                  <p className="text-sm text-gray-600"><span className="font-bold text-black">Stipend:</span> {internship.stipend}</p>
                 </div>
-                <p className="text-sm text-gray-700 mb-4">{internship.description}</p>
+                <p className="text-sm text-gray-700 mb-6 leading-relaxed">{internship.description}</p>
                 <Link
                   to={`/payment?purpose=${encodeURIComponent(internship.title)}${internship.stipend ? `&amount=${String(internship.stipend).replace(/[^0-9]/g, '')}` : ''}`}
-                  className="w-full bg-orange-600 text-white py-2 rounded-lg font-medium hover:bg-orange-700 transition-colors">
+                  className="w-full bg-black text-white py-2 rounded-xl font-black hover:bg-gray-800 transition-all duration-300 text-center block transform hover:scale-105">
                   Pay & Apply
                 </Link>
               </div>

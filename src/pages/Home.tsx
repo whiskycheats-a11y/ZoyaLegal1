@@ -237,33 +237,36 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white rounded-xl p-6 border-2 border-gray-200 hover:border-black transition-all">
-              <h3 className="text-xl font-bold mb-3 text-black">Cyber Suraksha Week</h3>
-              <p className="text-gray-600 mb-4">
+            <div className="bg-white rounded-2xl p-8 border border-gray-200 hover:border-black transition-all shadow-sm hover:shadow-2xl transform hover:-translate-y-2 group">
+              <div className="bg-black text-white text-xs font-black tracking-widest py-1 px-3 rounded-full inline-block mb-4">CYBER SECURITY</div>
+              <h3 className="text-2xl font-black mb-3 text-black">Cyber Suraksha Week</h3>
+              <p className="text-gray-600 mb-6 leading-relaxed">
                 मुफ्त साइबर सहायता - Free cyber security consultation and FIR assistance
               </p>
-              <Link to="/special-campaigns" className="text-black font-bold hover:text-gray-700 flex items-center">
-                Learn More <ArrowRight className="h-4 w-4 ml-2" />
+              <Link to="/special-campaigns" className="text-black font-black hover:underline flex items-center group/link">
+                Learn More <ArrowRight className="h-5 w-5 ml-2 group-hover/link:translate-x-1 transition-transform" />
               </Link>
             </div>
 
-            <div className="bg-white rounded-xl p-6 border-2 border-gray-200 hover:border-black transition-all">
-              <h3 className="text-xl font-bold mb-3 text-black">Startup Seva Month</h3>
-              <p className="text-gray-600 mb-4">
+            <div className="bg-white rounded-2xl p-8 border border-gray-200 hover:border-black transition-all shadow-sm hover:shadow-2xl transform hover:-translate-y-2 group">
+              <div className="bg-black text-white text-xs font-black tracking-widest py-1 px-3 rounded-full inline-block mb-4">STARTUPS</div>
+              <h3 className="text-2xl font-black mb-3 text-black">Startup Seva Month</h3>
+              <p className="text-gray-600 mb-6 leading-relaxed">
                 ₹1499 लीगल किट - Complete legal documentation package for startups
               </p>
-              <Link to="/special-campaigns" className="text-black font-bold hover:text-gray-700 flex items-center">
-                Learn More <ArrowRight className="h-4 w-4 ml-2" />
+              <Link to="/special-campaigns" className="text-black font-black hover:underline flex items-center group/link">
+                Learn More <ArrowRight className="h-5 w-5 ml-2 group-hover/link:translate-x-1 transition-transform" />
               </Link>
             </div>
 
-            <div className="bg-white rounded-xl p-6 border-2 border-gray-200 hover:border-black transition-all">
-              <h3 className="text-xl font-bold mb-3 text-black">Senior Citizen Will Week</h3>
-              <p className="text-gray-600 mb-4">
+            <div className="bg-white rounded-2xl p-8 border border-gray-200 hover:border-black transition-all shadow-sm hover:shadow-2xl transform hover:-translate-y-2 group">
+              <div className="bg-black text-white text-xs font-black tracking-widest py-1 px-3 rounded-full inline-block mb-4">SENIOR CITIZENS</div>
+              <h3 className="text-2xl font-black mb-3 text-black">Senior Citizen Will Week</h3>
+              <p className="text-gray-600 mb-6 leading-relaxed">
                 वसीयत ड्राफ्टिंग - Free will drafting services for senior citizens
               </p>
-              <Link to="/special-campaigns" className="text-black font-bold hover:text-gray-700 flex items-center">
-                Learn More <ArrowRight className="h-4 w-4 ml-2" />
+              <Link to="/special-campaigns" className="text-black font-black hover:underline flex items-center group/link">
+                Learn More <ArrowRight className="h-5 w-5 ml-2 group-hover/link:translate-x-1 transition-transform" />
               </Link>
             </div>
           </div>

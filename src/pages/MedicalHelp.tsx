@@ -217,20 +217,21 @@ export default function MedicalHelp() {
       </section>
 
       {/* Emergency Services Bar */}
-      <section className="py-8 bg-red-600 text-white">
+      <section className="py-8 bg-black text-white border-y border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-6">
-            <AlertTriangle className="h-8 w-8 mx-auto mb-2" />
-            <h3 className="text-lg font-semibold">Emergency Medical Legal Services</h3>
+          <div className="text-center mb-8">
+            <AlertTriangle className="h-10 w-10 mx-auto mb-3 text-red-600 animate-pulse" />
+            <h3 className="text-2xl font-black tracking-tighter">EMERGENCY MEDICAL LEGAL SERVICES</h3>
+            <p className="text-gray-400 mt-2 font-bold">24/7 Priority Support Desk</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {emergencyServices.map((service, index) => (
-              <div key={index} className="bg-white/20 backdrop-blur-sm rounded-lg p-4 text-center">
-                <h4 className="font-semibold mb-2">{service.title}</h4>
-                <p className="text-sm mb-2">{service.description}</p>
-                <div className="text-xs">
-                  <p>Response: {service.response}</p>
-                  <p>Coverage: {service.coverage}</p>
+              <div key={index} className="bg-gray-900/50 backdrop-blur-md rounded-2xl p-6 border border-gray-800 shadow-2xl hover:border-red-600/50 transition-all group">
+                <h4 className="font-black text-lg mb-3 group-hover:text-red-500 transition-colors">{service.title}</h4>
+                <p className="text-sm text-gray-400 mb-4 leading-relaxed">{service.description}</p>
+                <div className="text-xs space-y-1">
+                  <p className="text-gray-500"><span className="font-bold text-gray-300">Response:</span> {service.response}</p>
+                  <p className="text-gray-500"><span className="font-bold text-gray-300">Coverage:</span> {service.coverage}</p>
                 </div>
               </div>
             ))}
