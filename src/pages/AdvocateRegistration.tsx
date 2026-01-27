@@ -8,6 +8,7 @@ export default function AdvocateRegistration() {
         name: '',
         phone: '',
         court: '',
+        barCouncilId: '',
         photo: ''
     });
     const [submitting, setSubmitting] = useState(false);
@@ -55,16 +56,16 @@ export default function AdvocateRegistration() {
     if (submitted) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-                <div className="max-w-md w-full bg-white rounded-[2.5rem] shadow-2xl p-8 md:p-12 text-center border border-blue-50 relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-2 bg-green-500"></div>
-                    <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
-                        <CheckCircle className="h-10 w-10 text-green-600" />
+                <div className="max-w-md w-full bg-white rounded-[2.5rem] shadow-2xl p-8 md:p-12 text-center border border-gray-100 relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-2 bg-black"></div>
+                    <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
+                        <CheckCircle className="h-10 w-10 text-black" />
                     </div>
-                    <h2 className="text-3xl font-bold text-gray-900 mb-2">Registration Successful!</h2>
-                    <p className="text-gray-600 mb-8 leading-relaxed">Your profile has been saved to our database. Redirecting you to the list...</p>
+                    <h2 className="text-3xl font-black text-black mb-2 tracking-tighter">Registration Successful!</h2>
+                    <p className="text-gray-600 mb-8 leading-relaxed font-bold">Your profile has been saved to our database. Redirecting you to the list...</p>
                     <button
                         onClick={() => navigate('/advocates')}
-                        className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 transition-all shadow-lg hover:shadow-blue-100"
+                        className="w-full bg-black text-white py-4 rounded-2xl font-black hover:bg-gray-800 transition-all shadow-xl transform hover:scale-105 active:scale-95"
                     >
                         Go to Advocates List
                     </button>
@@ -78,33 +79,33 @@ export default function AdvocateRegistration() {
             <div className="max-w-2xl mx-auto">
                 <button
                     onClick={() => navigate(-1)}
-                    className="flex items-center text-gray-500 hover:text-blue-600 mb-6 md:mb-8 transition-colors font-bold group"
+                    className="flex items-center text-gray-500 hover:text-black mb-6 md:mb-8 transition-colors font-black group"
                 >
-                    <div className="p-2 bg-white rounded-xl shadow-sm mr-3 group-hover:bg-blue-50 transition-colors">
+                    <div className="p-2 bg-white rounded-xl shadow-sm mr-3 group-hover:bg-black group-hover:text-white transition-all duration-300">
                         <ArrowLeft className="h-5 w-5" />
                     </div>
                     Back to List
                 </button>
 
                 <div className="bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-gray-100">
-                    <div className="bg-gradient-to-br from-blue-600 to-indigo-800 p-8 md:p-12 text-white relative">
+                    <div className="bg-black p-8 md:p-12 text-white relative">
                         <ShieldCheck className="absolute top-10 right-10 h-20 w-20 opacity-10 animate-pulse" />
-                        <h1 className="text-3xl md:text-4xl font-bold mb-3 tracking-tight">Advocate Registration</h1>
-                        <p className="text-blue-100 text-lg opacity-90 leading-relaxed">Join India's premier legal network and connect with clients seeking expert representation.</p>
+                        <h1 className="text-3xl md:text-4xl font-black mb-3 tracking-tighter uppercase">Advocate Registration</h1>
+                        <p className="text-gray-400 text-lg opacity-90 leading-relaxed font-bold">Join India's premier legal network and connect with clients seeking expert representation.</p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="p-6 md:p-12 space-y-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                             {/* Name */}
                             <div className="space-y-2.5">
-                                <label className="text-sm font-bold text-gray-700 flex items-center ml-1">
-                                    <User className="h-4 w-4 mr-2 text-blue-500" /> Full Name
+                                <label className="text-sm font-black text-black flex items-center ml-1 uppercase tracking-tighter">
+                                    <User className="h-4 w-4 mr-2" /> Full Name
                                 </label>
                                 <input
                                     type="text"
                                     required
                                     placeholder="e.g. Adv. Rajesh Sharma"
-                                    className="w-full px-5 py-4 rounded-2xl border-2 border-gray-50 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-4 focus:ring-blue-50/50 transition-all outline-none font-medium text-gray-900 shadow-sm"
+                                    className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 bg-gray-50 focus:bg-white focus:border-black transition-all outline-none font-bold text-black shadow-sm"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 />
@@ -112,41 +113,58 @@ export default function AdvocateRegistration() {
 
                             {/* Phone */}
                             <div className="space-y-2.5">
-                                <label className="text-sm font-bold text-gray-700 flex items-center ml-1">
-                                    <Phone className="h-4 w-4 mr-2 text-blue-500" /> Phone Number
+                                <label className="text-sm font-black text-black flex items-center ml-1 uppercase tracking-tighter">
+                                    <Phone className="h-4 w-4 mr-2" /> Phone Number
                                 </label>
                                 <input
                                     type="tel"
                                     required
                                     placeholder="e.g. +91 9454950104"
-                                    className="w-full px-5 py-4 rounded-2xl border-2 border-gray-50 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-4 focus:ring-blue-50/50 transition-all outline-none font-medium text-gray-900 shadow-sm"
+                                    className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 bg-gray-50 focus:bg-white focus:border-black transition-all outline-none font-bold text-black shadow-sm"
                                     value={formData.phone}
                                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                 />
                             </div>
                         </div>
 
-                        {/* Court */}
-                        <div className="space-y-2.5">
-                            <label className="text-sm font-bold text-gray-700 flex items-center ml-1">
-                                <Gavel className="h-4 w-4 mr-2 text-blue-500" /> Court / Jurisdiction
-                            </label>
-                            <input
-                                type="text"
-                                required
-                                placeholder="e.g. High Court Lucknow / Supreme Court"
-                                className="w-full px-5 py-4 rounded-2xl border-2 border-gray-50 bg-gray-50 focus:bg-white focus:border-blue-400 focus:ring-4 focus:ring-blue-50/50 transition-all outline-none font-medium text-gray-900 shadow-sm"
-                                value={formData.court}
-                                onChange={(e) => setFormData({ ...formData, court: e.target.value })}
-                            />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                            {/* Court */}
+                            <div className="space-y-2.5">
+                                <label className="text-sm font-black text-black flex items-center ml-1 uppercase tracking-tighter">
+                                    <Gavel className="h-4 w-4 mr-2" /> Court / Jurisdiction
+                                </label>
+                                <input
+                                    type="text"
+                                    required
+                                    placeholder="e.g. High Court Lucknow"
+                                    className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 bg-gray-50 focus:bg-white focus:border-black transition-all outline-none font-bold text-black shadow-sm"
+                                    value={formData.court}
+                                    onChange={(e) => setFormData({ ...formData, court: e.target.value })}
+                                />
+                            </div>
+
+                            {/* Bar Council ID */}
+                            <div className="space-y-2.5">
+                                <label className="text-sm font-black text-black flex items-center ml-1 uppercase tracking-tighter">
+                                    <ShieldCheck className="h-4 w-4 mr-2" /> Bar Council ID
+                                </label>
+                                <input
+                                    type="text"
+                                    required
+                                    placeholder="e.g. UP/1234/2024"
+                                    className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 bg-gray-50 focus:bg-white focus:border-black transition-all outline-none font-bold text-black shadow-sm"
+                                    value={formData.barCouncilId}
+                                    onChange={(e) => setFormData({ ...formData, barCouncilId: e.target.value })}
+                                />
+                            </div>
                         </div>
 
                         {/* Photo Upload */}
                         <div className="space-y-3">
-                            <label className="text-sm font-bold text-gray-700 flex items-center ml-1">
-                                <ImageIcon className="h-4 w-4 mr-2 text-blue-500" /> Professional Profile Photo
+                            <label className="text-sm font-black text-black flex items-center ml-1 uppercase tracking-tighter">
+                                <ImageIcon className="h-4 w-4 mr-2" /> Professional Profile Photo
                             </label>
-                            <div className="flex flex-col sm:flex-row items-center sm:space-x-8 space-y-4 sm:space-y-0 p-6 bg-gray-50 rounded-[2rem] border-2 border-dashed border-gray-200 group-hover:border-blue-200 transition-colors">
+                            <div className="flex flex-col sm:flex-row items-center sm:space-x-8 space-y-4 sm:space-y-0 p-6 bg-gray-50 rounded-[2rem] border-2 border-dashed border-gray-200 hover:border-black transition-all group">
                                 <div className="w-28 h-28 rounded-2xl bg-white shadow-xl flex items-center justify-center overflow-hidden flex-shrink-0 border-4 border-white ring-1 ring-gray-100">
                                     {formData.photo ? (
                                         <img src={formData.photo} alt="Preview" className="w-full h-full object-cover" />
@@ -168,7 +186,7 @@ export default function AdvocateRegistration() {
                                         />
                                         <label
                                             htmlFor="photo-upload"
-                                            className="cursor-pointer bg-white text-blue-600 px-6 py-3 rounded-xl border-2 border-blue-50 font-bold hover:bg-blue-600 hover:text-white transition-all shadow-sm inline-block"
+                                            className="cursor-pointer bg-white text-black px-6 py-3 rounded-xl border-2 border-gray-100 font-black hover:bg-black hover:text-white transition-all shadow-sm inline-block"
                                         >
                                             Choose Profile Image
                                         </label>
@@ -182,9 +200,9 @@ export default function AdvocateRegistration() {
                             <button
                                 type="submit"
                                 disabled={submitting}
-                                className={`w-full py-5 rounded-2xl font-bold text-white shadow-2xl transition-all transform active:scale-[0.98] flex items-center justify-center text-lg ${submitting
-                                    ? 'bg-blue-400 cursor-wait'
-                                    : 'bg-blue-600 hover:bg-blue-700 hover:shadow-blue-100 hover:-translate-y-1'
+                                className={`w-full py-5 rounded-2xl font-black text-white shadow-2xl transition-all transform active:scale-[0.98] flex items-center justify-center text-lg uppercase tracking-widest ${submitting
+                                    ? 'bg-gray-400 cursor-wait'
+                                    : 'bg-black hover:bg-gray-800 hover:-translate-y-1'
                                     }`}
                             >
                                 {submitting ? (

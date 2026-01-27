@@ -222,16 +222,16 @@ export default function CSCServices() {
       </section>
 
       {/* Benefits Section */}
-      <section className="py-12 bg-white">
+      <section className="py-12 bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {benefits.map((benefit, index) => (
-              <div key={index} className="text-center p-6 bg-indigo-50 rounded-xl">
-                <div className="p-3 bg-indigo-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
-                  <benefit.icon className="h-6 w-6 text-indigo-600" />
+              <div key={index} className="text-center p-6 bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 group">
+                <div className="p-3 bg-gray-100 rounded-full w-14 h-14 flex items-center justify-center mx-auto mb-4 group-hover:bg-black transition-colors duration-300">
+                  <benefit.icon className="h-7 w-7 text-black group-hover:text-white transition-colors" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">{benefit.title}</h3>
-                <p className="text-sm text-gray-600">{benefit.description}</p>
+                <h3 className="text-lg font-black text-black mb-2 tracking-tight">{benefit.title}</h3>
+                <p className="text-sm text-gray-500 leading-relaxed">{benefit.description}</p>
               </div>
             ))}
           </div>

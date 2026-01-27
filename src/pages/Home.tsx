@@ -226,12 +226,12 @@ export default function Home() {
       </section>
 
       {/* Special Campaigns */}
-      <section className="py-16 bg-gray-100 border-y border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-16 bg-white border-y border-gray-100 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-12">
-            <Megaphone className="h-12 w-12 mx-auto mb-4 text-black" />
-            <h2 className="text-3xl font-black mb-4 text-black">Special Campaigns</h2>
-            <p className="text-xl text-gray-600">
+            <Megaphone className="h-14 w-14 mx-auto mb-4 text-black animate-pulse" />
+            <h2 className="text-4xl font-black mb-4 text-black tracking-tighter uppercase">Special Campaigns</h2>
+            <p className="text-xl text-gray-500 font-medium">
               Limited time offers and special initiatives for our community
             </p>
           </div>

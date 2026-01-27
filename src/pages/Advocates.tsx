@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Users, Phone, MapPin, Search, ArrowRight, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -144,15 +144,15 @@ export default function Advocates() {
 
             {/* Register CTA */}
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24">
-                <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-[2.5rem] p-8 md:p-16 text-white flex flex-col md:flex-row items-center justify-between shadow-3xl relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-white opacity-[0.03] rounded-full group-hover:scale-110 transition-transform duration-700"></div>
+                <div className="bg-black rounded-[2.5rem] p-8 md:p-16 text-white flex flex-col md:flex-row items-center justify-between shadow-3xl relative overflow-hidden group border border-gray-800">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-gray-900 via-black to-black opacity-50"></div>
                     <div className="relative z-10 mb-8 md:mb-0 text-center md:text-left">
-                        <h2 className="text-3xl md:text-5xl font-bold mb-4">Are you an Advocate?</h2>
-                        <p className="text-blue-100 text-lg md:text-xl opacity-90">Join our premier network and connect with clients across India.</p>
+                        <h2 className="text-3xl md:text-5xl font-black mb-4 tracking-tighter uppercase">Are you an Advocate?</h2>
+                        <p className="text-gray-400 text-lg md:text-xl opacity-90 font-bold">Join our premier network and connect with clients across India.</p>
                     </div>
                     <Link
                         to="/advocate-registration"
-                        className="relative z-10 bg-white text-blue-600 px-10 py-5 rounded-2xl font-bold hover:bg-blue-50 transition-all flex items-center shadow-2xl hover:-translate-y-1 transform active:scale-95"
+                        className="relative z-10 bg-white text-black px-10 py-5 rounded-2xl font-black hover:bg-gray-100 transition-all flex items-center shadow-2xl hover:-translate-y-1 transform active:scale-95 uppercase tracking-widest"
                     >
                         Register Profile Now
                         <ArrowRight className="h-6 w-6 ml-3" />
