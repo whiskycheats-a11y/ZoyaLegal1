@@ -4,7 +4,6 @@ import {
   TrendingUp,
   Building,
   Calculator,
-  FileText,
   Rocket,
   CheckCircle,
   Phone,

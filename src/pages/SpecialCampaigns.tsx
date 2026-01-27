@@ -8,8 +8,7 @@ import {
   Phone,
   Calendar,
   Gift,
-  Star,
-  Clock
+  Star
 } from 'lucide-react';
 
 export default function SpecialCampaigns() {
