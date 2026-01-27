@@ -1,4 +1,4 @@
-import {} from 'react';
+import { } from 'react';
 
 declare global {
   interface Window {
@@ -66,11 +66,11 @@ export default function Contact() {
       icon: CheckCircle,
       title: 'Business Registrations',
       details: [
-    'GST: 09AUQPK9451K1ZS',
-    'Shop Establishment: UPSA28767150',
-    'MSME: UDYAM-UP75-0000942',
-    'CSC ID: 5546115014',
-    'IRCTC: IVIADR04356'
+        'GST: 09AUQPK9451K1ZS',
+        'Shop Establishment: UPSA28767150',
+        'MSME: UDYAM-UP75-0000942',
+        'CSC ID: 5546115014',
+        'IRCTC: IVIADR04356'
       ]
     }
   ];
@@ -113,13 +113,13 @@ export default function Contact() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-emerald-600 to-emerald-800 text-white py-16">
+      <section className="bg-black text-white py-16 border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <MapPin className="h-16 w-16 mx-auto mb-6" />
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Contact Us</h1>
-            <p className="text-xl text-emerald-100 mb-2">संपर्क करें</p>
-            <p className="text-lg text-emerald-200 max-w-3xl mx-auto">
+            <MapPin className="h-16 w-16 mx-auto mb-6 animate-bounce" />
+            <h1 className="text-4xl md:text-5xl font-black mb-4 animate-fade-in">Contact Us</h1>
+            <p className="text-xl text-gray-400 mb-2 animate-fade-in-delay">संपर्क करें</p>
+            <p className="text-lg text-gray-500 max-w-3xl mx-auto animate-slide-up">
               Visit our office in Lucknow or contact us for professional legal and CSC services.
               We're here to help with all your legal, business, and government service needs.
             </p>
@@ -134,16 +134,15 @@ export default function Contact() {
             {contactInfo.map((info, index) => (
               <div
                 key={index}
-                className={`text-center p-6 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors duration-200 min-h-[260px] flex flex-col ${
-                  info.title === 'Email'
+                className={`text-center p-6 bg-white rounded-xl hover:shadow-xl border border-gray-200 hover:border-black transition-all duration-300 min-h-[260px] flex flex-col transform hover:-translate-y-1 ${info.title === 'Email'
                     ? 'lg:col-start-2'
                     : info.title === 'Business Registrations'
-                    ? 'lg:col-start-3'
-                    : ''
-                }`}
+                      ? 'lg:col-start-3'
+                      : ''
+                  }`}
               >
-                <div className="p-4 bg-emerald-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                  <info.icon className="h-8 w-8 text-emerald-600" />
+                <div className="p-4 bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <info.icon className="h-8 w-8 text-black" />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">{info.title}</h3>
                 <div className="space-y-1 mb-4">
@@ -156,16 +155,16 @@ export default function Contact() {
                     href={info.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center text-emerald-600 hover:text-emerald-700 font-medium text-sm mt-auto"
+                    className="inline-flex items-center justify-center text-black hover:text-gray-700 font-bold text-sm mt-auto group/link"
                   >
                     {info.action || 'Open'}
-                    <span className="ml-2">→</span>
+                    <span className="ml-2 group-hover/link:translate-x-1 transition-transform">→</span>
                   </a>
                 ) : (
                   info.action ? (
                     <span className="text-gray-400 font-medium text-sm cursor-not-allowed mt-auto">
-                    {info.action}
-                  </span>
+                      {info.action}
+                    </span>
                   ) : null
                 )}
               </div>
@@ -179,10 +178,10 @@ export default function Contact() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-              <div className="h-96 bg-gradient-to-br from-emerald-100 to-emerald-200 flex items-center justify-center">
+              <div className="h-96 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                 <div className="text-center">
-                  <Navigation className="h-16 w-16 text-emerald-600 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Office Location</h3>
+                  <Navigation className="h-16 w-16 text-black mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Office Location</h3>
                   <p className="text-gray-600 mb-4">
                     Guru Govind Singh Marg, Safdalbagh, Lalkua<br />
                     Lucknow, UP-226001
@@ -191,7 +190,7 @@ export default function Contact() {
                     href="https://www.google.com/maps?q=Guru+Govind+Singh+Marg,+Safdalbagh,+Lalkua,+Lucknow,+UP-226001"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-block bg-emerald-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-emerald-700 transition-colors"
+                    className="inline-block bg-black text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-800 transition-all duration-300 transform hover:scale-105"
                   >
                     Open in Maps
                   </a>
@@ -211,8 +210,8 @@ export default function Contact() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {officeFeatures.map((feature, index) => (
                   <div key={index} className="flex items-start space-x-3">
-                    <div className="p-2 bg-emerald-100 rounded-lg">
-                      <feature.icon className="h-5 w-5 text-emerald-600" />
+                    <div className="p-2 bg-gray-100 rounded-lg">
+                      <feature.icon className="h-5 w-5 text-black" />
                     </div>
                     <div>
                       <h4 className="font-semibold text-gray-900 mb-1">{feature.title}</h4>
@@ -227,7 +226,7 @@ export default function Contact() {
                 <div className="space-y-2">
                   {services.map((service, index) => (
                     <div key={index} className="flex items-center text-sm text-gray-600">
-                      <CheckCircle className="h-4 w-4 text-emerald-500 mr-3 flex-shrink-0" />
+                      <CheckCircle className="h-4 w-4 text-black mr-3 flex-shrink-0" />
                       {service}
                     </div>
                   ))}
@@ -246,11 +245,11 @@ export default function Contact() {
             <p className="text-lg text-gray-600">
               Have a question or need assistance? Fill out the form below and we'll get back to you promptly.
             </p>
-          {typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('sent') === '1' && (
-            <div className="mt-4 inline-block bg-emerald-100 text-emerald-800 px-4 py-2 rounded-lg text-sm font-medium">
-              Your message was sent successfully.
-            </div>
-          )}
+            {typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('sent') === '1' && (
+              <div className="mt-4 inline-block bg-gray-100 text-black px-4 py-2 rounded-lg text-sm font-bold">
+                Your message was sent successfully.
+              </div>
+            )}
           </div>
 
           <div className="bg-gray-50 rounded-xl p-8">
@@ -292,7 +291,7 @@ export default function Contact() {
                     id="name"
                     name="name"
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black transition-all duration-300"
                     placeholder="Enter your full name"
                   />
                 </div>
@@ -305,7 +304,7 @@ export default function Contact() {
                     id="phone"
                     name="phone"
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black transition-all duration-300"
                     placeholder="Enter your phone number"
                   />
                 </div>
@@ -319,7 +318,7 @@ export default function Contact() {
                   type="email"
                   id="email"
                   name="email"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black transition-all duration-300"
                   placeholder="Enter your email address"
                 />
               </div>
@@ -332,7 +331,7 @@ export default function Contact() {
                   id="service"
                   name="service"
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black transition-all duration-300"
                 >
                   <option value="">Select a service</option>
                   <option value="legal">Legal Services</option>
@@ -356,7 +355,7 @@ export default function Contact() {
                   name="message"
                   rows={5}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black transition-all duration-300"
                   placeholder="Describe your requirements or questions..."
                 ></textarea>
               </div>
@@ -364,7 +363,7 @@ export default function Contact() {
               <div className="text-center">
                 <button
                   type="submit"
-                  className="bg-emerald-600 text-white px-8 py-4 rounded-xl font-semibold hover:bg-emerald-700 transition-all duration-300 transform hover:scale-105"
+                  className="bg-black text-white px-8 py-4 rounded-xl font-bold hover:bg-gray-800 transition-all duration-300 transform hover:scale-105 shadow-lg"
                 >
                   Send Message
                 </button>
@@ -375,11 +374,11 @@ export default function Contact() {
       </section>
 
       {/* Quick Contact */}
-      <section className="py-16 bg-emerald-600 text-white">
+      <section className="py-16 bg-black text-white border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold mb-4">Need Immediate Assistance?</h2>
-            <p className="text-xl text-emerald-100">
+            <h2 className="text-3xl font-black mb-4">Need Immediate Assistance?</h2>
+            <p className="text-xl text-gray-400">
               Contact us directly for urgent matters or emergency legal support
             </p>
           </div>
@@ -387,7 +386,7 @@ export default function Contact() {
           <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
             <a
               href="tel:+919454950104"
-              className="bg-white text-emerald-600 px-8 py-4 rounded-xl font-semibold hover:bg-emerald-50 transition-all duration-300 flex items-center justify-center"
+              className="bg-white text-black px-8 py-4 rounded-xl font-bold hover:bg-gray-100 transition-all duration-300 flex items-center justify-center transform hover:scale-105"
             >
               <Phone className="h-5 w-5 mr-2" />
               Call: +91-9454950104
@@ -396,12 +395,12 @@ export default function Contact() {
               href="https://wa.me/919454950104"
               target="_blank"
               rel="noopener noreferrer"
-              className="border-2 border-white text-white px-8 py-4 rounded-xl font-semibold hover:bg-white hover:text-emerald-600 transition-all duration-300 flex items-center justify-center"
+              className="border-2 border-white text-white px-8 py-4 rounded-xl font-bold hover:bg-white hover:text-black transition-all duration-300 flex items-center justify-center transform hover:scale-105"
             >
               <MessageCircle className="h-5 w-5 mr-2" />
               WhatsApp Chat
             </a>
-            <a href="mailto:zoyalegal@gmail.com" className="border-2 border-white text-white px-8 py-4 rounded-xl font-semibold hover:bg-white hover:text-emerald-600 transition-all duration-300 flex items-center justify-center">
+            <a href="mailto:zoyalegal@gmail.com" className="border-2 border-white text-white px-8 py-4 rounded-xl font-bold hover:bg-white hover:text-black transition-all duration-300 flex items-center justify-center transform hover:scale-105">
               <Mail className="h-5 w-5 mr-2" />
               Email Us
             </a>

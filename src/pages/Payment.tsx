@@ -57,7 +57,7 @@ export default function Payment() {
         currency: 'INR',
         name: 'ZoyaLegal',
         description: preset.purpose,
-        theme: { color: '#1e40af' },
+        theme: { color: '#000000' },
         prefill: {
           name: payerName || undefined,
           email: payerEmail || undefined,
@@ -78,44 +78,39 @@ export default function Payment() {
   }, [amountInput, payerEmail, payerName, payerPhone, loadRazorpayScript, preset.purpose]);
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex flex-col items-center justify-center p-4 md:p-8">
-      {/* Background blobs for depth */}
-      <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 bg-[#f8fafc]">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-100 rounded-full blur-[120px] opacity-60"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-100 rounded-full blur-[120px] opacity-60"></div>
-      </div>
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 md:p-8">
 
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-12 gap-8">
         {/* Header Info */}
         <div className="md:col-span-12 flex flex-col md:flex-row md:items-center justify-between mb-2">
-          <Link to="/" className="flex items-center text-slate-500 hover:text-blue-600 transition-all font-bold group mb-4 md:mb-0">
+          <Link to="/" className="flex items-center text-gray-500 hover:text-black transition-all font-bold group mb-4 md:mb-0">
             <ArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-2 transition-transform" />
             Return to ZoyaLegal
           </Link>
-          <div className="flex items-center space-x-2 bg-white px-4 py-2 rounded-full shadow-sm border border-slate-100">
-            <Lock className="h-3 w-3 text-green-500" />
-            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">256-bit Secure Checkout</span>
+          <div className="flex items-center space-x-2 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-200">
+            <Lock className="h-3 w-3 text-black" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-gray-600">256-bit Secure Checkout</span>
           </div>
         </div>
 
         {/* Left Card: Payment Form */}
         <div className="md:col-span-7">
-          <div className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-100 relative overflow-hidden h-full">
+          <div className="bg-white rounded-[2rem] p-8 md:p-12 shadow-xl border border-gray-200 relative overflow-hidden h-full">
             <div className="relative z-10 space-y-10">
               <header className="space-y-2">
-                <h2 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Billing Details</h2>
-                <p className="text-slate-400 font-medium">Please enter your payment information below</p>
+                <h2 className="text-3xl md:text-4xl font-black text-black tracking-tight">Billing Details</h2>
+                <p className="text-gray-500 font-medium">Please enter your payment information below</p>
               </header>
 
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-xs font-black text-slate-400 uppercase tracking-tighter ml-1">Full Name</label>
+                    <label className="text-xs font-black text-gray-500 uppercase tracking-tighter ml-1">Full Name</label>
                     <div className="relative">
-                      <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                       <input
                         type="text"
-                        className="w-full pl-12 pr-4 py-4 rounded-2xl bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white transition-all outline-none font-bold text-slate-900"
+                        className="w-full pl-12 pr-4 py-4 rounded-xl bg-gray-50 border-2 border-transparent focus:border-black focus:bg-white transition-all outline-none font-bold text-black"
                         placeholder="John Doe"
                         value={payerName}
                         onChange={(e) => setPayerName(e.target.value)}
@@ -123,12 +118,12 @@ export default function Payment() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-black text-slate-400 uppercase tracking-tighter ml-1">Contact Number</label>
+                    <label className="text-xs font-black text-gray-500 uppercase tracking-tighter ml-1">Contact Number</label>
                     <div className="relative">
-                      <Smartphone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+                      <Smartphone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                       <input
                         type="tel"
-                        className="w-full pl-12 pr-4 py-4 rounded-2xl bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white transition-all outline-none font-bold text-slate-900"
+                        className="w-full pl-12 pr-4 py-4 rounded-xl bg-gray-50 border-2 border-transparent focus:border-black focus:bg-white transition-all outline-none font-bold text-black"
                         placeholder="+91 0000 000000"
                         value={payerPhone}
                         onChange={(e) => setPayerPhone(e.target.value)}
@@ -138,12 +133,12 @@ export default function Payment() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-black text-slate-400 uppercase tracking-tighter ml-1">Email Address</label>
+                  <label className="text-xs font-black text-gray-500 uppercase tracking-tighter ml-1">Email Address</label>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <input
                       type="email"
-                      className="w-full pl-12 pr-4 py-4 rounded-2xl bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white transition-all outline-none font-bold text-slate-900"
+                      className="w-full pl-12 pr-4 py-4 rounded-xl bg-gray-50 border-2 border-transparent focus:border-black focus:bg-white transition-all outline-none font-bold text-black"
                       placeholder="client@zoyalegal.com"
                       value={payerEmail}
                       onChange={(e) => setPayerEmail(e.target.value)}
@@ -155,7 +150,7 @@ export default function Payment() {
                   <button
                     onClick={startPayment}
                     disabled={loading || !amountInput}
-                    className="w-full bg-slate-900 text-white py-6 rounded-3xl font-black text-lg hover:bg-blue-600 transition-all transform active:scale-[0.98] shadow-2xl flex items-center justify-center group"
+                    className="w-full bg-black text-white py-6 rounded-2xl font-black text-lg hover:bg-gray-800 transition-all transform active:scale-[0.98] shadow-xl flex items-center justify-center group"
                   >
                     {loading ? (
                       <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent"></div>
@@ -179,17 +174,17 @@ export default function Payment() {
 
         {/* Right Card: Order Summary */}
         <div className="md:col-span-5 space-y-8">
-          <div className="bg-gradient-to-br from-[#1e293b] to-[#0f172a] rounded-[2.5rem] p-10 text-white shadow-3xl h-full relative overflow-hidden flex flex-col justify-between">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500 rounded-full blur-[80px] opacity-20"></div>
+          <div className="bg-black rounded-[2rem] p-10 text-white shadow-2xl h-full relative overflow-hidden flex flex-col justify-between border border-gray-800">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gray-800 rounded-full blur-[80px] opacity-20"></div>
 
             <div className="space-y-10 relative z-10">
               <header className="flex justify-between items-start">
                 <div>
-                  <h3 className="text-xl font-bold opacity-70 uppercase tracking-widest text-blue-300">Transaction Summary</h3>
-                  <p className="text-sm font-medium text-slate-400 mt-1">{preset.purpose}</p>
+                  <h3 className="text-xl font-bold opacity-70 uppercase tracking-widest text-gray-400">Transaction Summary</h3>
+                  <p className="text-sm font-medium text-gray-500 mt-1">{preset.purpose}</p>
                 </div>
-                <div className="bg-white/10 p-3 rounded-2xl">
-                  <CreditCard className="h-6 w-6 text-blue-400" />
+                <div className="bg-white/10 p-3 rounded-xl">
+                  <CreditCard className="h-6 w-6 text-gray-400" />
                 </div>
               </header>
 
@@ -215,7 +210,7 @@ export default function Payment() {
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-slate-500 font-bold">Taxes & Processing</span>
-                    <span className="text-green-400 font-bold">INCLUDED</span>
+                    <span className="text-gray-400 font-bold">INCLUDED</span>
                   </div>
                 </div>
               </div>
@@ -223,16 +218,16 @@ export default function Payment() {
 
             <div className="mt-12 pt-10 border-t border-white/5 space-y-6">
               <div className="flex items-center space-x-4">
-                <div className="h-12 w-12 rounded-2xl bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                  <ShieldCheck className="h-6 w-6 text-blue-400" />
+                <div className="h-12 w-12 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
+                  <ShieldCheck className="h-6 w-6 text-gray-400" />
                 </div>
                 <div>
                   <p className="font-bold text-sm">Secure Merchant Gateway</p>
                   <p className="text-xs text-slate-500">Your details are never stored on our servers.</p>
                 </div>
               </div>
-              <div className="flex items-center space-x-3 bg-blue-500/10 p-4 rounded-2xl border border-blue-500/20">
-                <CheckCircle2 className="h-4 w-4 text-green-400" />
+              <div className="flex items-center space-x-3 bg-white/5 p-4 rounded-xl border border-white/10">
+                <CheckCircle2 className="h-4 w-4 text-gray-400" />
                 <span className="text-[10px] font-black uppercase tracking-tughter">Verified Professional Provider</span>
               </div>
             </div>
@@ -240,7 +235,7 @@ export default function Payment() {
         </div>
       </div>
 
-      <footer className="mt-12 text-center text-[10px] font-bold text-slate-300 uppercase tracking-[0.3em]">
+      <footer className="mt-12 text-center text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em]">
         © 2025 ZoyaLegal International • Secure Payment Gateway
       </footer>
     </div>

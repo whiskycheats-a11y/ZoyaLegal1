@@ -1,9 +1,9 @@
-import React from 'react';
+
 import { Link } from 'react-router-dom';
-import { 
-  Plane, 
-  Train, 
-  Car, 
+import {
+  Plane,
+  Train,
+  Car,
   CreditCard,
   CheckCircle,
   Phone,
@@ -173,14 +173,14 @@ export default function TravelTransport() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-indigo-600 to-indigo-800 text-white py-16">
+      <section className="bg-black text-white py-20 md:py-24 border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <Plane className="h-16 w-16 mx-auto mb-6" />
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Travel & Transport Support</h1>
-            <p className="text-xl text-indigo-100 mb-2">यात्रा और परिवहन सेवाएं</p>
-            <p className="text-lg text-indigo-200 max-w-3xl mx-auto">
-              Complete travel and transport solutions including flight bookings, IRCTC services, 
+          <div className="text-center max-w-4xl mx-auto">
+            <Plane className="h-16 w-16 md:h-20 md:w-20 mx-auto mb-6 animate-bounce" />
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black mb-6 tracking-tight animate-fade-in">Travel & Transport Support</h1>
+            <p className="text-xl md:text-2xl text-gray-400 mb-4 animate-fade-in-delay">यात्रा और परिवहन सेवाएं</p>
+            <p className="text-lg md:text-xl text-gray-500 max-w-3xl mx-auto leading-relaxed animate-slide-up">
+              Complete travel and transport solutions including flight bookings, IRCTC services,
               driving license, vehicle registration, and all transport department services under one roof.
             </p>
           </div>
@@ -208,24 +208,24 @@ export default function TravelTransport() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {services.map((service, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100">
+              <div key={index} className="bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-200 group hover:border-black transform hover:-translate-y-2">
                 <div className="p-6">
                   <div className="flex items-center mb-4">
-                    <div className="p-3 bg-indigo-100 rounded-xl mr-4">
-                      <service.icon className="h-8 w-8 text-indigo-600" />
+                    <div className="p-3 bg-gray-100 rounded-xl mr-4 group-hover:bg-black group-hover:text-white transition-all duration-300">
+                      <service.icon className="h-8 w-8 text-black group-hover:text-white transition-colors" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900">{service.title}</h3>
-                      <p className="text-sm text-indigo-600 font-medium">{service.hindi}</p>
+                      <h3 className="text-lg font-black text-black">{service.title}</h3>
+                      <p className="text-sm text-gray-600 font-bold">{service.hindi}</p>
                     </div>
                   </div>
-                  
+
                   <p className="text-gray-600 mb-4 text-sm leading-relaxed">{service.description}</p>
-                  
+
                   <div className="space-y-2 mb-6">
                     {service.details.map((detail, idx) => (
                       <div key={idx} className="flex items-start text-sm text-gray-600">
-                        <CheckCircle className="h-4 w-4 text-indigo-500 mr-2 mt-0.5 flex-shrink-0" />
+                        <CheckCircle className="h-4 w-4 text-black mr-2 mt-0.5 flex-shrink-0" />
                         <span>{detail}</span>
                       </div>
                     ))}
@@ -241,16 +241,16 @@ export default function TravelTransport() {
                       ))}
                     </div>
                   </div>
-                  
+
                   <div className="border-t border-gray-100 pt-4">
                     <div className="flex justify-between items-center mb-3">
                       <div>
-                        <p className="text-sm text-gray-500">Pricing</p>
-                        <p className="text-lg font-bold text-indigo-600">{service.price}</p>
+                        <p className="text-sm text-gray-500 font-medium">Pricing</p>
+                        <p className="text-lg font-black text-black">{service.price}</p>
                       </div>
-                      <Link 
-                        to={`/payment?purpose=${encodeURIComponent(service.title)}${service.price ? `&amount=${service.price.replace(/[^0-9]/g,'')}` : ''}`}
-                        className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition-colors duration-200 flex items-center">
+                      <Link
+                        to={`/payment?purpose=${encodeURIComponent(service.title)}${service.price ? `&amount=${service.price.replace(/[^0-9]/g, '')}` : ''}`}
+                        className="bg-black text-white px-6 py-3 rounded-xl font-bold hover:bg-gray-800 transition-all duration-300 flex items-center transform hover:scale-105 group/btn">
                         <Phone className="h-4 w-4 mr-2" />
                         Pay & Book
                       </Link>
@@ -272,43 +272,26 @@ export default function TravelTransport() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="p-4 bg-indigo-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-indigo-600">1</span>
+            {[
+              { step: '1', title: 'Contact Us', desc: 'Call or visit our center with your requirements' },
+              { step: '2', title: 'Provide Details', desc: 'Share your travel details or document requirements' },
+              { step: '3', title: 'Processing', desc: 'We process your request through official channels' },
+              { step: '4', title: 'Delivery', desc: 'Receive your tickets, documents, or confirmations' }
+            ].map((item, index) => (
+              <div key={index} className="text-center group">
+                <div className="p-4 bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:bg-black transition-all duration-300">
+                  <span className="text-2xl font-black text-black group-hover:text-white transition-colors">{item.step}</span>
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">{item.title}</h3>
+                <p className="text-gray-600 text-sm">{item.desc}</p>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Contact Us</h3>
-              <p className="text-gray-600 text-sm">Call or visit our center with your requirements</p>
-            </div>
-
-            <div className="text-center">
-              <div className="p-4 bg-indigo-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-indigo-600">2</span>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Provide Details</h3>
-              <p className="text-gray-600 text-sm">Share your travel details or document requirements</p>
-            </div>
-
-            <div className="text-center">
-              <div className="p-4 bg-indigo-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-indigo-600">3</span>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Processing</h3>
-              <p className="text-gray-600 text-sm">We process your request through official channels</p>
-            </div>
-
-            <div className="text-center">
-              <div className="p-4 bg-indigo-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold text-indigo-600">4</span>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Delivery</h3>
-              <p className="text-gray-600 text-sm">Receive your tickets, documents, or confirmations</p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Benefits */}
-      <section className="py-16 bg-indigo-50">
+      <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Why Choose Our Travel Services?</h2>
@@ -316,33 +299,33 @@ export default function TravelTransport() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="p-4 bg-indigo-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Clock className="h-8 w-8 text-indigo-600" />
+            <div className="text-center group">
+              <div className="p-4 bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:bg-black transition-all duration-300">
+                <Clock className="h-8 w-8 text-black group-hover:text-white transition-colors" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Quick Processing</h3>
               <p className="text-gray-600 text-sm">Fast and efficient service for all travel needs</p>
             </div>
 
-            <div className="text-center">
-              <div className="p-4 bg-indigo-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="h-8 w-8 text-indigo-600" />
+            <div className="text-center group">
+              <div className="p-4 bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:bg-black transition-all duration-300">
+                <CheckCircle className="h-8 w-8 text-black group-hover:text-white transition-colors" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Verified Services</h3>
               <p className="text-gray-600 text-sm">All bookings through official and verified channels</p>
             </div>
 
-            <div className="text-center">
-              <div className="p-4 bg-indigo-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Phone className="h-8 w-8 text-indigo-600" />
+            <div className="text-center group">
+              <div className="p-4 bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:bg-black transition-all duration-300">
+                <Phone className="h-8 w-8 text-black group-hover:text-white transition-colors" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">24/7 Support</h3>
               <p className="text-gray-600 text-sm">Round-the-clock assistance for travel emergencies</p>
             </div>
 
-            <div className="text-center">
-              <div className="p-4 bg-indigo-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <CreditCard className="h-8 w-8 text-indigo-600" />
+            <div className="text-center group">
+              <div className="p-4 bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:bg-black transition-all duration-300">
+                <CreditCard className="h-8 w-8 text-black group-hover:text-white transition-colors" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Secure Payments</h3>
               <p className="text-gray-600 text-sm">Safe and secure payment processing for all transactions</p>
@@ -352,25 +335,25 @@ export default function TravelTransport() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-indigo-600 text-white">
+      <section className="py-16 bg-black text-white border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold mb-4">Plan Your Next Journey With Us</h2>
-          <p className="text-xl text-indigo-100 mb-8">
+          <h2 className="text-3xl md:text-4xl font-black mb-4">Plan Your Next Journey With Us</h2>
+          <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
             From flight bookings to driving licenses, we handle all your travel and transport needs
           </p>
-          <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <a 
-              href="tel:+919454950104" 
-              className="bg-white text-indigo-600 px-8 py-4 rounded-xl font-semibold hover:bg-indigo-50 transition-all duration-300 flex items-center justify-center"
+          <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+            <a
+              href="tel:+919454950104"
+              className="bg-white text-black px-8 py-4 rounded-xl font-bold hover:bg-gray-100 transition-all duration-300 flex items-center justify-center transform hover:scale-105"
             >
               <Phone className="h-5 w-5 mr-2" />
               Call: +91-9454950104
             </a>
-            <a 
-              href="https://wa.me/919454950104" 
-              target="_blank" 
+            <a
+              href="https://wa.me/919454950104"
+              target="_blank"
               rel="noopener noreferrer"
-              className="border-2 border-white text-white px-8 py-4 rounded-xl font-semibold hover:bg-white hover:text-indigo-600 transition-all duration-300"
+              className="border-2 border-white text-white px-8 py-4 rounded-xl font-bold hover:bg-white hover:text-black transition-all duration-300 flex items-center justify-center transform hover:scale-105"
             >
               WhatsApp for Booking
             </a>

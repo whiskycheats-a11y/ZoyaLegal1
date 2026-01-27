@@ -111,39 +111,39 @@ export default function Home() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white py-20">
-        <div className="absolute inset-0 bg-black/10"></div>
+      <section className="relative bg-black text-white py-24 md:py-32 border-b border-gray-800">
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-900 to-black opacity-90"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">
+          <div className="text-center max-w-4xl mx-auto">
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 tracking-tighter leading-none animate-fade-in">
               ZoyaLegal
             </h1>
-            <h2 className="text-2xl md:text-3xl font-semibold mb-4">
+            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold mb-6 text-gray-300 tracking-wide animate-fade-in-delay">
               CSC + Advocate Multi-Service Centre
             </h2>
-            <p className="text-xl md:text-2xl mb-8 text-blue-100">
+            <p className="text-lg md:text-xl lg:text-2xl mb-12 text-gray-400 max-w-3xl mx-auto leading-relaxed animate-slide-up">
               AI-Powered Legal Solutions at Your Fingertips
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-8 mb-8">
-              <div className="flex items-center text-lg">
+            <div className="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-6 mb-12 text-base md:text-lg animate-fade-in-delay">
+              <div className="flex items-center text-gray-300 font-medium">
                 <CheckCircle className="h-5 w-5 mr-2" />
                 📍 Husain Ganj, Lucknow
               </div>
-              <div className="flex items-center text-lg">
+              <div className="flex items-center text-gray-300 font-medium">
                 <CheckCircle className="h-5 w-5 mr-2" />
                 PAN India Digital Support
               </div>
             </div>
-            <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+            <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6 animate-scale-in">
               <Link
                 to="/payment"
-                className="bg-white text-blue-700 px-8 py-4 rounded-xl font-semibold hover:bg-blue-50 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                className="bg-white text-black px-10 py-5 rounded-xl font-black text-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-2xl"
               >
                 Pay Online
               </Link>
               <Link
                 to="/legal-services"
-                className="border-2 border-white text-white px-8 py-4 rounded-xl font-semibold hover:bg-white hover:text-blue-700 transition-all duration-300"
+                className="border-2 border-white text-white px-10 py-5 rounded-xl font-black text-lg hover:bg-white hover:text-black transition-all duration-300 transform hover:scale-105"
               >
                 Explore Services
               </Link>
@@ -153,18 +153,18 @@ export default function Home() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
                 <div className="flex justify-center mb-4">
-                  <div className="p-3 bg-blue-100 rounded-full">
-                    <stat.icon className="h-8 w-8 text-blue-600" />
+                  <div className="p-3 bg-gray-100 rounded-full">
+                    <stat.icon className="h-8 w-8 text-black" />
                   </div>
                 </div>
-                <div className="text-3xl font-bold text-gray-900 mb-2">{stat.number}</div>
-                <div className="text-gray-600">{stat.label}</div>
+                <div className="text-3xl font-black text-black mb-2">{stat.number}</div>
+                <div className="text-gray-600 font-semibold">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -190,14 +190,14 @@ export default function Home() {
                 to={service.link}
                 className="group bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100"
               >
-                <div className={`p-4 bg-${service.color}-100 rounded-xl w-fit mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                  <service.icon className={`h-8 w-8 text-${service.color}-600`} />
+                <div className="p-4 bg-gray-100 rounded-xl w-fit mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <service.icon className="h-8 w-8 text-black" />
                 </div>
 
-                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                <h3 className="text-xl font-bold text-black mb-2">
                   {service.title}
                 </h3>
-                <p className={`text-sm text-${service.color}-600 font-medium mb-3`}>
+                <p className="text-sm text-gray-600 font-bold mb-3">
                   {service.hindi}
                 </p>
                 <p className="text-gray-600 mb-4 text-sm leading-relaxed">
@@ -207,17 +207,17 @@ export default function Home() {
                 <div className="space-y-2 mb-4">
                   {service.features.map((feature, idx) => (
                     <div key={idx} className="flex items-center text-sm text-gray-500">
-                      <CheckCircle className="h-4 w-4 text-blue-500 mr-2 flex-shrink-0" />
+                      <CheckCircle className="h-4 w-4 text-black mr-2 flex-shrink-0" />
                       {feature}
                     </div>
                   ))}
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className={`text-${service.color}-600 font-semibold group-hover:text-${service.color}-700`}>
+                  <span className="text-black font-bold group-hover:text-gray-700">
                     Learn More
                   </span>
-                  <ArrowRight className={`h-5 w-5 text-${service.color}-600 group-hover:translate-x-1 transition-transform duration-300`} />
+                  <ArrowRight className="h-5 w-5 text-black group-hover:translate-x-1 transition-transform duration-300" />
                 </div>
               </Link>
             ))}
@@ -226,43 +226,43 @@ export default function Home() {
       </section>
 
       {/* Special Campaigns */}
-      <section className="py-16 bg-blue-600 text-white">
+      <section className="py-16 bg-gray-100 border-y border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <Megaphone className="h-12 w-12 mx-auto mb-4" />
-            <h2 className="text-3xl font-bold mb-4">Special Campaigns</h2>
-            <p className="text-xl text-blue-100">
+            <Megaphone className="h-12 w-12 mx-auto mb-4 text-black" />
+            <h2 className="text-3xl font-black mb-4 text-black">Special Campaigns</h2>
+            <p className="text-xl text-gray-600">
               Limited time offers and special initiatives for our community
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-              <h3 className="text-xl font-bold mb-3">Cyber Suraksha Week</h3>
-              <p className="text-blue-100 mb-4">
+            <div className="bg-white rounded-xl p-6 border-2 border-gray-200 hover:border-black transition-all">
+              <h3 className="text-xl font-bold mb-3 text-black">Cyber Suraksha Week</h3>
+              <p className="text-gray-600 mb-4">
                 मुफ्त साइबर सहायता - Free cyber security consultation and FIR assistance
               </p>
-              <Link to="/special-campaigns" className="text-white font-semibold hover:text-blue-200 flex items-center">
+              <Link to="/special-campaigns" className="text-black font-bold hover:text-gray-700 flex items-center">
                 Learn More <ArrowRight className="h-4 w-4 ml-2" />
               </Link>
             </div>
 
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-              <h3 className="text-xl font-bold mb-3">Startup Seva Month</h3>
-              <p className="text-blue-100 mb-4">
+            <div className="bg-white rounded-xl p-6 border-2 border-gray-200 hover:border-black transition-all">
+              <h3 className="text-xl font-bold mb-3 text-black">Startup Seva Month</h3>
+              <p className="text-gray-600 mb-4">
                 ₹1499 लीगल किट - Complete legal documentation package for startups
               </p>
-              <Link to="/special-campaigns" className="text-white font-semibold hover:text-blue-200 flex items-center">
+              <Link to="/special-campaigns" className="text-black font-bold hover:text-gray-700 flex items-center">
                 Learn More <ArrowRight className="h-4 w-4 ml-2" />
               </Link>
             </div>
 
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-              <h3 className="text-xl font-bold mb-3">Senior Citizen Will Week</h3>
-              <p className="text-blue-100 mb-4">
+            <div className="bg-white rounded-xl p-6 border-2 border-gray-200 hover:border-black transition-all">
+              <h3 className="text-xl font-bold mb-3 text-black">Senior Citizen Will Week</h3>
+              <p className="text-gray-600 mb-4">
                 वसीयत ड्राफ्टिंग - Free will drafting services for senior citizens
               </p>
-              <Link to="/special-campaigns" className="text-white font-semibold hover:text-blue-200 flex items-center">
+              <Link to="/special-campaigns" className="text-black font-bold hover:text-gray-700 flex items-center">
                 Learn More <ArrowRight className="h-4 w-4 ml-2" />
               </Link>
             </div>
@@ -271,16 +271,16 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gray-900 text-white">
+      <section className="py-20 bg-black text-white border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-bold mb-4">Ready to Get Started?</h2>
-          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+          <h2 className="text-4xl font-black mb-4">Ready to Get Started?</h2>
+          <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
             Contact us today for professional legal and CSC services. Our expert team is ready to assist you with all your needs.
           </p>
           <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
             <Link
               to="/contact"
-              className="bg-blue-600 text-white px-8 py-4 rounded-xl font-semibold hover:bg-blue-700 transition-all duration-300 transform hover:scale-105"
+              className="bg-white text-black px-8 py-4 rounded-lg font-bold hover:bg-gray-100 transition-all duration-300 transform hover:scale-105"
             >
               Contact Us Now
             </Link>
@@ -288,7 +288,7 @@ export default function Home() {
               href="https://wa.me/919454950104"
               target="_blank"
               rel="noopener noreferrer"
-              className="border-2 border-blue-600 text-blue-600 px-8 py-4 rounded-xl font-semibold hover:bg-blue-600 hover:text-white transition-all duration-300"
+              className="border-2 border-white text-white px-8 py-4 rounded-lg font-bold hover:bg-white hover:text-black transition-all duration-300"
             >
               WhatsApp Chat
             </a>

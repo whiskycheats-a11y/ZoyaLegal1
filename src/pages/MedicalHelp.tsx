@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  Heart, 
-  FileText, 
-  Shield, 
+import {
+  Heart,
+  FileText,
+  Shield,
   Users,
   CheckCircle,
   Phone,
@@ -199,17 +199,17 @@ export default function MedicalHelp() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-pink-600 to-pink-800 text-white py-16">
+      <section className="bg-black text-white py-20 md:py-24 border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <Heart className="h-16 w-16 mx-auto mb-6" />
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Medical Help Desk</h1>
-            <p className="text-xl text-pink-100 mb-2">चिकित्सा सहायता केंद्र</p>
-            <p className="text-lg text-pink-200 max-w-3xl mx-auto mb-6">
-              Comprehensive medical-legal support services including FIR assistance, insurance claims, 
+          <div className="text-center max-w-4xl mx-auto">
+            <Heart className="h-16 w-16 md:h-20 md:w-20 mx-auto mb-6 animate-bounce" />
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black mb-6 tracking-tight animate-fade-in">Medical Help Desk</h1>
+            <p className="text-xl md:text-2xl text-gray-400 mb-4 animate-fade-in-delay">चिकित्सा सहायता केंद्र</p>
+            <p className="text-lg md:text-xl text-gray-500 max-w-3xl mx-auto mb-6 leading-relaxed animate-slide-up">
+              Comprehensive medical-legal support services including FIR assistance, insurance claims,
               medical documentation, and emergency legal support for medical cases.
             </p>
-            <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 max-w-2xl mx-auto">
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 max-w-2xl mx-auto border border-gray-700">
               <p className="text-lg font-semibold">🚨 24/7 Emergency Medical Legal Support Available</p>
             </div>
           </div>
@@ -248,34 +248,34 @@ export default function MedicalHelp() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {services.map((service, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100">
+              <div key={index} className="bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-200 group hover:border-black transform hover:-translate-y-2">
                 <div className="p-6">
                   <div className="flex items-center mb-4">
-                    <div className="p-3 bg-pink-100 rounded-xl mr-4">
-                      <service.icon className="h-8 w-8 text-pink-600" />
+                    <div className="p-3 bg-gray-100 rounded-xl mr-4 group-hover:bg-black group-hover:text-white transition-all duration-300">
+                      <service.icon className="h-8 w-8 text-black group-hover:text-white transition-colors" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900">{service.title}</h3>
-                      <p className="text-sm text-pink-600 font-medium">{service.hindi}</p>
+                      <h3 className="text-lg font-black text-black">{service.title}</h3>
+                      <p className="text-sm text-gray-600 font-bold">{service.hindi}</p>
                     </div>
                   </div>
-                  
+
                   <p className="text-gray-600 mb-4 text-sm leading-relaxed">{service.description}</p>
-                  
+
                   <div className="space-y-2 mb-6">
                     {service.details.map((detail, idx) => (
                       <div key={idx} className="flex items-start text-sm text-gray-600">
-                        <CheckCircle className="h-4 w-4 text-pink-500 mr-2 mt-0.5 flex-shrink-0" />
+                        <CheckCircle className="h-4 w-4 text-black mr-2 mt-0.5 flex-shrink-0" />
                         <span>{detail}</span>
                       </div>
                     ))}
                   </div>
-                  
+
                   <div className="border-t border-gray-100 pt-4">
                     <div className="flex justify-between items-center mb-3">
                       <div>
-                        <p className="text-sm text-gray-500">Starting Price</p>
-                        <p className="text-lg font-bold text-pink-600">{service.price}</p>
+                        <p className="text-sm text-gray-500 font-medium">Starting Price</p>
+                        <p className="text-lg font-black text-black">{service.price}</p>
                       </div>
                       <div className="text-right">
                         <p className="text-sm text-gray-500">
@@ -288,10 +288,10 @@ export default function MedicalHelp() {
                         </p>
                       </div>
                     </div>
-                    
-                    <Link 
+
+                    <Link
                       to={`/payment?purpose=${encodeURIComponent(service.title)}${extractAmount(service.price) ? `&amount=${extractAmount(service.price)}` : ''}`}
-                      className="w-full bg-pink-600 text-white py-3 rounded-lg font-semibold hover:bg-pink-700 transition-colors duration-200 flex items-center justify-center">
+                      className="w-full bg-black text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-all duration-300 flex items-center justify-center transform hover:scale-105 group/btn">
                       <Phone className="h-4 w-4 mr-2" />
                       Get Help Now
                     </Link>
@@ -313,12 +313,12 @@ export default function MedicalHelp() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {claimTypes.map((claim, index) => (
-              <div key={index} className="bg-pink-50 rounded-xl p-6 border border-pink-200">
+              <div key={index} className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all">
                 <h3 className="text-lg font-bold text-gray-900 mb-3">{claim.type}</h3>
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-500">Max Coverage:</span>
-                    <span className="text-sm font-semibold text-pink-600">{claim.coverage}</span>
+                    <span className="text-sm font-black text-black">{claim.coverage}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-500">Timeline:</span>
@@ -351,8 +351,8 @@ export default function MedicalHelp() {
               { step: '4', title: 'Claim Filing', desc: 'Professional claim submission' },
               { step: '5', title: 'Follow-up', desc: 'Regular updates and resolution' }
             ].map((item, index) => (
-              <div key={index} className="text-center">
-                <div className="bg-pink-600 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg mx-auto mb-4">
+              <div key={index} className="text-center group">
+                <div className="bg-gray-100 text-black group-hover:bg-black group-hover:text-white transition-colors duration-300 w-12 h-12 rounded-full flex items-center justify-center font-black text-lg mx-auto mb-4">
                   {item.step}
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-2">{item.title}</h3>
@@ -372,33 +372,33 @@ export default function MedicalHelp() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="p-4 bg-pink-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Clock className="h-8 w-8 text-pink-600" />
+            <div className="text-center group">
+              <div className="p-4 bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:bg-black transition-all duration-300">
+                <Clock className="h-8 w-8 text-black group-hover:text-white transition-colors" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">24/7 Emergency Support</h3>
               <p className="text-gray-600 text-sm">Round-the-clock assistance for medical emergencies</p>
             </div>
 
-            <div className="text-center">
-              <div className="p-4 bg-pink-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Award className="h-8 w-8 text-pink-600" />
+            <div className="text-center group">
+              <div className="p-4 bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:bg-black transition-all duration-300">
+                <Award className="h-8 w-8 text-black group-hover:text-white transition-colors" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Medical Law Experts</h3>
               <p className="text-gray-600 text-sm">Specialized team with medical-legal expertise</p>
             </div>
 
-            <div className="text-center">
-              <div className="p-4 bg-pink-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Shield className="h-8 w-8 text-pink-600" />
+            <div className="text-center group">
+              <div className="p-4 bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:bg-black transition-all duration-300">
+                <Shield className="h-8 w-8 text-black group-hover:text-white transition-colors" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">High Success Rate</h3>
               <p className="text-gray-600 text-sm">Proven track record in medical claim settlements</p>
             </div>
 
-            <div className="text-center">
-              <div className="p-4 bg-pink-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Heart className="h-8 w-8 text-pink-600" />
+            <div className="text-center group">
+              <div className="p-4 bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:bg-black transition-all duration-300">
+                <Heart className="h-8 w-8 text-black group-hover:text-white transition-colors" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Compassionate Care</h3>
               <p className="text-gray-600 text-sm">Understanding and empathetic approach to medical cases</p>
@@ -408,25 +408,25 @@ export default function MedicalHelp() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-pink-600 text-white">
+      <section className="py-16 bg-black text-white border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold mb-4">Need Medical Legal Assistance?</h2>
-          <p className="text-xl text-pink-100 mb-8">
+          <h2 className="text-3xl md:text-4xl font-black mb-4">Need Medical Legal Assistance?</h2>
+          <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
             Our expert team is ready to help with your medical-legal needs, insurance claims, and emergency support
           </p>
-          <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <a 
-              href="tel:+919454950104" 
-              className="bg-white text-pink-600 px-8 py-4 rounded-xl font-semibold hover:bg-pink-50 transition-all duration-300 flex items-center justify-center"
+          <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+            <a
+              href="tel:+919454950104"
+              className="bg-white text-black px-8 py-4 rounded-xl font-bold hover:bg-gray-100 transition-all duration-300 flex items-center justify-center transform hover:scale-105"
             >
               <Phone className="h-5 w-5 mr-2" />
               Emergency: +91-9454950104
             </a>
-            <a 
-              href="https://wa.me/919454950104" 
-              target="_blank" 
+            <a
+              href="https://wa.me/919454950104"
+              target="_blank"
               rel="noopener noreferrer"
-              className="border-2 border-white text-white px-8 py-4 rounded-xl font-semibold hover:bg-white hover:text-pink-600 transition-all duration-300"
+              className="border-2 border-white text-white px-8 py-4 rounded-xl font-bold hover:bg-white hover:text-black transition-all duration-300 flex items-center justify-center transform hover:scale-105"
             >
               WhatsApp Support
             </a>

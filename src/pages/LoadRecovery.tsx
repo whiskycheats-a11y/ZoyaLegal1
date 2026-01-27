@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  TrendingUp, 
-  AlertTriangle, 
-  FileText, 
+import {
+  TrendingUp,
+  AlertTriangle,
+  FileText,
   Scale,
   CheckCircle,
   Phone,
@@ -194,14 +194,14 @@ export default function LoadRecovery() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-red-600 to-red-800 text-white py-16">
+      <section className="bg-black text-white py-20 md:py-24 border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <TrendingUp className="h-16 w-16 mx-auto mb-6" />
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Loan Recovery Services</h1>
-            <p className="text-xl text-red-100 mb-2">ऋण वसूली और वित्तीय विवाद समाधान</p>
-            <p className="text-lg text-red-200 max-w-3xl mx-auto">
-              Professional debt recovery and financial dispute resolution services. We help individuals and businesses 
+          <div className="text-center max-w-4xl mx-auto">
+            <TrendingUp className="h-16 w-16 md:h-20 md:w-20 mx-auto mb-6 animate-bounce" />
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black mb-6 tracking-tight animate-fade-in">Loan Recovery Services</h1>
+            <p className="text-xl md:text-2xl text-gray-400 mb-4 animate-fade-in-delay">ऋण वसूली और वित्तीय विवाद समाधान</p>
+            <p className="text-lg md:text-xl text-gray-500 max-w-3xl mx-auto leading-relaxed animate-slide-up">
+              Professional debt recovery and financial dispute resolution services. We help individuals and businesses
               recover outstanding amounts through legal and ethical means with high success rates.
             </p>
           </div>
@@ -242,34 +242,34 @@ export default function LoadRecovery() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {services.map((service, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100">
+              <div key={index} className="bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-200 group hover:border-black transform hover:-translate-y-2">
                 <div className="p-6">
                   <div className="flex items-center mb-4">
-                    <div className="p-3 bg-red-100 rounded-xl mr-4">
-                      <service.icon className="h-8 w-8 text-red-600" />
+                    <div className="p-3 bg-gray-100 rounded-xl mr-4 group-hover:bg-black group-hover:text-white transition-all duration-300">
+                      <service.icon className="h-8 w-8 text-black group-hover:text-white transition-colors" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900">{service.title}</h3>
-                      <p className="text-sm text-red-600 font-medium">{service.hindi}</p>
+                      <h3 className="text-lg font-black text-black">{service.title}</h3>
+                      <p className="text-sm text-gray-600 font-bold">{service.hindi}</p>
                     </div>
                   </div>
-                  
+
                   <p className="text-gray-600 mb-4 text-sm leading-relaxed">{service.description}</p>
-                  
+
                   <div className="space-y-2 mb-6">
                     {service.details.map((detail, idx) => (
                       <div key={idx} className="flex items-start text-sm text-gray-600">
-                        <CheckCircle className="h-4 w-4 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
+                        <CheckCircle className="h-4 w-4 text-black mr-2 mt-0.5 flex-shrink-0" />
                         <span>{detail}</span>
                       </div>
                     ))}
                   </div>
-                  
+
                   <div className="border-t border-gray-100 pt-4">
                     <div className="flex justify-between items-center mb-3">
                       <div>
-                        <p className="text-sm text-gray-500">Starting Price</p>
-                        <p className="text-lg font-bold text-red-600">{service.price}</p>
+                        <p className="text-sm text-gray-500 font-medium">Starting Price</p>
+                        <p className="text-lg font-black text-black">{service.price}</p>
                       </div>
                       <div className="text-right">
                         <p className="text-sm text-gray-500">
@@ -282,10 +282,10 @@ export default function LoadRecovery() {
                         </p>
                       </div>
                     </div>
-                    
-                    <Link 
-                      to={`/payment?purpose=${encodeURIComponent(service.title)}${service.price ? `&amount=${service.price.replace(/[^0-9]/g,'')}` : ''}`}
-                      className="w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors duration-200 flex items-center justify-center">
+
+                    <Link
+                      to={`/payment?purpose=${encodeURIComponent(service.title)}${service.price ? `&amount=${service.price.replace(/[^0-9]/g, '')}` : ''}`}
+                      className="w-full bg-black text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-all duration-300 flex items-center justify-center transform hover:scale-105 group/btn">
                       <Phone className="h-4 w-4 mr-2" />
                       Pay & Consult
                     </Link>
@@ -307,13 +307,13 @@ export default function LoadRecovery() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {recoveryTypes.map((type, index) => (
-              <div key={index} className="bg-red-50 rounded-xl p-6 border border-red-200">
+              <div key={index} className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all">
                 <h3 className="text-lg font-bold text-gray-900 mb-2">{type.type}</h3>
                 <p className="text-gray-600 text-sm mb-4">{type.description}</p>
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-500">Avg Recovery:</span>
-                    <span className="text-sm font-semibold text-red-600">{type.avgRecovery}</span>
+                    <span className="text-sm font-black text-black">{type.avgRecovery}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-500">Timeline:</span>
@@ -336,8 +336,8 @@ export default function LoadRecovery() {
 
           <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
             {process.map((item, index) => (
-              <div key={index} className="text-center">
-                <div className="bg-red-600 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg mx-auto mb-4">
+              <div key={index} className="text-center group">
+                <div className="bg-gray-100 text-black group-hover:bg-black group-hover:text-white transition-colors duration-300 w-12 h-12 rounded-full flex items-center justify-center font-black text-lg mx-auto mb-4">
                   {item.step}
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-2">{item.title}</h3>
@@ -357,33 +357,33 @@ export default function LoadRecovery() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="p-4 bg-red-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Scale className="h-8 w-8 text-red-600" />
+            <div className="text-center group">
+              <div className="p-4 bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:bg-black transition-all duration-300">
+                <Scale className="h-8 w-8 text-black group-hover:text-white transition-colors" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Legal Expertise</h3>
               <p className="text-gray-600 text-sm">Expert legal team with deep knowledge of recovery laws</p>
             </div>
 
-            <div className="text-center">
-              <div className="p-4 bg-red-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Shield className="h-8 w-8 text-red-600" />
+            <div className="text-center group">
+              <div className="p-4 bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:bg-black transition-all duration-300">
+                <Shield className="h-8 w-8 text-black group-hover:text-white transition-colors" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Ethical Approach</h3>
               <p className="text-gray-600 text-sm">Strictly legal and ethical recovery methods only</p>
             </div>
 
-            <div className="text-center">
-              <div className="p-4 bg-red-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <TrendingUp className="h-8 w-8 text-red-600" />
+            <div className="text-center group">
+              <div className="p-4 bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:bg-black transition-all duration-300">
+                <TrendingUp className="h-8 w-8 text-black group-hover:text-white transition-colors" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">High Success Rate</h3>
               <p className="text-gray-600 text-sm">Proven track record with 85% average recovery rate</p>
             </div>
 
-            <div className="text-center">
-              <div className="p-4 bg-red-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                <Clock className="h-8 w-8 text-red-600" />
+            <div className="text-center group">
+              <div className="p-4 bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 group-hover:bg-black transition-all duration-300">
+                <Clock className="h-8 w-8 text-black group-hover:text-white transition-colors" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Quick Resolution</h3>
               <p className="text-gray-600 text-sm">Fast and efficient recovery process with regular updates</p>
@@ -393,25 +393,25 @@ export default function LoadRecovery() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-red-600 text-white">
+      <section className="py-16 bg-black text-white border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold mb-4">Need Help Recovering Your Money?</h2>
-          <p className="text-xl text-red-100 mb-8">
+          <h2 className="text-3xl md:text-4xl font-black mb-4">Need Help Recovering Your Money?</h2>
+          <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
             Contact our expert recovery team for professional debt collection and dispute resolution services
           </p>
-          <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <a 
-              href="tel:+919454950104" 
-              className="bg-white text-red-600 px-8 py-4 rounded-xl font-semibold hover:bg-red-50 transition-all duration-300 flex items-center justify-center"
+          <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+            <a
+              href="tel:+919454950104"
+              className="bg-white text-black px-8 py-4 rounded-xl font-bold hover:bg-gray-100 transition-all duration-300 flex items-center justify-center transform hover:scale-105"
             >
               <Phone className="h-5 w-5 mr-2" />
               Call: +91-9454950104
             </a>
-            <a 
-              href="https://wa.me/919454950104" 
-              target="_blank" 
+            <a
+              href="https://wa.me/919454950104"
+              target="_blank"
               rel="noopener noreferrer"
-              className="border-2 border-white text-white px-8 py-4 rounded-xl font-semibold hover:bg-white hover:text-red-600 transition-all duration-300"
+              className="border-2 border-white text-white px-8 py-4 rounded-xl font-bold hover:bg-white hover:text-black transition-all duration-300 flex items-center justify-center transform hover:scale-105"
             >
               Free Consultation
             </a>

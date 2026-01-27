@@ -37,20 +37,20 @@ export default function Advocates() {
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
             {/* Hero Section */}
-            <section className="bg-gradient-to-br from-blue-700 to-blue-900 text-white py-12 md:py-16">
+            <section className="bg-black text-white py-12 md:py-16 border-b border-gray-800">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <Users className="h-12 w-12 md:h-16 md:w-16 mx-auto mb-4 md:mb-6 opacity-80 animate-pulse" />
-                    <h1 className="text-3xl md:text-5xl font-bold mb-4 tracking-tight">Our Registered Advocates</h1>
-                    <p className="text-lg md:text-xl text-blue-100 mb-8 max-w-2xl mx-auto leading-relaxed">
+                    <Users className="h-12 w-12 md:h-16 md:w-16 mx-auto mb-4 md:mb-6 opacity-80 animate-bounce" />
+                    <h1 className="text-3xl md:text-5xl font-black mb-4 tracking-tight animate-fade-in">Our Registered Advocates</h1>
+                    <p className="text-lg md:text-xl text-gray-400 mb-8 max-w-2xl mx-auto leading-relaxed animate-fade-in-delay">
                         Connect with experienced legal professionals from across India. Verified experts for all your legal needs.
                     </p>
 
                     <div className="max-w-xl mx-auto relative group">
-                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 group-focus-within:text-blue-500 transition-colors" />
+                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 group-focus-within:text-black transition-all duration-300" />
                         <input
                             type="text"
                             placeholder="Search by name or court..."
-                            className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border-2 border-transparent focus:border-blue-400 focus:ring-0 text-gray-900 shadow-2xl transition-all outline-none"
+                            className="w-full pl-12 pr-4 py-3 md:py-4 rounded-xl border-2 border-gray-700 focus:border-white bg-gray-900 focus:bg-black text-white shadow-2xl transition-all duration-300 outline-none placeholder:text-gray-500"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -62,35 +62,35 @@ export default function Advocates() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 md:mt-12">
                 {loading ? (
                     <div className="flex flex-col justify-center items-center py-20">
-                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-100 border-t-blue-600 mb-4"></div>
-                        <p className="text-gray-500 font-medium animat-pulse">Finding advocates...</p>
+                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-black mb-4"></div>
+                        <p className="text-gray-500 font-medium animate-pulse">Finding advocates...</p>
                     </div>
                 ) : filteredAdvocates.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                         {filteredAdvocates.map((advocate) => (
-                            <div key={advocate._id} className="bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 group">
-                                <div className="relative h-64 md:h-72 overflow-hidden">
+                            <div key={advocate._id} className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 border border-gray-200 group hover:border-black transform hover:-translate-y-2">
+                                <div className="relative h-64 md:h-72 overflow-hidden bg-gray-100">
                                     {advocate.photo ? (
                                         <img
                                             src={advocate.photo}
                                             alt={advocate.name}
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                                         />
                                     ) : (
-                                        <div className="w-full h-full bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center">
-                                            <Users className="h-20 w-20 text-blue-200" />
+                                        <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                                            <Users className="h-20 w-20 text-gray-400" />
                                         </div>
                                     )}
-                                    <div className="absolute top-4 right-4">
-                                        <div className="bg-white/90 backdrop-blur-md text-blue-600 px-4 py-1.5 rounded-full text-xs font-bold shadow-lg flex items-center border border-blue-50">
+                                    <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <div className="bg-black/90 backdrop-blur-md text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-lg flex items-center">
                                             <Shield className="h-3.5 w-3.5 mr-1.5" /> Verified Profile
                                         </div>
                                     </div>
                                 </div>
 
                                 <div className="p-6 md:p-8">
-                                    <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors">{advocate.name}</h3>
-                                    <div className="flex items-center text-blue-600 font-semibold text-sm mb-6">
+                                    <h3 className="text-xl md:text-2xl font-black text-black mb-1 group-hover:text-gray-700 transition-colors duration-300">{advocate.name}</h3>
+                                    <div className="flex items-center text-gray-600 font-bold text-sm mb-6">
                                         <MapPin className="h-4 w-4 mr-1.5" />
                                         {advocate.court}
                                     </div>
@@ -98,10 +98,10 @@ export default function Advocates() {
                                     <div className="space-y-4 mb-8">
                                         <a
                                             href={`tel:${advocate.phone}`}
-                                            className="flex items-center p-3 bg-gray-50 rounded-2xl text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-all group/link"
+                                            className="flex items-center justify-center border-2 border-black text-black px-6 py-3 rounded-xl font-bold hover:bg-black hover:text-white transition-all duration-300 group/btn"
                                         >
-                                            <Phone className="h-5 w-5 mr-3 text-gray-400 group-hover/link:text-blue-500 transition-colors" />
-                                            <span className="font-bold">{advocate.phone}</span>
+                                            View Profile
+                                            <ArrowRight className="h-4 w-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
                                         </a>
                                     </div>
 
@@ -117,9 +117,9 @@ export default function Advocates() {
                                         </a>
                                         <a
                                             href={`tel:${advocate.phone}`}
-                                            className="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-100 transition-all text-center flex items-center justify-center"
+                                            className="flex items-center justify-center bg-black text-white px-6 py-3 rounded-xl font-bold hover:bg-gray-800 transition-all duration-300 transform hover:scale-105 shadow-lg group/btn"
                                         >
-                                            <Phone className="w-5 h-5 mr-2" />
+                                            <Phone className="h-4 w-4 mr-2 group-hover/btn:rotate-12 transition-transform" />
                                             Call Now
                                         </a>
                                     </div>
