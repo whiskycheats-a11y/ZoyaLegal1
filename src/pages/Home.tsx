@@ -13,10 +13,13 @@ import {
   CheckCircle,
   Users,
   Award,
-  Clock
+  Clock,
+  Calendar
 } from 'lucide-react';
+import { useBlogs } from '../context/BlogContext';
 
 export default function Home() {
+  const { blogs, loading: blogsLoading } = useBlogs();
   const services = [
     {
       title: 'Legal Services',
@@ -269,6 +272,57 @@ export default function Home() {
                 Learn More <ArrowRight className="h-5 w-5 ml-2 group-hover/link:translate-x-1 transition-transform" />
               </Link>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Insights Section */}
+      <section className="py-24 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+            <div className="max-w-2xl">
+              <h2 className="text-4xl md:text-5xl font-black text-black tracking-tighter uppercase italic mb-6 leading-tight">
+                Insights & News_
+              </h2>
+              <p className="text-gray-500 text-lg font-bold leading-relaxed">
+                Stay updated with the latest legal trends, business compliance, and digital security insights from our experts.
+              </p>
+            </div>
+            <Link
+              to="/blogs"
+              className="bg-black text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-gray-800 transition-all shadow-2xl flex items-center group"
+            >
+              View All Posts
+              <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-2 transition-transform" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {blogsLoading ? (
+              [1, 2, 3].map(i => (
+                <div key={i} className="animate-pulse">
+                  <div className="aspect-video bg-gray-200 rounded-3xl mb-6"></div>
+                  <div className="h-6 bg-gray-200 rounded-full w-3/4 mb-4"></div>
+                  <div className="h-4 bg-gray-200 rounded-full w-1/4"></div>
+                </div>
+              ))
+            ) : blogs.slice(0, 3).map((blog) => (
+              <Link key={blog._id} to={`/blogs/${blog._id}`} className="group block">
+                <div className="relative aspect-video overflow-hidden rounded-3xl mb-6 bg-white border border-gray-200 shadow-sm transition-all duration-500 group-hover:shadow-2xl group-hover:border-black transform group-hover:-translate-y-2">
+                  <img
+                    src={blog.image}
+                    alt={blog.title}
+                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+                  />
+                </div>
+                <h3 className="text-xl font-black text-black group-hover:underline decoration-2 underline-offset-4 transition-all">
+                  {blog.title}
+                </h3>
+                <p className="text-gray-500 text-sm mt-2 font-bold uppercase tracking-widest flex items-center">
+                  <Calendar className="h-3 w-3 mr-1.5" /> {blog.date}
+                </p>
+              </Link>
+            ))}
           </div>
         </div>
       </section>

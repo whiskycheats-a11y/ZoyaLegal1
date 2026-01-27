@@ -1,8 +1,10 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, Phone, Mail, MapPin, Clock, MessageCircle } from 'lucide-react';
+import { Shield, Phone, MapPin, Clock, MessageCircle } from 'lucide-react';
+import { useBlogs } from '../context/BlogContext';
 
 export default function Footer() {
+  const { settings } = useBlogs();
+
   return (
     <footer className="bg-black text-white border-t border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -41,19 +43,17 @@ export default function Footer() {
             <div className="space-y-3">
               <div className="flex items-start space-x-3">
                 <MapPin className="h-5 w-5 text-gray-400 mt-0.5" />
-                <p className="text-gray-400">
-                  Guru Govind Singh Marg,<br />
-                  Safdalbagh, Lalkua,<br />
-                  Lucknow, UP-226001
+                <p className="text-gray-400 whitespace-pre-line">
+                  {settings?.address || "Guru Govind Singh Marg,\nSafdalbagh, Lalkua,\nLucknow, UP-226001"}
                 </p>
               </div>
               <div className="flex items-center space-x-3">
                 <Phone className="h-5 w-5 text-gray-400" />
-                <p className="text-gray-400">+91-9454950104</p>
+                <p className="text-gray-400">{settings?.phone || "+91-9454950104"}</p>
               </div>
               <div className="flex items-center space-x-3">
                 <MessageCircle className="h-5 w-5 text-gray-400" />
-                <p className="text-gray-400">WhatsApp Support Available</p>
+                <p className="text-gray-400">{settings?.whatsapp ? "WhatsApp Support Available" : "Support Available"}</p>
               </div>
             </div>
           </div>

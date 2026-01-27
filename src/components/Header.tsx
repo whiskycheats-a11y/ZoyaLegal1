@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Shield, Menu, X, Phone, MapPin, ChevronDown, Scale, Building2, TrendingUp, Smartphone, Globe } from 'lucide-react';
+import { useBlogs } from '../context/BlogContext';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -19,6 +20,7 @@ export default function Header() {
   const mainLinks = [
     { name: 'Home', href: '/' },
     { name: 'Advocates', href: '/advocates' },
+    { name: 'Blogs', href: '/blogs' },
     { name: 'Payment', href: '/payment' },
     { name: 'Contact', href: '/contact' },
   ];
@@ -38,6 +40,8 @@ export default function Header() {
     setIsServicesOpen(false);
   }, [location]);
 
+  const { settings } = useBlogs();
+
   return (
     <>
       {/* Top Bar */}
@@ -46,13 +50,13 @@ export default function Header() {
           <div className="flex items-center space-x-4">
             <div className="flex items-center">
               <MapPin className="h-3 w-3 md:h-4 md:w-4 mr-1 text-gray-400" />
-              <span className="opacity-90">Husain Ganj, Lucknow | PAN India Support</span>
+              <span className="opacity-90">{settings?.address || "Husain Ganj, Lucknow | PAN India Support"}</span>
             </div>
           </div>
           <div className="flex items-center space-x-4 mt-1 sm:mt-0">
             <div className="flex items-center font-bold">
               <Phone className="h-3 w-3 md:h-4 md:w-4 mr-1 text-gray-400" />
-              <span>+91-9454950104</span>
+              <span>{settings?.phone || "+91-9454950104"}</span>
             </div>
           </div>
         </div>

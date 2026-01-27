@@ -1,0 +1,209 @@
+import { useParams, Link } from 'react-router-dom';
+import { ArrowLeft, Calendar, User, Clock, Share2, Bookmark, Check } from 'lucide-react';
+import { useBlogs } from '../context/BlogContext';
+import { useEffect, useState } from 'react';
+
+export default function BlogDetail() {
+    const { id } = useParams();
+    const { blogs, loading: globalLoading } = useBlogs();
+    const post = blogs.find(p => p._id === id);
+    const [isSaved, setIsSaved] = useState(false);
+    const [showNotification, setShowNotification] = useState<{ show: boolean, message: string }>({ show: false, message: "" });
+
+    // Scroll to top and check bookmark status on mount
+    useEffect(() => {
+        window.scrollTo(0, 0);
+        const saved = localStorage.getItem(`saved_blog_${id}`);
+        setIsSaved(!!saved);
+    }, [id]);
+
+    const handleShare = async () => {
+        if (post && navigator.share) {
+            try {
+                await navigator.share({
+                    title: post.title,
+                    text: post.description,
+                    url: window.location.href,
+                });
+            } catch (err) {
+                if ((err as Error).name !== 'AbortError') {
+                    console.error("Error sharing:", err);
+                }
+            }
+        } else {
+            navigator.clipboard.writeText(window.location.href);
+            setShowNotification({ show: true, message: "Link copied to clipboard!" });
+            setTimeout(() => setShowNotification({ show: false, message: "" }), 3000);
+        }
+    };
+
+    const handleSave = () => {
+        if (isSaved) {
+            localStorage.removeItem(`saved_blog_${id}`);
+            setIsSaved(false);
+            setShowNotification({ show: true, message: "Removed from bookmarks" });
+        } else {
+            localStorage.setItem(`saved_blog_${id}`, JSON.stringify(post));
+            setIsSaved(true);
+            setShowNotification({ show: true, message: "Article saved successfully!" });
+        }
+        setTimeout(() => setShowNotification({ show: false, message: "" }), 3000);
+    };
+
+    if (globalLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-white px-4">
+                <div className="text-center">
+                    <div className="w-12 h-12 border-4 border-black border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="font-black uppercase tracking-widest text-sm text-gray-400">Loading Article...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!post) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-white px-4">
+                <div className="text-center">
+                    <h1 className="text-4xl font-black mb-4">Post Not Found</h1>
+                    <Link to="/blogs" className="text-black font-bold hover:underline">Back to Blogs</Link>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen bg-white relative">
+            {/* Notification Toast */}
+            {showNotification.show && (
+                <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-[100] bg-black text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-sm shadow-2xl flex items-center space-x-3 border-2 border-white/20 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                    <div className="bg-white/20 p-1 rounded-full">
+                        <Check className="h-4 w-4" />
+                    </div>
+                    <span>{showNotification.message}</span>
+                </div>
+            )}
+
+            {/* Header Image */}
+            <div className="relative h-[40vh] md:h-[60vh] overflow-hidden">
+                <img
+                    src={post.image}
+                    alt={post.title}
+                    className="w-full h-full object-cover grayscale"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+                <div className="absolute bottom-0 left-0 w-full p-8 md:p-16">
+                    <Link
+                        to="/blogs"
+                        className="inline-flex items-center text-white/80 hover:text-white mb-6 font-bold transition-colors group"
+                    >
+                        <ArrowLeft className="mr-2 h-5 w-5 group-hover:-translate-x-1 transition-transform" />
+                        Back to Articles
+                    </Link>
+                    <div className="max-w-4xl">
+                        <span className="bg-white text-black text-[10px] font-black tracking-widest py-1.5 px-4 rounded-full uppercase mb-4 inline-block">
+                            {post.category}
+                        </span>
+                        <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white tracking-tighter uppercase italic leading-tight mb-6">
+                            {post.title}
+                        </h1>
+                        <div className="flex flex-wrap items-center gap-6 text-sm font-bold text-white/80 uppercase tracking-widest">
+                            <div className="flex items-center">
+                                <Calendar className="h-4 w-4 mr-2" />
+                                {post.date}
+                            </div>
+                            <div className="flex items-center">
+                                <User className="h-4 w-4 mr-2" />
+                                {post.author}
+                            </div>
+                            <div className="flex items-center">
+                                <Clock className="h-4 w-4 mr-2" />
+                                {post.readTime}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Article Content */}
+            <article className="max-w-4xl mx-auto px-4 py-16 md:py-24">
+                <div className="flex justify-between items-center mb-12 border-b border-gray-100 pb-8">
+                    <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center text-white font-black text-xl shadow-lg">
+                            {post.author[0]}
+                        </div>
+                        <div>
+                            <p className="font-black text-black text-lg">{post.author}</p>
+                            <p className="text-gray-400 text-xs font-bold uppercase tracking-widest italic">Senior Contributor</p>
+                        </div>
+                    </div>
+                    <div className="flex space-x-2">
+                        <button
+                            onClick={handleShare}
+                            className="p-3 rounded-full hover:bg-gray-100 transition-colors group"
+                            title="Share Article"
+                        >
+                            <Share2 className="h-5 w-5 text-gray-400 group-hover:text-black" />
+                        </button>
+                        <button
+                            onClick={handleSave}
+                            className={`p-3 rounded-full transition-colors group ${isSaved ? 'bg-black text-white' : 'hover:bg-gray-100'}`}
+                            title={isSaved ? "Remove Bookmark" : "Save Article"}
+                        >
+                            <Bookmark className={`h-5 w-5 ${isSaved ? 'text-white' : 'text-gray-400 group-hover:text-black'}`} />
+                        </button>
+                    </div>
+                </div>
+
+                <div
+                    className="prose prose-lg max-w-none 
+             prose-headings:font-black prose-headings:uppercase prose-headings:tracking-tighter prose-headings:italic prose-headings:text-black
+             prose-p:text-gray-600 prose-p:font-bold prose-p:leading-relaxed
+             prose-strong:text-black prose-strong:font-black
+             prose-blockquote:border-l-4 prose-blockquote:border-black prose-blockquote:font-black prose-blockquote:italic prose-blockquote:text-xl prose-blockquote:bg-gray-50 prose-blockquote:py-4 prose-blockquote:px-8 prose-blockquote:rounded-r-2xl
+             prose-ul:text-gray-600 prose-ul:font-bold
+           "
+                    dangerouslySetInnerHTML={{ __html: post.content }}
+                />
+
+                {/* Action Bottom */}
+                <div className="mt-20 pt-12 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-8">
+                    <div>
+                        <h4 className="text-xl font-black text-black uppercase tracking-tighter italic mb-2">Enjoyed this article?</h4>
+                        <p className="text-gray-500 font-bold">Share your thoughts or spread the knowledge.</p>
+                    </div>
+                    <div className="flex gap-4 w-full md:w-auto">
+                        <button
+                            onClick={handleShare}
+                            className="flex-1 md:flex-none px-8 py-4 bg-black text-white rounded-xl font-black uppercase tracking-widest hover:bg-gray-800 transition-all shadow-xl shadow-gray-200 flex items-center justify-center"
+                        >
+                            <Share2 className="mr-2 h-5 w-5" />
+                            Share Article
+                        </button>
+                        <Link to="/blogs" className="flex-1 md:flex-none px-8 py-4 border-2 border-black text-black rounded-xl font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all text-center">
+                            More Insights
+                        </Link>
+                    </div>
+                </div>
+            </article>
+
+            {/* Suggested Reading */}
+            <section className="bg-gray-50 py-20 border-t border-gray-100">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 className="text-3xl font-black mb-12 text-black tracking-tighter uppercase italic underline decoration-4 underline-offset-8 decoration-gray-200">Suggested Reading_</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {blogs.filter(p => p._id !== post._id).slice(0, 3).map(p => (
+                            <Link key={p._id} to={`/blogs/${p._id}`} className="group block bg-white p-6 rounded-3xl border border-gray-100 hover:border-black transition-all shadow-sm hover:shadow-xl">
+                                <span className="text-[10px] font-black tracking-widest uppercase text-gray-400 mb-2 block">{p.category}</span>
+                                <h3 className="text-xl font-black text-black group-hover:underline decoration-2 underline-offset-4 mb-3">{p.title}</h3>
+                                <div className="flex items-center text-xs font-bold text-gray-400 uppercase tracking-widest">
+                                    <Clock className="h-3 w-3 mr-1.5" /> {p.readTime}
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            </section>
+        </div>
+    );
+}
