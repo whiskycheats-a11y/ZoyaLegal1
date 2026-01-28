@@ -54,8 +54,11 @@ const Advocate = mongoose.model('Advocate', advocateSchema);
 // Blog Schema
 const blogSchema = new mongoose.Schema({
     title: { type: String, required: true },
+    title_hi: { type: String },
     description: { type: String, required: true },
+    description_hi: { type: String },
     content: { type: String, required: true },
+    content_hi: { type: String },
     image: { type: String }, // Cloudinary URL
     category: { type: String, required: true },
     author: { type: String, required: true },

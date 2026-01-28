@@ -2,8 +2,11 @@ export interface BlogPost {
     _id?: string;
     id?: number; // for backward compatibility
     title: string;
+    title_hi?: string;
     description: string;
+    description_hi?: string;
     content: string;
+    content_hi?: string;
     image: string;
     category: string;
     author: string;

@@ -29,6 +29,8 @@ interface BlogContextType {
     deleteJudgment: (id: string) => Promise<void>;
     fetchSettings: () => Promise<void>;
     updateSettings: (settings: Partial<SiteSettings>) => Promise<void>;
+    language: 'en' | 'hi';
+    setLanguage: (lang: 'en' | 'hi') => void;
 }
 
 const BlogContext = createContext<BlogContextType | undefined>(undefined);
@@ -41,6 +43,11 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
     const [settings, setSettings] = useState<SiteSettings | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [language, setLanguage] = useState<'en' | 'hi'>((localStorage.getItem('preferredLanguage') as any) || 'en');
+
+    useEffect(() => {
+        localStorage.setItem('preferredLanguage', language);
+    }, [language]);
 
     const fetchBlogs = async () => {
         try {
@@ -277,7 +284,9 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
             fetchActs, addAct, updateAct, deleteAct,
             fetchJudgments, addJudgment, updateJudgment, deleteJudgment,
             fetchSettings,
-            updateSettings
+            updateSettings,
+            language,
+            setLanguage
         }}>
             {children}
         </BlogContext.Provider>

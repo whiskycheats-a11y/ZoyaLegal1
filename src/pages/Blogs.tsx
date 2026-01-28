@@ -4,13 +4,16 @@ import { useState } from 'react';
 import { useBlogs } from '../context/BlogContext';
 
 export default function Blogs() {
-    const { blogs, loading } = useBlogs();
+    const { blogs, loading, language, setLanguage } = useBlogs();
     const [searchTerm, setSearchTerm] = useState("");
 
-    const filteredPosts = blogs.filter(post =>
-        post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        post.category.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredPosts = blogs.filter(post => {
+        const title = language === 'en' ? post.title : (post.title_hi || post.title);
+        const description = language === 'en' ? post.description : (post.description_hi || post.description);
+        return title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            post.category.toLowerCase().includes(searchTerm.toLowerCase());
+    });
 
     return (
         <div className="min-h-screen bg-white">
@@ -30,11 +33,27 @@ export default function Blogs() {
                         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5 group-focus-within:text-white transition-all duration-300" />
                         <input
                             type="text"
-                            placeholder="Search articles, categories..."
+                            placeholder={language === 'en' ? "Search articles, categories..." : "लेख, श्रेणियां खोजें..."}
                             className="w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-900/50 border-2 border-gray-800 text-white shadow-2xl transition-all duration-300 outline-none focus:border-white focus:bg-black placeholder:text-gray-600 font-bold"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
+                    </div>
+
+                    {/* Language Switcher */}
+                    <div className="flex bg-gray-100/10 p-1.5 rounded-2xl w-fit mx-auto mt-10 border border-gray-800 backdrop-blur-sm">
+                        <button
+                            onClick={() => setLanguage('en')}
+                            className={`px-8 py-3 rounded-xl font-black uppercase text-xs tracking-widest transition-all ${language === 'en' ? 'bg-white text-black shadow-lg' : 'text-gray-400 hover:text-white'}`}
+                        >
+                            English
+                        </button>
+                        <button
+                            onClick={() => setLanguage('hi')}
+                            className={`px-8 py-3 rounded-xl font-black uppercase text-xs tracking-widest transition-all ${language === 'hi' ? 'bg-white text-black shadow-lg' : 'text-gray-400 hover:text-white'}`}
+                        >
+                            हिन्दी
+                        </button>
                     </div>
                 </div>
             </section>
@@ -81,18 +100,18 @@ export default function Blogs() {
                                         </div>
 
                                         <h2 className="text-2xl md:text-3xl font-black text-black group-hover:underline decoration-4 underline-offset-8 decoration-gray-200 transition-all">
-                                            {post.title}
+                                            {language === 'hi' && post.title_hi ? post.title_hi : post.title}
                                         </h2>
 
                                         <p className="text-gray-600 text-lg leading-relaxed font-bold">
-                                            {post.description}
+                                            {language === 'hi' && post.description_hi ? post.description_hi : post.description}
                                         </p>
 
                                         <Link
                                             to={`/blogs/${post._id}`}
                                             className="inline-flex items-center text-black font-black uppercase tracking-widest group/link transition-all"
                                         >
-                                            Read Full Article
+                                            {language === 'en' ? 'Read Full Article' : 'पूरा लेख पढ़ें'}
                                             <ArrowRight className="ml-2 h-5 w-5 group-hover/link:translate-x-2 transition-transform duration-300" />
                                         </Link>
                                     </div>

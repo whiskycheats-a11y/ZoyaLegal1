@@ -35,14 +35,18 @@ export default function Admin() {
 
     const [formData, setFormData] = useState({
         title: "",
+        title_hi: "",
         description: "",
-        content: "", // This will still hold the HTML string
+        description_hi: "",
+        content: "",
+        content_hi: "",
         image: "",
         category: "Legal Insights",
         author: "Zoya Legal Team",
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         readTime: "5 min read"
     });
+    const [editLang, setEditLang] = useState<'en' | 'hi'>('en');
 
     const [settingsData, setSettingsData] = useState({
         whatsapp: "",
@@ -81,16 +85,19 @@ export default function Admin() {
     // Update editor content when editing starts or modal opens with data
     useEffect(() => {
         if (isModalOpen && editorRef.current && !isCodeView) {
-            // Only set innerHTML if it's different to avoid cursor jumps
-            if (editorRef.current.innerHTML !== formData.content) {
-                editorRef.current.innerHTML = formData.content;
+            const currentContent = editLang === 'en' ? formData.content : formData.content_hi;
+            if (editorRef.current.innerHTML !== currentContent) {
+                editorRef.current.innerHTML = currentContent;
             }
         }
-    }, [isModalOpen, formData.content, isCodeView]);
+    }, [isModalOpen, formData.content, formData.content_hi, isCodeView, editLang]);
 
     const handleEditorChange = () => {
         if (editorRef.current) {
-            setFormData(prev => ({ ...prev, content: editorRef.current!.innerHTML }));
+            setFormData(prev => ({
+                ...prev,
+                [editLang === 'en' ? 'content' : 'content_hi']: editorRef.current?.innerHTML || ""
+            }));
         }
     };
 
@@ -141,14 +148,18 @@ export default function Admin() {
     const resetForm = () => {
         setFormData({
             title: "",
+            title_hi: "",
             description: "",
+            description_hi: "",
             content: "",
+            content_hi: "",
             image: "",
             category: "Legal Insights",
             author: "Zoya Legal Team",
             date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
             readTime: "5 min read"
         });
+        if (editorRef.current) editorRef.current.innerHTML = "";
         setActFormData({
             name: "",
             category: "Central",
@@ -168,19 +179,26 @@ export default function Admin() {
         setIsCodeView(false);
     };
 
-    const handleEdit = (blog: any) => {
+    const handleEdit = (blog: BlogPost) => {
         setFormData({
             title: blog.title,
+            title_hi: blog.title_hi || "",
             description: blog.description,
+            description_hi: blog.description_hi || "",
             content: blog.content,
+            content_hi: blog.content_hi || "",
             image: blog.image,
             category: blog.category,
             author: blog.author,
             date: blog.date,
             readTime: blog.readTime
         });
-        setEditingId(blog._id);
+        setEditingId(blog._id || "");
+        setActiveTab('blogs');
         setIsModalOpen(true);
+        setTimeout(() => {
+            if (editorRef.current) editorRef.current.innerHTML = editLang === 'en' ? blog.content : (blog.content_hi || "");
+        }, 100);
     };
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -813,14 +831,33 @@ export default function Admin() {
 
                             {(activeTab === 'blogs' || activeTab === 'advocates' || activeTab === 'settings') && (
                                 <div className="space-y-6">
+                                    <div className="flex bg-gray-100 p-1 rounded-xl w-fit">
+                                        <button
+                                            type="button"
+                                            onClick={() => setEditLang('en')}
+                                            className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${editLang === 'en' ? 'bg-black text-white' : 'text-gray-500'}`}
+                                        >
+                                            English
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setEditLang('hi')}
+                                            className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${editLang === 'hi' ? 'bg-black text-white' : 'text-gray-500'}`}
+                                        >
+                                            Hindi (हिन्दी)
+                                        </button>
+                                    </div>
+
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div>
-                                            <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Title</label>
+                                            <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
+                                                {editLang === 'en' ? 'Title' : 'Hindi Title (हिन्दी शीर्षक)'}
+                                            </label>
                                             <input
                                                 required
                                                 className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition-all font-bold"
-                                                value={formData.title}
-                                                onChange={e => setFormData({ ...formData, title: e.target.value })}
+                                                value={editLang === 'en' ? formData.title : formData.title_hi}
+                                                onChange={e => setFormData({ ...formData, [editLang === 'en' ? 'title' : 'title_hi']: e.target.value })}
                                             />
                                         </div>
                                         <div>
@@ -839,12 +876,14 @@ export default function Admin() {
                                     </div>
 
                                     <div>
-                                        <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Short Description</label>
+                                        <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">
+                                            {editLang === 'en' ? 'Short Description' : 'Hindi Short Description (हिन्दी संक्षिप्त विवरण)'}
+                                        </label>
                                         <input
                                             required
                                             className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition-all font-bold"
-                                            value={formData.description}
-                                            onChange={e => setFormData({ ...formData, description: e.target.value })}
+                                            value={editLang === 'en' ? formData.description : formData.description_hi}
+                                            onChange={e => setFormData({ ...formData, [editLang === 'en' ? 'description' : 'description_hi']: e.target.value })}
                                         />
                                     </div>
 
@@ -901,8 +940,8 @@ export default function Admin() {
                                                 required
                                                 rows={12}
                                                 className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition-all font-mono text-sm bg-gray-50"
-                                                value={formData.content}
-                                                onChange={e => setFormData({ ...formData, content: e.target.value })}
+                                                value={editLang === 'en' ? formData.content : formData.content_hi}
+                                                onChange={e => setFormData({ ...formData, [editLang === 'en' ? 'content' : 'content_hi']: e.target.value })}
                                             />
                                         )}
                                     </div>
