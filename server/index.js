@@ -42,8 +42,12 @@ console.log('---------------------------');
 
 const advocateSchema = new mongoose.Schema({
     name: { type: String, required: true },
+    name_hi: { type: String },
     phone: { type: String, required: true },
     court: { type: String, required: true },
+    post: { type: String, required: true },
+    post_hi: { type: String },
+    image: { type: String },
     barCouncilId: { type: String },
     photo: { type: String },
     createdAt: { type: Date, default: Date.now }
@@ -72,9 +76,13 @@ const Blog = mongoose.model('Blog', blogSchema);
 // Act Schema
 const actSchema = new mongoose.Schema({
     name: { type: String, required: true },
+    name_hi: { type: String },
     sections: { type: String }, // Can be a summary or specific sections
+    sections_hi: { type: String },
     category: { type: String, enum: ['Central', 'State'], default: 'Central' },
+    category_hi: { type: String },
     description: { type: String },
+    description_hi: { type: String },
     pdfUrl: { type: String },
     createdAt: { type: Date, default: Date.now }
 });
@@ -84,9 +92,13 @@ const Act = mongoose.model('Act', actSchema);
 // Judgment Schema
 const judgmentSchema = new mongoose.Schema({
     title: { type: String, required: true },
+    title_hi: { type: String },
     court: { type: String, required: true }, // e.g., Supreme Court, High Court Allahabad
+    court_hi: { type: String },
     date: { type: String },
+    date_hi: { type: String },
     simpleExplanation: { type: String },
+    simpleExplanation_hi: { type: String },
     pdfUrl: { type: String },
     createdAt: { type: Date, default: Date.now }
 });
@@ -172,44 +184,56 @@ const Settings = mongoose.model('Settings', settingsSchema);
 // Initial Blog Data for Seeding
 const INITIAL_BLOGS = [
     {
-        title: "Navigating Legal Complexities in Modern Business",
-        description: "Understanding the essential legal frameworks every startup needs to know in 2024.",
+        title: "Modern Legal Strategy for 2024",
+        title_hi: "2024 के लिए आधुनिक कानूनी रणनीति",
+        description: "Navigating the complex landscape of digital law and enterprise security in the modern age.",
+        description_hi: "आधुनिक युग में डिजिटल कानून और उद्यम सुरक्षा के जटिल परिदृश्य का प्रबंधन।",
         image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=2070&auto=format&fit=crop",
         category: "Legal Insights",
         author: "Zoya Legal Team",
         date: "Jan 25, 2024",
         readTime: "5 min read",
-        content: `<h2>The Foundation of a Global Business</h2><p>Starting a business in 2024 requires more than just a great idea. It requires a robust legal foundation that can withstand the complexities of international trade and digital compliance.</p><h3>1. Structural Compliance</h3><p>Whether you choose a LLP, Pvt Ltd, or OPC, the structural compliance remains the backbone. Understanding the pros and cons of each is crucial for long-term scalability and tax efficiency.</p><blockquote>"Complexity is the enemy of execution. Keep your legal structures clean and transparent from day one."</blockquote><h3>2. Intellectual Property Protection</h3><p>Your brand name, logo, and unique software are your biggest assets. Trademarking and patenting should not be an afterthought. In the digital age, IP theft is rampant, and legal recourse is only possible with proper registration.</p><h3>3. Contractual Clarity</h3><p>Agreement with vendors, employees, and clients must be water-tight. Ambiguity leads to litigation. Ensure your SLAs (Service Level Agreements) are precise about deliverables, timelines, and dispute resolution.</p>`
+        content: `<h2>The Foundation of a Global Business</h2><p>Starting a business in 2024 requires more than just a great idea. It requires a robust legal foundation that can withstand the complexities of international trade and digital compliance.</p><h3>1. Structural Compliance</h3><p>Whether you choose a LLP, Pvt Ltd, or OPC, the structural compliance remains the backbone. Understanding the pros and cons of each is crucial for long-term scalability and tax efficiency.</p><blockquote>"Complexity is the enemy of execution. Keep your legal structures clean and transparent from day one."</blockquote><h3>2. Intellectual Property Protection</h3><p>Your brand name, logo, and unique software are your biggest assets. Trademarking and patenting should not be an afterthought. In the digital age, IP theft is rampant, and legal recourse is only possible with proper registration.</p><h3>3. Contractual Clarity</h3><p>Agreement with vendors, employees, and clients must be water-tight. Ambiguity leads to litigation. Ensure your SLAs (Service Level Agreements) are precise about deliverables, timelines, and dispute resolution.</p>`,
+        content_hi: `<h2>ग्लोबल बिजनेस की नींव</h2><p>2024 में व्यवसाय शुरू करने के लिए सिर्फ एक अच्छे विचार से अधिक की आवश्यकता होती है। इसके लिए एक मजबूत कानूनी आधार की आवश्यकता होती है जो अंतरराष्ट्रीय व्यापार और डिजिटल अनुपालन की जटिलताओं का सामना कर सके।</p><h3>1. संरचनात्मक अनुपालन</h3><p>चाहे आप LLP, Pvt Ltd, या OPC चुनें, संरचनात्मक अनुपालन रीढ़ की हड्डी बना रहता है। प्रत्येक के पक्ष और विपक्ष को समझना दीर्घकालिक मापनीयता और कर दक्षता के लिए महत्वपूर्ण है।</p><blockquote>"जटिलता निष्पादन की दुश्मन है। अपने कानूनी ढांचे को पहले दिन से साफ और पारदर्शी रखें।"</blockquote><h3>2. बौद्धिक संपदा संरक्षण</h3><p>आपका ब्रांड नाम, लोगो और अद्वितीय सॉफ्टवेयर आपकी सबसे बड़ी संपत्ति हैं। ट्रेडमार्क और पेटेंट को बाद का विचार नहीं होना चाहिए। डिजिटल युग में, आईपी चोरी बड़े पैमाने पर है, और कानूनी सहारा केवल उचित पंजीकरण के साथ ही संभव है।</p><h3>3. संविदात्मक स्पष्टता</h3><p>विक्रेताओं, कर्मचारियों और ग्राहकों के साथ समझौता पुख्ता होना चाहिए। अस्पष्टता मुकदमों की ओर ले जाती है। सुनिश्चित करें कि आपके SLA (सेवा स्तर समझौते) वितरण योग्य वस्तुओं, समयसीमा और विवाद समाधान के बारे में सटीक हैं।</p>`
     },
     {
         title: "The Future of Digital Security & Privacy",
+        title_hi: "डिजिटल सुरक्षा और गोपनीयता का भविष्य",
         description: "How evolving technology is changing the landscape of online data protection and compliance.",
+        description_hi: "विकसित होती तकनीक कैसे ऑनलाइन डेटा सुरक्षा और अनुपालन के परिदृश्य को बदल रही है।",
         image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop",
         category: "Digital Privacy",
         author: "Tech Support Unit",
         date: "Jan 22, 2024",
         readTime: "7 min read",
-        content: `<h2>The Age of Zero Trust Architecture</h2><p>Data is the new oil, but it's also a major liability if not handled correctly. As we move deeper into 2024, the concept of "trust" is being replaced by continuous verification.</p><h3>Data Sovereignty and Compliance</h3><p>With regulations like GDPR and India's DPDP Act, businesses must know where their data resides. Non-compliance is no longer just a fine; it's a death sentence for brand reputation.</p><h3>AI in Cybersecurity</h3><p>AI is a double-edged sword. While it enables automated threat detection, it also powers sophisticated phishing attacks. Leveraging AI-driven defense mechanisms is now a necessity, not a luxury.</p><ul><li>End-to-end encryption for all internal communications.</li><li>Multi-factor authentication as a baseline requirement.</li><li>Regular third-party security audits.</li></ul>`
+        content: `<h2>The Age of Zero Trust Architecture</h2><p>Data is the new oil, but it's also a major liability if not handled correctly. As we move deeper into 2024, the concept of "trust" is being replaced by continuous verification.</p><h3>Data Sovereignty and Compliance</h3><p>With regulations like GDPR and India's DPDP Act, businesses must know where their data resides. Non-compliance is no longer just a fine; it's a death sentence for brand reputation.</p>`,
+        content_hi: `<h2>जीरो ट्रस्ट आर्किटेक्चर का युग</h2><p>डेटा नया तेल है, लेकिन अगर इसे सही तरीके से संभाला नहीं गया तो यह एक बड़ी जिम्मेदारी भी है। जैसे-जैसे हम 2024 में गहराई से आगे बढ़ रहे हैं, "विश्वास" की अवधारणा को निरंतर सत्यापन द्वारा प्रतिस्थापित किया जा रहा है।</p><h3>डेटा संप्रभुता और अनुपालन</h3><p>GDPR और भारत के DPDP अधिनियम जैसे नियमों के साथ, व्यवसायों को पता होना चाहिए कि उनका डेटा कहाँ स्थित है। गैर-अनुपालन अब केवल जुर्माना नहीं है; यह ब्रांड की प्रतिष्ठा के लिए मृत्युदंड है।</p>`
     },
     {
-        title: "Maximizing Efficiency in Business Documentation",
-        description: "Streamlining your corporate paperwork with AI-integrated CSC services.",
+        title: "Scaling Your Business with CSC Automation",
+        title_hi: "CSC ऑटोमेशन के साथ अपने व्यवसाय को बढ़ाना",
+        description: "How digital services are revolutionizing documentation and compliance for small businesses.",
+        description_hi: "डिजिटल सेवाएं छोटे व्यवसायों के लिए दस्तावेज़ीकरण और अनुपालन में कैसे क्रांति ला रही हैं।",
         image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=2070&auto=format&fit=crop",
         category: "Business Support",
         author: "Corporate Desk",
         date: "Jan 20, 2024",
         readTime: "4 min read",
-        content: `<h2>The Digital Transformation of Paperwork</h2><p>Efficiency in business is often hindered by legacy documentation processes. At ZoyaLegal, we combine human expertise with AI-driven tools to automate the mundane.</p><h3>Automated GST & ITR Filing</h3><p>Mistakes in tax filing can lead to hefty penalties. Our integrated CSC services ensure that every calculation is precise and every deadline is met automatically.</p><h3>Cloud-Based Document Vaults</h3><p>Forget physical files. Our secure digital vaults store your trade licenses, certificates, and legal deeds with instant access and high-level encryption.</p>`
+        content: `<h2>The Digital Transformation of Paperwork</h2><p>Efficiency in business is often hindered by legacy documentation processes. At ZoyaLegal, we combine human expertise with AI-driven tools to automate the mundane.</p>`,
+        content_hi: `<h2>कागजी कार्रवाई का डिजिटल परिवर्तन</h2><p>व्यापार में दक्षता अक्सर पुरानी दस्तावेज़ीकरण प्रक्रियाओं द्वारा बाधित होती है। ZoyaLegal में, हम सांसारिक कार्यों को स्वचालित करने के लिए AI-संचालित उपकरणों के साथ मानवीय विशेषज्ञता को जोड़ते हैं।</p>`
     },
     {
         title: "Startup Innovation: Beyond the Legal Basics",
+        title_hi: "स्टार्टअप इनोवेशन: कानूनी बुनियादी बातों से परे",
         description: "Finding the right balance between legal compliance and creative growth strategies.",
+        description_hi: "कानूनी अनुपालन और रचनात्मक विकास रणनीतियों के बीच सही संतुलन बनाना।",
         image: "https://images.unsplash.com/photo-1559136555-9303baea8ebd?q=80&w=2070&auto=format&fit=crop",
         category: "Innovation",
         author: "Zoya Legal Team",
         date: "Jan 18, 2024",
         readTime: "6 min read",
-        content: `<h2>Innovation Under Regulation</h2><p>Many founders fear that legal compliance will stifle their growth. However, the most successful startups use compliance as a competitive advantage.</p><h3>Regulatory Sandboxes</h3><p>Participating in regulatory sandboxes allows startups to test innovative products in a controlled environment, gaining trust from both regulators and investors early on.</p><h3>Agile Legal Strategies</h3><p>Your legal strategy should evolve as fast as your product. Regular "legal health checks" can identify potential risks before they become roadblocks to your next funding round.</p>`
+        content: `<h2>Innovation Under Regulation</h2><p>Many founders fear that legal compliance will stifle their growth. However, the most successful startups use compliance as a competitive advantage.</p><h3>Regulatory Sandboxes</h3><p>Participating in regulatory sandboxes allows startups to test innovative products in a controlled environment, gaining trust from both regulators and investors early on.</p><h3>Agile Legal Strategies</h3><p>Your legal strategy should evolve as fast as your product. Regular "legal health checks" can identify potential risks before they become roadblocks to your next funding round.</p>`,
+        content_hi: `<h2>नियमन के तहत नवाचार</h2><p>कई संस्थापकों को डर है कि कानूनी अनुपालन उनके विकास को रोक देगा। हालांकि, सबसे सफल स्टार्टअप प्रतिस्पर्धी लाभ के रूप में अनुपालन का उपयोग करते हैं।</p><h3>नियामक सैंडबॉक्स</h3><p>नियामक सैंडबॉक्स में भाग लेने से स्टार्टअप नियंत्रित वातावरण में नवीन उत्पादों का परीक्षण कर सकते हैं, जिससे नियामकों और निवेशकों दोनों का विश्वास जल्दी प्राप्त होता है।</p><h3>चपल कानूनी रणनीतियां</h3><p>आपकी कानूनी रणनीति आपके उत्पाद जितनी तेजी से विकसित होनी चाहिए। नियमित "कानूनी स्वास्थ्य जांच" आपके अगले फंडिंग दौर के लिए बाधा बनने से पहले संभावित जोखिमों की पहचान कर सकती है।</p>`
     }
 ];
 

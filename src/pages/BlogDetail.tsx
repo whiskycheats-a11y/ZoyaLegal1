@@ -17,6 +17,48 @@ export default function BlogDetail() {
         setIsSaved(!!saved);
     }, [id]);
 
+    const getTranslation = (en: string, hi: string) => language === 'hi' ? hi : en;
+
+    const translateCategory = (cat: string) => {
+        if (language === 'en') return cat;
+        const mappings: Record<string, string> = {
+            'Legal Insights': 'कानूनी अंतर्दृष्टि',
+            'Digital Privacy': 'डिजिटल गोपनीयता',
+            'Business Support': 'व्यापार सहायता',
+            'Innovation': 'नवाचार'
+        };
+        return mappings[cat] || cat;
+    };
+
+    const translateReadTime = (time: string) => {
+        if (language === 'en') return time;
+        return time.replace('min read', 'मिनट की पढ़ाई');
+    };
+
+    const translateAuthor = (author: string) => {
+        if (language === 'en') return author;
+        const mappings: Record<string, string> = {
+            'Zoya Legal Team': 'ज़ोया लीगल टीम',
+            'Tech Support Unit': 'टेक सपोर्ट यूनिट',
+            'Corporate Desk': 'कॉर्पोरेट डेस्क'
+        };
+        return mappings[author] || author;
+    };
+
+    const translateDate = (dateStr: string) => {
+        if (language === 'en') return dateStr;
+        const months: Record<string, string> = {
+            'Jan': 'जनवरी', 'Feb': 'फरवरी', 'Mar': 'मार्च', 'Apr': 'अप्रैल',
+            'May': 'मई', 'Jun': 'जून', 'Jul': 'जुलाई', 'Aug': 'अगस्त',
+            'Sep': 'सितंबर', 'Oct': 'अक्टूबर', 'Nov': 'नवंबर', 'Dec': 'दिसंबर'
+        };
+        let translated = dateStr;
+        Object.entries(months).forEach(([en, hi]) => {
+            translated = translated.replace(en, hi);
+        });
+        return translated;
+    };
+
     const handleShare = async () => {
         if (post && navigator.share) {
             try {
@@ -32,7 +74,7 @@ export default function BlogDetail() {
             }
         } else {
             navigator.clipboard.writeText(window.location.href);
-            setShowNotification({ show: true, message: "Link copied to clipboard!" });
+            setShowNotification({ show: true, message: getTranslation("Link copied to clipboard!", "लिंक क्लिपबोर्ड पर कॉपी किया गया!") });
             setTimeout(() => setShowNotification({ show: false, message: "" }), 3000);
         }
     };
@@ -41,11 +83,11 @@ export default function BlogDetail() {
         if (isSaved) {
             localStorage.removeItem(`saved_blog_${id}`);
             setIsSaved(false);
-            setShowNotification({ show: true, message: "Removed from bookmarks" });
+            setShowNotification({ show: true, message: getTranslation("Removed from bookmarks", "बुकमार्क से हटा दिया गया") });
         } else {
             localStorage.setItem(`saved_blog_${id}`, JSON.stringify(post));
             setIsSaved(true);
-            setShowNotification({ show: true, message: "Article saved successfully!" });
+            setShowNotification({ show: true, message: getTranslation("Article saved successfully!", "लेख सफलतापूर्वक सहेजा गया!") });
         }
         setTimeout(() => setShowNotification({ show: false, message: "" }), 3000);
     };
@@ -55,7 +97,7 @@ export default function BlogDetail() {
             <div className="min-h-screen flex items-center justify-center bg-white px-4">
                 <div className="text-center">
                     <div className="w-12 h-12 border-4 border-black border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="font-black uppercase tracking-widest text-sm text-gray-400">Loading Article...</p>
+                    <p className="font-black uppercase tracking-widest text-sm text-gray-400">{getTranslation('Loading Article...', 'लेख लोड हो रहा है...')}</p>
                 </div>
             </div>
         );
@@ -65,8 +107,8 @@ export default function BlogDetail() {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white px-4">
                 <div className="text-center">
-                    <h1 className="text-4xl font-black mb-4">Post Not Found</h1>
-                    <Link to="/blogs" className="text-black font-bold hover:underline">Back to Blogs</Link>
+                    <h1 className="text-4xl font-black mb-4">{getTranslation('Post Not Found', 'लेख नहीं मिला')}</h1>
+                    <Link to="/blogs" className="text-black font-bold hover:underline">{getTranslation('Back to Blogs', 'ब्लॉग पर वापस जाएं')}</Link>
                 </div>
             </div>
         );
@@ -93,131 +135,137 @@ export default function BlogDetail() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
                 <div className="absolute bottom-0 left-0 w-full p-8 md:p-16">
-                    {language === 'en' ? 'Back to Articles' : 'वापस लेखों पर'}
-                </Link>
-                <div className="max-w-4xl">
-                    <span className="bg-white text-black text-[10px] font-black tracking-widest py-1.5 px-4 rounded-full uppercase mb-4 inline-block">
-                        {post.category}
-                    </span>
-                    <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white tracking-tighter uppercase italic leading-tight mb-6">
-                        {language === 'hi' && post.title_hi ? post.title_hi : post.title}
-                    </h1>
-                    <div className="flex flex-wrap items-center gap-6 text-sm font-bold text-white/80 uppercase tracking-widest">
-                        <div className="flex items-center">
-                            <Calendar className="h-4 w-4 mr-2" />
-                            {post.date}
-                        </div>
-                        <div className="flex items-center">
-                            <User className="h-4 w-4 mr-2" />
-                            {post.author}
-                        </div>
-                        <div className="flex items-center">
-                            <Clock className="h-4 w-4 mr-2" />
-                            {post.readTime}
+                    <Link
+                        to="/blogs"
+                        className="inline-flex items-center text-white/80 hover:text-white mb-6 font-bold transition-colors group"
+                    >
+                        <ArrowLeft className="mr-2 h-5 w-5 group-hover:-translate-x-1 transition-transform" />
+                        {language === 'en' ? 'Back to Articles' : 'वापस लेखों पर'}
+                    </Link>
+                    <div className="max-w-4xl">
+                        <span className="bg-white text-black text-[10px] font-black tracking-widest py-1.5 px-4 rounded-full uppercase mb-4 inline-block">
+                            {translateCategory(post.category)}
+                        </span>
+                        <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white tracking-tighter uppercase italic leading-tight mb-6">
+                            {language === 'hi' && post.title_hi ? post.title_hi : post.title}
+                        </h1>
+                        <div className="flex flex-wrap items-center gap-6 text-sm font-bold text-white/80 uppercase tracking-widest">
+                            <div className="flex items-center">
+                                <Calendar className="h-4 w-4 mr-2" />
+                                {translateDate(post.date)}
+                            </div>
+                            <div className="flex items-center">
+                                <User className="h-4 w-4 mr-2" />
+                                {translateAuthor(post.author)}
+                            </div>
+                            <div className="flex items-center">
+                                <Clock className="h-4 w-4 mr-2" />
+                                {translateReadTime(post.readTime)}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-            {/* Article Content */ }
-    <article className="max-w-4xl mx-auto px-4 py-16 md:py-24">
-        <div className="flex justify-between items-center mb-12 border-b border-gray-100 pb-8">
-            <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center text-white font-black text-xl shadow-lg">
-                    {post.author[0]}
-                </div>
-                <div>
-                    <p className="font-black text-black text-lg">{post.author}</p>
-                    <p className="text-gray-400 text-xs font-bold uppercase tracking-widest italic">Senior Contributor</p>
-                </div>
-            </div>
-            <div className="flex space-x-2">
-                <div className="flex space-x-2 items-center">
-                    <div className="flex bg-gray-100 p-1 rounded-xl mr-2">
-                        <button
-                            onClick={() => setLanguage('en')}
-                            className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${language === 'en' ? 'bg-black text-white' : 'text-gray-400'}`}
-                        >
-                            EN
-                        </button>
-                        <button
-                            onClick={() => setLanguage('hi')}
-                            className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${language === 'hi' ? 'bg-black text-white' : 'text-gray-400'}`}
-                        >
-                            HI
-                        </button>
+            {/* Article Content */}
+            <article className="max-w-4xl mx-auto px-4 py-16 md:py-24">
+                <div className="flex justify-between items-center mb-12 border-b border-gray-100 pb-8">
+                    <div className="flex items-center space-x-4">
+                        <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center text-white font-black text-xl shadow-lg">
+                            {post.author[0]}
+                        </div>
+                        <div>
+                            <p className="font-black text-black text-lg">{translateAuthor(post.author)}</p>
+                            <p className="text-gray-400 text-xs font-bold uppercase tracking-widest italic">{getTranslation('Senior Contributor', 'वरिष्ठ योगदानकर्ता')}</p>
+                        </div>
                     </div>
-                    <button
-                        onClick={handleShare}
-                        className="p-3 rounded-full hover:bg-gray-100 transition-colors group"
-                        title="Share Article"
-                    >
-                        <Share2 className="h-5 w-5 text-gray-400 group-hover:text-black" />
-                    </button>
-                    <button
-                        onClick={handleSave}
-                        className={`p-3 rounded-full transition-colors group ${isSaved ? 'bg-black text-white' : 'hover:bg-gray-100'}`}
-                        title={isSaved ? "Remove Bookmark" : "Save Article"}
-                    >
-                        <Bookmark className={`h-5 w-5 ${isSaved ? 'text-white' : 'text-gray-400 group-hover:text-black'}`} />
-                    </button>
+                    <div className="flex space-x-2">
+                        <div className="flex space-x-2 items-center">
+                            <div className="flex bg-gray-100 p-1.5 rounded-2xl mr-4 border border-gray-200">
+                                <button
+                                    onClick={() => setLanguage('en')}
+                                    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${language === 'en' ? 'bg-black text-white shadow-lg' : 'text-gray-400 hover:text-black'}`}
+                                >
+                                    English
+                                </button>
+                                <button
+                                    onClick={() => setLanguage('hi')}
+                                    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${language === 'hi' ? 'bg-black text-white shadow-lg' : 'text-gray-400 hover:text-black'}`}
+                                >
+                                    हिन्दी
+                                </button>
+                            </div>
+                            <button
+                                onClick={handleShare}
+                                className="p-3 rounded-full hover:bg-gray-100 transition-colors group"
+                                title={getTranslation('Share Article', 'लेख साझा करें')}
+                            >
+                                <Share2 className="h-5 w-5 text-gray-400 group-hover:text-black" />
+                            </button>
+                            <button
+                                onClick={handleSave}
+                                className={`p-3 rounded-full transition-colors group ${isSaved ? 'bg-black text-white' : 'hover:bg-gray-100'}`}
+                                title={isSaved ? getTranslation("Remove Bookmark", "बुकमार्क हटाएं") : getTranslation("Save Article", "लेख सहेजें")}
+                            >
+                                <Bookmark className={`h-5 w-5 ${isSaved ? 'text-white' : 'text-gray-400 group-hover:text-black'}`} />
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <div
-                className="prose prose-lg max-w-none 
+                <div
+                    className="prose prose-lg max-w-none 
              prose-headings:font-black prose-headings:uppercase prose-headings:tracking-tighter prose-headings:italic prose-headings:text-black
              prose-p:text-gray-600 prose-p:font-bold prose-p:leading-relaxed
              prose-strong:text-black prose-strong:font-black
              prose-blockquote:border-l-4 prose-blockquote:border-black prose-blockquote:font-black prose-blockquote:italic prose-blockquote:text-xl prose-blockquote:bg-gray-50 prose-blockquote:py-4 prose-blockquote:px-8 prose-blockquote:rounded-r-2xl
              prose-ul:text-gray-600 prose-ul:font-bold
            "
-                dangerouslySetInnerHTML={{ __html: (language === 'hi' && post.content_hi) ? post.content_hi : post.content }}
-            />
+                    dangerouslySetInnerHTML={{ __html: (language === 'hi' && post.content_hi) ? post.content_hi : post.content }}
+                />
 
-            {/* Action Bottom */}
-            <div className="mt-20 pt-12 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-8">
-                <div>
-                    <h4 className="text-xl font-black text-black uppercase tracking-tighter italic mb-2">
-                        {language === 'en' ? 'Enjoyed this article?' : 'क्या आपको यह लेख पसंद आया?'}
-                    </h4>
-                    <p className="text-gray-500 font-bold">
-                        {language === 'en' ? 'Share your thoughts or spread the knowledge.' : 'अपने विचार साझा करें या ज्ञान फैलाएं।'}
-                    </p>
+                {/* Action Bottom */}
+                <div className="mt-20 pt-12 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-8">
+                    <div>
+                        <h4 className="text-xl font-black text-black uppercase tracking-tighter italic mb-2">
+                            {language === 'en' ? 'Enjoyed this article?' : 'क्या आपको यह लेख पसंद आया?'}
+                        </h4>
+                        <p className="text-gray-500 font-bold">
+                            {language === 'en' ? 'Share your thoughts or spread the knowledge.' : 'अपने विचार साझा करें या ज्ञान फैलाएं।'}
+                        </p>
+                    </div>
+                    <div className="flex gap-4 w-full md:w-auto">
+                        <button
+                            onClick={handleShare}
+                            className="flex-1 md:flex-none px-8 py-4 bg-black text-white rounded-xl font-black uppercase tracking-widest hover:bg-gray-800 transition-all shadow-xl shadow-gray-200 flex items-center justify-center"
+                        >
+                            <Share2 className="mr-2 h-5 w-5" />
+                            {language === 'en' ? 'Share Article' : 'लेख साझा करें'}
+                        </button>
+                        <Link to="/blogs" className="flex-1 md:flex-none px-8 py-4 border-2 border-black text-black rounded-xl font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all text-center">
+                            {language === 'en' ? 'More Insights' : 'अधिक जानकारी'}
+                        </Link>
+                    </div>
                 </div>
-                <div className="flex gap-4 w-full md:w-auto">
-                    <button
-                        onClick={handleShare}
-                        className="flex-1 md:flex-none px-8 py-4 bg-black text-white rounded-xl font-black uppercase tracking-widest hover:bg-gray-800 transition-all shadow-xl shadow-gray-200 flex items-center justify-center"
-                    >
-                        <Share2 className="mr-2 h-5 w-5" />
-                        {language === 'en' ? 'Share Article' : 'लेख साझा करें'}
-                    </button>
-                    <Link to="/blogs" className="flex-1 md:flex-none px-8 py-4 border-2 border-black text-black rounded-xl font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all text-center">
-                        {language === 'en' ? 'More Insights' : 'अधिक जानकारी'}
-                    </Link>
-                </div>
-            </div>
-    </article>
+            </article>
 
-    {/* Suggested Reading */ }
-    <section className="bg-gray-50 py-20 border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-black mb-12 text-black tracking-tighter uppercase italic underline decoration-4 underline-offset-8 decoration-gray-200">Suggested Reading_</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {blogs.filter(p => p._id !== post._id).slice(0, 3).map(p => (
-                    <Link key={p._id} to={`/blogs/${p._id}`} className="group block bg-white p-6 rounded-3xl border border-gray-100 hover:border-black transition-all shadow-sm hover:shadow-xl">
-                        <span className="text-[10px] font-black tracking-widest uppercase text-gray-400 mb-2 block">{p.category}</span>
-                        <h3 className="text-xl font-black text-black group-hover:underline decoration-2 underline-offset-4 mb-3">{p.title}</h3>
-                        <div className="flex items-center text-xs font-bold text-gray-400 uppercase tracking-widest">
-                            <Clock className="h-3 w-3 mr-1.5" /> {p.readTime}
-                        </div>
-                    </Link>
-                ))}
-            </div>
-        </div>
-    </section>
+            {/* Suggested Reading */}
+            <section className="bg-gray-50 py-20 border-t border-gray-100">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 className="text-3xl font-black mb-12 text-black tracking-tighter uppercase italic underline decoration-4 underline-offset-8 decoration-gray-200">{getTranslation('Suggested Reading_', 'सुझाए गए लेख_')}</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {blogs.filter(p => p._id !== post._id).slice(0, 3).map(p => (
+                            <Link key={p._id} to={`/blogs/${p._id}`} className="group block bg-white p-6 rounded-3xl border border-gray-100 hover:border-black transition-all shadow-sm hover:shadow-xl">
+                                <span className="text-[10px] font-black tracking-widest uppercase text-gray-400 mb-2 block">{translateCategory(p.category)}</span>
+                                <h3 className="text-xl font-black text-black group-hover:underline decoration-2 underline-offset-4 mb-3">{language === 'hi' && p.title_hi ? p.title_hi : p.title}</h3>
+                                <div className="flex items-center text-xs font-bold text-gray-400 uppercase tracking-widest">
+                                    <Clock className="h-3 w-3 mr-1.5" /> {translateReadTime(p.readTime)}
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            </section>
         </div >
     );
 }

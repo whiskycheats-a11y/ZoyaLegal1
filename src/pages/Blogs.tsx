@@ -7,6 +7,52 @@ export default function Blogs() {
     const { blogs, loading, language, setLanguage } = useBlogs();
     const [searchTerm, setSearchTerm] = useState("");
 
+    const getTranslation = (en: string, hi: string) => language === 'hi' ? hi : en;
+
+    const translateCategory = (cat: string) => {
+        if (language === 'en') return cat;
+        const mappings: Record<string, string> = {
+            'Legal Insights': 'कानूनी अंतर्दृष्टि',
+            'Digital Privacy': 'डिजिटल गोपनीयता',
+            'Business Support': 'व्यापार सहायता',
+            'Innovation': 'नवाचार'
+        };
+        return mappings[cat] || cat;
+    };
+
+    const translateReadTime = (time: string) => {
+        if (language === 'en') return time;
+        return time.replace('min read', 'मिनट की पढ़ाई')
+            .replace('4', '4')
+            .replace('5', '5')
+            .replace('6', '6')
+            .replace('7', '7');
+    };
+
+    const translateAuthor = (author: string) => {
+        if (language === 'en') return author;
+        const mappings: Record<string, string> = {
+            'Zoya Legal Team': 'ज़ोया लीगल टीम',
+            'Tech Support Unit': 'टेक सपोर्ट यूनिट',
+            'Corporate Desk': 'कॉर्पोरेट डेस्क'
+        };
+        return mappings[author] || author;
+    };
+
+    const translateDate = (dateStr: string) => {
+        if (language === 'en') return dateStr;
+        const months: Record<string, string> = {
+            'Jan': 'जनवरी', 'Feb': 'फरवरी', 'Mar': 'मार्च', 'Apr': 'अप्रैल',
+            'May': 'मई', 'Jun': 'जून', 'Jul': 'जुलाई', 'Aug': 'अगस्त',
+            'Sep': 'सितंबर', 'Oct': 'अक्टूबर', 'Nov': 'नवंबर', 'Dec': 'दिसंबर'
+        };
+        let translated = dateStr;
+        Object.entries(months).forEach(([en, hi]) => {
+            translated = translated.replace(en, hi);
+        });
+        return translated;
+    };
+
     const filteredPosts = blogs.filter(post => {
         const title = language === 'en' ? post.title : (post.title_hi || post.title);
         const description = language === 'en' ? post.description : (post.description_hi || post.description);
@@ -23,10 +69,10 @@ export default function Blogs() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
                     <BookOpen className="h-16 w-16 mx-auto mb-6 text-white animate-pulse" />
                     <h1 className="text-4xl md:text-6xl lg:text-7xl font-black mb-6 tracking-tighter uppercase italic">
-                        Zoya Legal<span className="text-gray-500">_Insights</span>
+                        {language === 'en' ? 'Zoya Legal' : 'ज़ोया लीगल'}<span className="text-gray-500">{language === 'en' ? '_Insights' : '_इनसाइट्स'}</span>
                     </h1>
                     <p className="text-xl md:text-2xl text-gray-400 max-w-2xl mx-auto font-bold mb-10">
-                        Expert legal analysis, digital trends, and professional advice delivered weekly.
+                        {language === 'en' ? 'Expert legal analysis, digital trends, and professional advice.' : 'विशेषज्ञ कानूनी विश्लेषण, डिजिटल रुझान और पेशेवर सलाह।'}
                     </p>
 
                     <div className="max-w-xl mx-auto relative group">
@@ -64,7 +110,7 @@ export default function Blogs() {
                     {loading ? (
                         <div className="text-center py-20">
                             <div className="w-12 h-12 border-4 border-black border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                            <p className="font-black uppercase tracking-widest text-sm text-gray-400">Loading database...</p>
+                            <p className="font-black uppercase tracking-widest text-sm text-gray-400">{getTranslation('Loading database...', 'डेटाबेस लोड हो रहा है...')}</p>
                         </div>
                     ) : filteredPosts.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
@@ -78,7 +124,7 @@ export default function Blogs() {
                                         />
                                         <div className="absolute top-4 left-4">
                                             <span className="bg-black text-white text-[10px] font-black tracking-widest py-1.5 px-4 rounded-full uppercase">
-                                                {post.category}
+                                                {translateCategory(post.category)}
                                             </span>
                                         </div>
                                     </div>
@@ -87,15 +133,15 @@ export default function Blogs() {
                                         <div className="flex items-center space-x-4 text-xs font-black text-gray-400 uppercase tracking-widest">
                                             <div className="flex items-center">
                                                 <Calendar className="h-3.5 w-3.5 mr-1.5" />
-                                                {post.date}
+                                                {translateDate(post.date)}
                                             </div>
                                             <div className="flex items-center text-black">
                                                 <User className="h-3.5 w-3.5 mr-1.5" />
-                                                {post.author}
+                                                {translateAuthor(post.author)}
                                             </div>
                                             <div className="flex items-center">
                                                 <Clock className="h-3.5 w-3.5 mr-1.5" />
-                                                {post.readTime}
+                                                {translateReadTime(post.readTime)}
                                             </div>
                                         </div>
 
@@ -121,13 +167,13 @@ export default function Blogs() {
                     ) : (
                         <div className="text-center py-20">
                             <Search className="h-20 w-20 mx-auto mb-6 text-gray-200" />
-                            <h3 className="text-2xl font-black text-black mb-2 uppercase">No articles found</h3>
-                            <p className="text-gray-500 font-bold mb-8">We couldn't find any articles matching your search.</p>
+                            <h3 className="text-2xl font-black text-black mb-2 uppercase">{getTranslation('No articles found', 'कोई लेख नहीं मिला')}</h3>
+                            <p className="text-gray-500 font-bold mb-8">{getTranslation("We couldn't find any articles matching your search.", "हमें आपकी खोज से मेल खाने वाला कोई लेख नहीं मिला।")}</p>
                             <button
                                 onClick={() => setSearchTerm("")}
                                 className="text-black font-black hover:underline underline-offset-4"
                             >
-                                Clear Search
+                                {getTranslation('Clear Search', 'खोज साफ़ करें')}
                             </button>
                         </div>
                     )}
@@ -137,14 +183,14 @@ export default function Blogs() {
             {/* Newsletter Section */}
             <section className="py-20 bg-black text-white border-t border-gray-800">
                 <div className="max-w-4xl mx-auto px-4 text-center">
-                    <h2 className="text-3xl md:text-5xl font-black mb-6 tracking-tighter uppercase italic">Stay Informed_</h2>
+                    <h2 className="text-3xl md:text-5xl font-black mb-6 tracking-tighter uppercase italic">{getTranslation('Stay Informed_', 'सूचित रहें_')}</h2>
                     <p className="text-xl text-gray-400 mb-10 font-bold">
-                        Subscribe to our newsletter for exclusive insights and legal updates.
+                        {language === 'en' ? 'Subscribe to our newsletter for exclusive insights.' : 'विशेष अंतर्दृष्टि के लिए हमारे न्यूज़लेटर की सदस्यता लें।'}
                     </p>
                     <form className="flex flex-col sm:flex-row gap-4">
                         <input
                             type="email"
-                            placeholder="Enter your email"
+                            placeholder={language === 'en' ? "Enter your email" : "अपना ईमेल दर्ज करें"}
                             className="flex-1 px-8 py-5 rounded-2xl bg-gray-900 border-2 border-gray-800 text-white outline-none focus:border-white focus:bg-black transition-all font-bold shadow-2xl"
                             required
                         />
@@ -152,7 +198,7 @@ export default function Blogs() {
                             type="submit"
                             className="px-10 py-5 bg-white text-black rounded-2xl font-black uppercase tracking-widest hover:bg-gray-100 transition-all shadow-2xl transform active:scale-95"
                         >
-                            Subscribe
+                            {language === 'en' ? 'Subscribe' : 'सब्सक्राइब करें'}
                         </button>
                     </form>
                 </div>
