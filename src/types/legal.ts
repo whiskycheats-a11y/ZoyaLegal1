@@ -26,6 +26,7 @@ export interface Act {
     name: string;
     sections: string;
     category: 'Central' | 'State';
+    description?: string;
     pdfUrl?: string;
     createdAt?: string;
 }

@@ -5,6 +5,7 @@ const actSchema = new mongoose.Schema({
     name: String,
     sections: String,
     category: String,
+    description: String,
     pdfUrl: String,
     createdAt: { type: Date, default: Date.now }
 });
@@ -26,38 +27,46 @@ async function seed() {
         await mongoose.connect(process.env.MONGODB_URI);
         console.log('Connected to MongoDB for seeding...');
 
-        // Clear existing (optional - user said "sab dalde" which usually implies wanting a fresh start or adding to it)
-        // I will add to it but avoid duplicates if possible, or just clear if it's empty.
-        const existingActs = await Act.countDocuments();
-        if (existingActs > 0) {
-            console.log('Database already has data. Skipping seeding to prevent duplicates.');
-            process.exit(0);
-        }
+        // Clear existing data for a fresh seed
+        await Act.deleteMany({});
+        await Judgment.deleteMany({});
+        console.log('Cleared existing data...');
 
         const acts = [
             {
-                name: "Indian Penal Code (IPC), 1860",
+                name: "Bharatiya Nyaya Sanhita (BNS), 2023",
                 category: "Central",
-                sections: "511 Sections",
-                pdfUrl: "https://www.indiacode.nic.in/bitstream/123456789/2263/1/A1860-45.pdf"
+                sections: "358 Sections",
+                description: "The Bharatiya Nyaya Sanhita (BNS) is the official criminal code of India, replacing the Indian Penal Code (IPC) of 1860. It streamlines offenses, introduces community service as a punishment, and modernizes the legal framework for the 21st century.\n\nKey changes include a more structured approach to crimes against women and children, redefined terrorism offenses, and the removal of sedition in its previous colonial form.",
+                pdfUrl: "https://lscontent.nic.in/LegisUpdate/A2023-45.pdf"
+            },
+            {
+                name: "Bharatiya Nagarik Suraksha Sanhita (BNSS), 2023",
+                category: "Central",
+                sections: "531 Sections",
+                description: "The Bharatiya Nagarik Suraksha Sanhita (BNSS) replaces the Code of Criminal Procedure (CrPC). It focuses on digitizing the entire trial process, from FIR registration to judgment delivery.\n\nIt mandates forensic investigation for serious crimes, introduces timelines for investigations and trials, and allows for virtual presence of witnesses and accused, significantly speeding up the justice delivery system.",
+                pdfUrl: "https://lscontent.nic.in/LegisUpdate/A2023-46.pdf"
             },
             {
                 name: "Code of Civil Procedure (CPC), 1908",
                 category: "Central",
                 sections: "158 Sections & Orders",
+                description: "The Code of Civil Procedure governs the administration of civil proceedings in India. While the criminal laws have been overhauled, CPC remains the bedrock of civil litigation, ensuring fair trials for property, contract, and commercial disputes.",
                 pdfUrl: "https://www.indiacode.nic.in/bitstream/123456789/2192/1/A1908-05.pdf"
+            },
+            {
+                name: "Bharatiya Sakshya Adhiniyam (BSA), 2023",
+                category: "Central",
+                sections: "170 Sections",
+                description: "The Bharatiya Sakshya Adhiniyam replaces the Indian Evidence Act, 1872. It expands the definition of evidence to include digital and electronic records as primary evidence.\n\nThis update ensures that the law of evidence keeps pace with technological advancements, making it easier to prosecute cybercrimes and use modern technological proofs in court.",
+                pdfUrl: "https://lscontent.nic.in/LegisUpdate/A2023-47.pdf"
             },
             {
                 name: "The Constitution of India",
                 category: "Central",
                 sections: "448 Articles, 12 Schedules",
+                description: "The supreme law of India, establishing the framework for the nation's democracy. It remains the guiding light for all legal interpretations, ensuring fundamental rights and justice for every citizen.",
                 pdfUrl: "https://legislative.gov.in/sites/default/files/COI_English.pdf"
-            },
-            {
-                name: "The Indian Evidence Act, 1872",
-                category: "Central",
-                sections: "167 Sections",
-                pdfUrl: "https://www.indiacode.nic.in/bitstream/123456789/2188/1/A1872-01.pdf"
             }
         ];
 
@@ -88,7 +97,7 @@ async function seed() {
         await Act.insertMany(acts);
         await Judgment.insertMany(judgments);
 
-        console.log('Seeding successful!');
+        console.log('Seeding successful (New Laws Updated)!');
         process.exit(0);
     } catch (err) {
         console.error('Seeding error:', err);

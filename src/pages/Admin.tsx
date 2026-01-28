@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useBlogs } from '../context/BlogContext';
-import { BlogPost, Act, Judgment, SiteSettings } from '../types/legal';
+import { Act, Judgment } from '../types/legal';
 import {
     Plus, Edit2, Trash2, X, Image as ImageIcon, Search, LayoutDashboard,
     Settings as SettingsIcon, MessageSquare, Globe, Phone, Users, Book, Scale,
@@ -22,7 +22,7 @@ export default function Admin() {
         advocates, deleteAdvocate,
         acts, addAct, updateAct, deleteAct,
         judgments, addJudgment, updateJudgment, deleteJudgment,
-        loading, settings, updateSettings, fetchSettings
+        loading, settings, updateSettings
     } = useBlogs();
     const [activeTab, setActiveTab] = useState<'blogs' | 'settings' | 'advocates' | 'acts' | 'judgments'>('blogs');
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -60,6 +60,7 @@ export default function Admin() {
         name: "",
         category: "Central" as "Central" | "State",
         sections: "",
+        description: "",
         pdfUrl: ""
     });
 
@@ -152,6 +153,7 @@ export default function Admin() {
             name: "",
             category: "Central",
             sections: "",
+            description: "",
             pdfUrl: ""
         });
         setJudgmentFormData({
@@ -197,6 +199,7 @@ export default function Admin() {
             name: act.name,
             category: act.category,
             sections: act.sections,
+            description: act.description || "",
             pdfUrl: act.pdfUrl || ""
         });
         setEditingId(act._id);
@@ -729,11 +732,21 @@ export default function Admin() {
                                     </div>
                                     <div>
                                         <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Summary / Sections</label>
-                                        <textarea
-                                            rows={4}
+                                        <input
+                                            placeholder="e.g. 511 Sections"
                                             className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition-all font-bold"
                                             value={actFormData.sections}
                                             onChange={e => setActFormData({ ...actFormData, sections: e.target.value })}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Detailed Content (for Reading)</label>
+                                        <textarea
+                                            rows={8}
+                                            placeholder="The full text or detailed summary of the act..."
+                                            className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition-all font-bold"
+                                            value={actFormData.description}
+                                            onChange={e => setActFormData({ ...actFormData, description: e.target.value })}
                                         />
                                     </div>
                                     <div>

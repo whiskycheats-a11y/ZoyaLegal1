@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Book, Scale, Download, Share2, FileText, ChevronRight } from 'lucide-react';
+import { Search, Book, Scale, Download, Share2, FileText, Eye, X } from 'lucide-react';
 import { useBlogs } from '../context/BlogContext';
 
 export default function ActsJudgments() {
@@ -8,6 +8,7 @@ export default function ActsJudgments() {
     const [searchTerm, setSearchTerm] = useState('');
     const [actCategory, setActCategory] = useState<'All' | 'Central' | 'State'>('All');
     const [courtFilter, setCourtFilter] = useState('All');
+    const [selectedItem, setSelectedItem] = useState<{ title: string, content: string, type: 'Act' | 'Judgment' } | null>(null);
 
     const filteredActs = acts.filter(act => {
         const matchesSearch = (act.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
@@ -128,9 +129,19 @@ export default function ActsJudgments() {
                                         {act.sections || "Detailed sections and legal provisions for this act."}
                                     </p>
                                     <div className="flex gap-2">
+                                        <button
+                                            onClick={() => setSelectedItem({
+                                                title: act.name,
+                                                content: act.description || "Detailed content for this act is currently being updated. Please check back soon or view the PDF for full details.",
+                                                type: 'Act'
+                                            })}
+                                            className="flex-1 bg-gray-50 text-black py-4 rounded-xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center hover:bg-black hover:text-white transition-all border border-gray-100"
+                                        >
+                                            <Eye className="h-4 w-4 mr-2" /> Read_
+                                        </button>
                                         {act.pdfUrl && (
-                                            <a href={act.pdfUrl} target="_blank" className="flex-1 bg-black text-white py-4 rounded-xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center hover:bg-gray-800 transition-all">
-                                                <Download className="h-4 w-4 mr-2" /> PDF View
+                                            <a href={act.pdfUrl} target="_blank" className="bg-black text-white px-6 rounded-xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center hover:bg-gray-800 transition-all">
+                                                <Download className="h-4 w-4" />
                                             </a>
                                         )}
                                     </div>
@@ -160,9 +171,19 @@ export default function ActsJudgments() {
                                     </div>
 
                                     <div className="flex gap-3">
+                                        <button
+                                            onClick={() => setSelectedItem({
+                                                title: j.title,
+                                                content: j.simpleExplanation,
+                                                type: 'Judgment'
+                                            })}
+                                            className="flex-1 bg-gray-50 text-black py-4 rounded-xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center hover:bg-black hover:text-white transition-all border border-gray-100"
+                                        >
+                                            <Eye className="h-3.5 w-3.5 mr-2" /> Read_
+                                        </button>
                                         {j.pdfUrl && (
-                                            <a href={j.pdfUrl} target="_blank" className="flex-1 bg-black text-white py-4 rounded-xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center hover:bg-gray-800 transition-all">
-                                                <Download className="h-3.5 w-3.5 mr-2" /> PDF
+                                            <a href={j.pdfUrl} target="_blank" className="bg-black text-white px-5 rounded-xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center hover:bg-gray-800 transition-all">
+                                                <Download className="h-3.5 w-3.5" />
                                             </a>
                                         )}
                                         <button
@@ -186,6 +207,45 @@ export default function ActsJudgments() {
                     </div>
                 )}
             </div>
+
+            {/* Reader Modal */}
+            {selectedItem && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={() => setSelectedItem(null)}></div>
+                    <div className="relative bg-white w-full max-w-4xl max-h-[90vh] rounded-[3rem] overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300">
+                        <div className="p-8 md:p-12 overflow-y-auto max-h-[90vh]">
+                            <div className="flex justify-between items-start mb-10">
+                                <div>
+                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600 mb-4 block">
+                                        Zoya Legal {selectedItem.type} Reader_
+                                    </span>
+                                    <h2 className="text-3xl md:text-5xl font-black text-black leading-none tracking-tighter uppercase italic">{selectedItem.title}</h2>
+                                </div>
+                                <button onClick={() => setSelectedItem(null)} className="p-4 bg-gray-50 rounded-2xl hover:bg-black hover:text-white transition-all group">
+                                    <X className="h-6 w-6 group-hover:rotate-90 transition-all duration-300" />
+                                </button>
+                            </div>
+
+                            <div className="prose prose-lg max-w-none">
+                                <div className="space-y-6 text-gray-700 font-medium leading-relaxed">
+                                    {selectedItem.content.split('\n').map((para, i) => (
+                                        <p key={i} className="text-lg md:text-xl">{para}</p>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="mt-12 pt-8 border-t border-gray-100 flex justify-center">
+                                <button
+                                    onClick={() => setSelectedItem(null)}
+                                    className="bg-black text-white px-12 py-5 rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:bg-gray-800 transition-all shadow-xl active:scale-95"
+                                >
+                                    Close Reader_
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
