@@ -48,6 +48,11 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         localStorage.setItem('preferredLanguage', language);
+        // Force refetch and clear cache when switching to Hindi to catch background repairs
+        if (language === 'hi') {
+            sessionStorage.removeItem('zoya_blogs_cache');
+            fetchBlogs();
+        }
     }, [language]);
 
     const fetchBlogs = async () => {

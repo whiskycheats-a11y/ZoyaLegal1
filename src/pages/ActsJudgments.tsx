@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Search, Book, Scale, Download, Share2, FileText, Eye, X } from 'lucide-react';
 import { useBlogs } from '../context/BlogContext';
+import SkeletonAct from '../components/SkeletonAct';
+import TopProgressBar from '../components/TopProgressBar';
 
 export default function ActsJudgments() {
     const { acts, judgments, loading } = useBlogs();
@@ -34,6 +36,7 @@ export default function ActsJudgments() {
 
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
+            <TopProgressBar />
             {/* Hero Section */}
             <section className="bg-black text-white py-16 md:py-24 relative overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-gray-900 to-black opacity-60"></div>
@@ -107,15 +110,15 @@ export default function ActsJudgments() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
                 {loading ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {[1, 2, 3].map(i => (
-                            <div key={i} className="h-64 bg-white rounded-3xl animate-pulse"></div>
+                        {[1, 2, 3, 4, 5, 6].map(i => (
+                            <SkeletonAct key={i} />
                         ))}
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {activeTab === 'acts' ? (
                             filteredActs.map(act => (
-                                <div key={act._id} className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm hover:shadow-xl transition-all group border-b-4 border-b-transparent hover:border-b-black">
+                                <div key={act._id} className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm hover:shadow-xl transition-all group border-b-4 border-b-transparent hover:border-b-black animate-fade-in">
                                     <div className="flex justify-between items-start mb-6">
                                         <div className="p-3 bg-gray-50 rounded-2xl group-hover:bg-black group-hover:text-white transition-all">
                                             <Book className="h-6 w-6" />
@@ -149,7 +152,7 @@ export default function ActsJudgments() {
                             ))
                         ) : (
                             filteredJudgments.map(j => (
-                                <div key={j._id} className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm hover:shadow-xl transition-all group">
+                                <div key={j._id} className="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm hover:shadow-xl transition-all group animate-fade-in">
                                     <div className="flex justify-between items-start mb-6">
                                         <div className="p-3 bg-gray-50 rounded-2xl group-hover:bg-black group-hover:text-white transition-all">
                                             <FileText className="h-6 w-6" />

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Users, Phone, MapPin, Search, ArrowRight, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import SkeletonAdvocate from '../components/SkeletonAdvocate';
+import TopProgressBar from '../components/TopProgressBar';
 
 interface Advocate {
     _id: string;
@@ -54,6 +55,7 @@ export default function Advocates() {
 
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
+            <TopProgressBar />
             {/* Hero Section */}
             <section className="bg-black text-white py-12 md:py-16 border-b border-gray-800">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -87,12 +89,13 @@ export default function Advocates() {
                 ) : filteredAdvocates.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                         {filteredAdvocates.map((advocate) => (
-                            <div key={advocate._id} className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 border border-gray-200 group hover:border-black transform hover:-translate-y-2">
+                            <div key={advocate._id} className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500 border border-gray-200 group hover:border-black transform hover:-translate-y-2 animate-fade-in">
                                 <div className="relative h-64 md:h-72 overflow-hidden bg-gray-100">
                                     {advocate.photo ? (
                                         <img
                                             src={advocate.photo}
                                             alt={advocate.name}
+                                            loading="lazy"
                                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                                         />
                                     ) : (

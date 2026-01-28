@@ -133,13 +133,13 @@ const translateBlogIfMissing = async (blogData) => {
         if (blogData[field.key] && (!blogData[field.hiKey] || blogData[field.hiKey].trim() === "")) {
             try {
                 const prompt = field.type === 'html'
-                    ? `Translate the following HTML content from English to Hindi. Keep all HTML tags, classes, and structure EXACTLY as they are. Only translate the human-readable text inside the tags:\n\n${blogData[field.key]}`
-                    : `Translate the following text from English to Hindi:\n\n${blogData[field.key]}`;
+                    ? `Translate the following HTML content from English to Hindi. Keep all HTML tags, classes, and structure EXACTLY as they are. ONLY translate the human-readable text inside the tags. Do not add any new tags or remove existing ones. The output must be valid HTML. Content:\n\n${blogData[field.key]}`
+                    : `Translate the following text from English to Hindi. Preserve the tone and meaning. Text:\n\n${blogData[field.key]}`;
 
                 const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
                     model: "openai/gpt-3.5-turbo",
                     messages: [
-                        { role: "system", content: "You are a professional Hindi translator. Preserve tone and HTML structure." },
+                        { role: "system", content: "You are a professional Hindi translator specializing in legal and technical content. You provide ONLY the translated text without any explanation." },
                         { role: "user", content: prompt }
                     ]
                 }, {
@@ -213,8 +213,22 @@ app.put('/api/blogs/:id', async (req, res) => {
     }
 });
 
+// Repair State Management
+let isRepairing = false;
+let lastRepairTime = 0;
+const REPAIR_COOLDOWN = 10 * 60 * 1000; // 10 minutes
+
 // Repair Function for missing translations
 const repairBlogData = async () => {
+    if (isRepairing) return;
+
+    // Throttle: Don't run more than once every 10 minutes unless forced
+    const now = Date.now();
+    if (now - lastRepairTime < REPAIR_COOLDOWN) return;
+
+    isRepairing = true;
+    lastRepairTime = now;
+
     try {
         const blogsToRepair = await Blog.find({
             $or: [
@@ -223,21 +237,25 @@ const repairBlogData = async () => {
                 { description_hi: { $exists: false } },
                 { description_hi: "" },
                 { content_hi: { $exists: false } },
-                { content_hi: "" }
+                { content_hi: "" },
+                // Special check for content that might be stuck in English
+                { $expr: { $eq: ["$content", "$content_hi"] } }
             ]
-        });
+        }).limit(5); // Process in small batches to avoid timeout
 
         if (blogsToRepair.length > 0) {
-            console.log(`Found ${blogsToRepair.length} blogs needing AI translation repair...`);
+            console.log(`[Backgroud] Found ${blogsToRepair.length} blogs needing AI translation repair...`);
             for (let blog of blogsToRepair) {
-                console.log(`Repairing: ${blog.title}`);
+                console.log(`[Backgroud] Repairing: ${blog.title}`);
                 const repairedData = await translateBlogIfMissing(blog.toObject());
                 await Blog.findByIdAndUpdate(blog._id, repairedData);
             }
-            console.log("Repair completed.");
+            console.log("[Backgroud] Repair completed.");
         }
     } catch (err) {
-        console.error("Repair error:", err);
+        console.error("[Backgroud] Repair error:", err);
+    } finally {
+        isRepairing = false;
     }
 };
 
@@ -324,7 +342,7 @@ const seedDB = async () => {
             console.log('Checking for missing Hindi translations in existing blogs...');
             for (const initialBlog of INITIAL_BLOGS) {
                 await Blog.updateOne(
-                    { title: initialBlog.title, title_hi: { $exists: false } },
+                    { title: initialBlog.title },
                     {
                         $set: {
                             title_hi: initialBlog.title_hi,
@@ -334,6 +352,7 @@ const seedDB = async () => {
                     }
                 );
             }
+            console.log('Seed translations verified/updated.');
         }
 
         const settingsCount = await Settings.countDocuments();

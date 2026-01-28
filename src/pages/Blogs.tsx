@@ -2,6 +2,8 @@ import { ArrowRight, Calendar, User, Clock, Search, BookOpen } from 'lucide-reac
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useBlogs } from '../context/BlogContext';
+import SkeletonBlog from '../components/SkeletonBlog';
+import TopProgressBar from '../components/TopProgressBar';
 
 export default function Blogs() {
     const { blogs, loading, language, setLanguage } = useBlogs();
@@ -63,6 +65,7 @@ export default function Blogs() {
 
     return (
         <div className="min-h-screen bg-white">
+            <TopProgressBar />
             {/* Hero Section */}
             <section className="bg-black text-white py-20 md:py-24 border-b border-gray-800 relative overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-gray-900 to-black opacity-50"></div>
@@ -108,18 +111,18 @@ export default function Blogs() {
             <section className="py-20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {loading ? (
-                        <div className="text-center py-20">
-                            <div className="w-12 h-12 border-4 border-black border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                            <p className="font-black uppercase tracking-widest text-sm text-gray-400">{getTranslation('Loading database...', 'डेटाबेस लोड हो रहा है...')}</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                            {[1, 2, 3, 4].map(i => <SkeletonBlog key={i} />)}
                         </div>
                     ) : filteredPosts.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                             {filteredPosts.map((post) => (
-                                <div key={post._id} className="group cursor-pointer">
+                                <div key={post._id} className="group cursor-pointer animate-fade-in">
                                     <div className="relative aspect-[16/10] overflow-hidden rounded-3xl mb-6 bg-gray-100 border border-gray-200 shadow-sm transition-all duration-500 group-hover:shadow-2xl group-hover:border-black transform group-hover:-translate-y-2">
                                         <img
                                             src={post.image}
                                             alt={post.title}
+                                            loading="lazy"
                                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0"
                                         />
                                         <div className="absolute top-4 left-4">

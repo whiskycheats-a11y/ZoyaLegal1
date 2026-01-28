@@ -70,4 +70,47 @@
   .hover-glow:hover {
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
   }
+
+  /* Skeleton Loading Animation */
+  @keyframes skeletonPulse {
+    0% { background-color: #f3f4f6; }
+    50% { background-color: #e5e7eb; }
+    100% { background-color: #f3f4f6; }
+  }
+
+  .animate-skeleton {
+    animation: skeletonPulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Top Progress Bar */
+  #top-progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(to right, #000, #333, #000);
+    z-index: 1000;
+    transition: width 0.3s ease-out;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #fdfdfd;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #e5e7eb;
+    border-radius: 5px;
+    border: 2px solid #fdfdfd;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #d1d5db;
+  }
 }
