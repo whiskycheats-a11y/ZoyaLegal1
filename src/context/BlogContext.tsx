@@ -29,6 +29,7 @@ interface BlogContextType {
     deleteJudgment: (id: string) => Promise<void>;
     fetchSettings: () => Promise<void>;
     updateSettings: (settings: Partial<SiteSettings>) => Promise<void>;
+    translateText: (text: string, type?: 'text' | 'html') => Promise<string>;
     language: 'en' | 'hi';
     setLanguage: (lang: 'en' | 'hi') => void;
 }
@@ -266,27 +267,26 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const translateText = async (text: string, type: 'text' | 'html' = 'text'): Promise<string> => {
+        try {
+            const response = await axios.post(`${API_URL}/api/translate`, { text, type });
+            return response.data.translation;
+        } catch (err) {
+            console.error('Translation error:', err);
+            throw new Error('Failed to translate text');
+        }
+    };
+
     return (
         <BlogContext.Provider value={{
-            blogs,
-            advocates,
-            acts,
-            judgments,
-            settings,
-            loading,
-            error,
-            fetchBlogs,
-            addBlog,
-            updateBlog,
-            deleteBlog,
-            fetchAdvocates,
-            deleteAdvocate,
+            blogs, advocates, acts, judgments, settings, loading, error,
+            fetchBlogs, addBlog, updateBlog, deleteBlog,
+            fetchAdvocates, deleteAdvocate,
             fetchActs, addAct, updateAct, deleteAct,
             fetchJudgments, addJudgment, updateJudgment, deleteJudgment,
-            fetchSettings,
-            updateSettings,
-            language,
-            setLanguage
+            fetchSettings, updateSettings,
+            translateText,
+            language, setLanguage
         }}>
             {children}
         </BlogContext.Provider>

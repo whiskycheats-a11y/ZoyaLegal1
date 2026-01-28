@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { useBlogs } from '../context/BlogContext';
-import { Act, Judgment } from '../types/legal';
+import { BlogPost, Act, Judgment } from '../types/legal';
 import {
     Plus, Edit2, Trash2, X, Image as ImageIcon, Search, LayoutDashboard,
     Settings as SettingsIcon, MessageSquare, Globe, Phone, Users, Book, Scale,
-    Bold, List, ListOrdered, Heading2, Heading3, Type, Code
+    Bold, List, ListOrdered, Heading2, Heading3, Type, Code, Sparkles, Loader2
 } from 'lucide-react';
+
 
 const EDITOR_STYLES = `
   .editor-content h2 { font-size: 1.5rem; font-weight: 900; margin-top: 1.5rem; margin-bottom: 0.5rem; }
@@ -18,17 +19,19 @@ const EDITOR_STYLES = `
 
 export default function Admin() {
     const {
-        blogs, addBlog, updateBlog, deleteBlog,
-        advocates, deleteAdvocate,
-        acts, addAct, updateAct, deleteAct,
-        judgments, addJudgment, updateJudgment, deleteJudgment,
-        loading, settings, updateSettings
+        blogs, advocates, acts, judgments, settings, loading,
+        addBlog, updateBlog, deleteBlog,
+        deleteAdvocate,
+        addAct, updateAct, deleteAct,
+        addJudgment, updateJudgment, deleteJudgment,
+        updateSettings, translateText
     } = useBlogs();
     const [activeTab, setActiveTab] = useState<'blogs' | 'settings' | 'advocates' | 'acts' | 'judgments'>('blogs');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [isCodeView, setIsCodeView] = useState(false);
+    const [isTranslating, setIsTranslating] = useState(false);
 
     // Editor Ref
     const editorRef = useRef<HTMLDivElement>(null);
@@ -62,17 +65,21 @@ export default function Admin() {
 
     const [actFormData, setActFormData] = useState({
         name: "",
+        name_hi: "",
         category: "Central" as "Central" | "State",
         sections: "",
         description: "",
+        description_hi: "",
         pdfUrl: ""
     });
 
     const [judgmentFormData, setJudgmentFormData] = useState({
         title: "",
+        title_hi: "",
         court: "",
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         simpleExplanation: "",
+        simpleExplanation_hi: "",
         pdfUrl: ""
     });
 
@@ -98,6 +105,41 @@ export default function Admin() {
                 ...prev,
                 [editLang === 'en' ? 'content' : 'content_hi']: editorRef.current?.innerHTML || ""
             }));
+        }
+    };
+
+    const handleTranslate = async () => {
+        if (!formData.title && !formData.description && !formData.content) {
+            alert("Please enter title, description or content in English first.");
+            return;
+        }
+
+        setIsTranslating(true);
+        try {
+            const [titleHi, descHi, contentHi] = await Promise.all([
+                formData.title ? translateText(formData.title) : Promise.resolve(""),
+                formData.description ? translateText(formData.description) : Promise.resolve(""),
+                formData.content ? translateText(formData.content, 'html') : Promise.resolve("")
+            ]);
+
+            setFormData(prev => ({
+                ...prev,
+                title_hi: titleHi,
+                description_hi: descHi,
+                content_hi: contentHi
+            }));
+
+            // If we are currently on Hindi tab, update editor content
+            if (editLang === 'hi' && editorRef.current) {
+                editorRef.current.innerHTML = contentHi;
+            }
+
+            alert("Translated successfully! Switch to Hindi to review.");
+        } catch (err) {
+            console.error("Translation fail:", err);
+            alert("Translation failed. Please check your internet or try again.");
+        } finally {
+            setIsTranslating(false);
         }
     };
 
@@ -162,16 +204,20 @@ export default function Admin() {
         if (editorRef.current) editorRef.current.innerHTML = "";
         setActFormData({
             name: "",
+            name_hi: "",
             category: "Central",
             sections: "",
             description: "",
+            description_hi: "",
             pdfUrl: ""
         });
         setJudgmentFormData({
             title: "",
+            title_hi: "",
             court: "",
             date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
             simpleExplanation: "",
+            simpleExplanation_hi: "",
             pdfUrl: ""
         });
         setEditingId(null);
@@ -180,20 +226,20 @@ export default function Admin() {
     };
 
     const handleEdit = (blog: BlogPost) => {
+        setEditingId(blog._id || null);
         setFormData({
             title: blog.title,
-            title_hi: blog.title_hi || "",
+            title_hi: blog.title_hi || '',
             description: blog.description,
-            description_hi: blog.description_hi || "",
-            content: blog.content,
-            content_hi: blog.content_hi || "",
-            image: blog.image,
+            description_hi: blog.description_hi || '',
             category: blog.category,
             author: blog.author,
             date: blog.date,
-            readTime: blog.readTime
+            readTime: blog.readTime,
+            image: blog.image,
+            content: blog.content,
+            content_hi: blog.content_hi || ''
         });
-        setEditingId(blog._id || "");
         setActiveTab('blogs');
         setIsModalOpen(true);
         setTimeout(() => {
@@ -213,26 +259,32 @@ export default function Admin() {
     };
 
     const handleEditAct = (act: Act) => {
+        setEditingId(act._id || null);
         setActFormData({
             name: act.name,
+            name_hi: act.name_hi || '',
+            sections: act.sections || '',
             category: act.category,
-            sections: act.sections,
-            description: act.description || "",
-            pdfUrl: act.pdfUrl || ""
+            description: act.description || '',
+            description_hi: act.description_hi || '',
+            pdfUrl: act.pdfUrl || ''
         });
-        setEditingId(act._id);
+        setActiveTab('acts');
         setIsModalOpen(true);
     };
 
-    const handleEditJudgment = (j: Judgment) => {
+    const handleEditJudgment = (judgment: Judgment) => {
+        setEditingId(judgment._id || null);
         setJudgmentFormData({
-            title: j.title,
-            court: j.court,
-            date: j.date,
-            simpleExplanation: j.simpleExplanation,
-            pdfUrl: j.pdfUrl || ""
+            title: judgment.title,
+            title_hi: judgment.title_hi || '',
+            court: judgment.court,
+            date: judgment.date,
+            simpleExplanation: judgment.simpleExplanation,
+            simpleExplanation_hi: judgment.simpleExplanation_hi || '',
+            pdfUrl: judgment.pdfUrl || ''
         });
-        setEditingId(j._id);
+        setActiveTab('judgments');
         setIsModalOpen(true);
     };
 
@@ -454,7 +506,7 @@ export default function Admin() {
                                                     <button
                                                         onClick={() => {
                                                             if (window.confirm("Are you sure you want to delete this advocate?")) {
-                                                                deleteAdvocate(adv._id);
+                                                                deleteAdvocate(adv._id!);
                                                             }
                                                         }}
                                                         className="p-3 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-all shadow-sm"
@@ -831,20 +883,36 @@ export default function Admin() {
 
                             {(activeTab === 'blogs' || activeTab === 'advocates' || activeTab === 'settings') && (
                                 <div className="space-y-6">
-                                    <div className="flex bg-gray-100 p-1 rounded-xl w-fit">
+                                    <div className="flex flex-wrap items-center gap-4">
+                                        <div className="flex bg-gray-100 p-1 rounded-xl w-fit">
+                                            <button
+                                                type="button"
+                                                onClick={() => setEditLang('en')}
+                                                className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${editLang === 'en' ? 'bg-black text-white' : 'text-gray-50'}`}
+                                            >
+                                                English
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setEditLang('hi')}
+                                                className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${editLang === 'hi' ? 'bg-black text-white' : 'text-gray-500'}`}
+                                            >
+                                                Hindi (हिन्दी)
+                                            </button>
+                                        </div>
+
                                         <button
                                             type="button"
-                                            onClick={() => setEditLang('en')}
-                                            className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${editLang === 'en' ? 'bg-black text-white' : 'text-gray-500'}`}
+                                            onClick={handleTranslate}
+                                            disabled={isTranslating}
+                                            className="flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:grayscale"
                                         >
-                                            English
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => setEditLang('hi')}
-                                            className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${editLang === 'hi' ? 'bg-black text-white' : 'text-gray-500'}`}
-                                        >
-                                            Hindi (हिन्दी)
+                                            {isTranslating ? (
+                                                <Loader2 className="h-3 w-3 animate-spin" />
+                                            ) : (
+                                                <Sparkles className="h-3 w-3" />
+                                            )}
+                                            <span>{isTranslating ? "Translating..." : "Magic Translate (AI)"}</span>
                                         </button>
                                     </div>
 

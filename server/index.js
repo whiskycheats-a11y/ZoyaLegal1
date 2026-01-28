@@ -38,6 +38,7 @@ console.log('CLOUDINARY_CLOUD_NAME:', process.env.CLOUDINARY_CLOUD_NAME || 'MISS
 console.log('CLOUDINARY_API_KEY:', process.env.CLOUDINARY_API_KEY ? 'SET (Ends in ' + process.env.CLOUDINARY_API_KEY.slice(-4) + ')' : 'MISSING');
 console.log('CLOUDINARY_API_SECRET:', process.env.CLOUDINARY_API_SECRET ? 'SET (Length: ' + process.env.CLOUDINARY_API_SECRET.length + ')' : 'MISSING');
 console.log('CLOUDINARY_URL:', process.env.CLOUDINARY_URL ? 'SET' : 'NOT SET');
+console.log('OPENROUTER_API_KEY:', process.env.OPENROUTER_API_KEY ? 'SET' : 'MISSING');
 console.log('---------------------------');
 
 const advocateSchema = new mongoose.Schema({
@@ -113,10 +114,55 @@ app.get('/api/blogs', async (req, res) => {
     try {
         const blogs = await Blog.find().sort({ createdAt: -1 });
         res.json(blogs);
+        // Silent background repair for missing translations
+        repairBlogData();
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
 });
+
+// Helper to translate blog fields if missing
+const translateBlogIfMissing = async (blogData) => {
+    const fieldsToTranslate = [
+        { key: 'title', hiKey: 'title_hi', type: 'text' },
+        { key: 'description', hiKey: 'description_hi', type: 'text' },
+        { key: 'content', hiKey: 'content_hi', type: 'html' }
+    ];
+
+    for (const field of fieldsToTranslate) {
+        if (blogData[field.key] && (!blogData[field.hiKey] || blogData[field.hiKey].trim() === "")) {
+            try {
+                const prompt = field.type === 'html'
+                    ? `Translate the following HTML content from English to Hindi. Keep all HTML tags, classes, and structure EXACTLY as they are. Only translate the human-readable text inside the tags:\n\n${blogData[field.key]}`
+                    : `Translate the following text from English to Hindi:\n\n${blogData[field.key]}`;
+
+                const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
+                    model: "openai/gpt-3.5-turbo",
+                    messages: [
+                        { role: "system", content: "You are a professional Hindi translator. Preserve tone and HTML structure." },
+                        { role: "user", content: prompt }
+                    ]
+                }, {
+                    headers: {
+                        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                        'HTTP-Referer': 'http://localhost:5173',
+                        'X-Title': 'ZoyaLegal Auto Translator',
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (response.data.choices && response.data.choices[0]) {
+                    blogData[field.hiKey] = response.data.choices[0].message.content.trim();
+                    console.log(`Auto-translated ${field.key} successfully.`);
+                }
+            } catch (err) {
+                console.error(`Auto-translation fallback failed for ${field.key}:`, err.message);
+            }
+        }
+    }
+    return blogData;
+};
+
 
 // Create new blog with Cloudinary Upload
 app.post('/api/blogs', async (req, res) => {
@@ -131,11 +177,10 @@ app.post('/api/blogs', async (req, res) => {
             imageUrl = uploadResponse.secure_url;
         }
 
-        const blog = new Blog({
-            ...req.body,
-            image: imageUrl
-        });
+        // Auto-translate if Hindi fields are empty
+        const blogData = await translateBlogIfMissing({ ...req.body, image: imageUrl });
 
+        const blog = new Blog(blogData);
         const newBlog = await blog.save();
         res.status(201).json(newBlog);
     } catch (err) {
@@ -155,9 +200,11 @@ app.put('/api/blogs/:id', async (req, res) => {
             imageUrl = uploadResponse.secure_url;
         }
 
+        const blogData = await translateBlogIfMissing({ ...req.body, image: imageUrl });
+
         const updatedBlog = await Blog.findByIdAndUpdate(
             req.params.id,
-            { ...req.body, image: imageUrl },
+            blogData,
             { new: true }
         );
         res.json(updatedBlog);
@@ -165,6 +212,34 @@ app.put('/api/blogs/:id', async (req, res) => {
         res.status(400).json({ message: err.message });
     }
 });
+
+// Repair Function for missing translations
+const repairBlogData = async () => {
+    try {
+        const blogsToRepair = await Blog.find({
+            $or: [
+                { title_hi: { $exists: false } },
+                { title_hi: "" },
+                { description_hi: { $exists: false } },
+                { description_hi: "" },
+                { content_hi: { $exists: false } },
+                { content_hi: "" }
+            ]
+        });
+
+        if (blogsToRepair.length > 0) {
+            console.log(`Found ${blogsToRepair.length} blogs needing AI translation repair...`);
+            for (let blog of blogsToRepair) {
+                console.log(`Repairing: ${blog.title}`);
+                const repairedData = await translateBlogIfMissing(blog.toObject());
+                await Blog.findByIdAndUpdate(blog._id, repairedData);
+            }
+            console.log("Repair completed.");
+        }
+    } catch (err) {
+        console.error("Repair error:", err);
+    }
+};
 
 // Settings Schema
 const settingsSchema = new mongoose.Schema({
@@ -239,16 +314,38 @@ const INITIAL_BLOGS = [
 
 // Seeding Function
 const seedDB = async () => {
-    const blogCount = await Blog.countDocuments();
-    if (blogCount === 0) {
-        console.log('Seeding initial blogs...');
-        await Blog.insertMany(INITIAL_BLOGS);
-    }
+    try {
+        const blogCount = await Blog.countDocuments();
+        if (blogCount === 0) {
+            console.log('Seeding initial blogs...');
+            await Blog.insertMany(INITIAL_BLOGS);
+        } else {
+            // Update existing blogs with Hindi content if missing
+            console.log('Checking for missing Hindi translations in existing blogs...');
+            for (const initialBlog of INITIAL_BLOGS) {
+                await Blog.updateOne(
+                    { title: initialBlog.title, title_hi: { $exists: false } },
+                    {
+                        $set: {
+                            title_hi: initialBlog.title_hi,
+                            description_hi: initialBlog.description_hi,
+                            content_hi: initialBlog.content_hi
+                        }
+                    }
+                );
+            }
+        }
 
-    const settingsCount = await Settings.countDocuments();
-    if (settingsCount === 0) {
-        console.log('Seeding default settings...');
-        await new Settings({}).save();
+        const settingsCount = await Settings.countDocuments();
+        if (settingsCount === 0) {
+            console.log('Seeding default settings...');
+            await new Settings({}).save();
+        }
+
+        // Repair any blogs missing Hindi translations
+        await repairBlogData();
+    } catch (err) {
+        console.error('Seed error:', err);
     }
 };
 
@@ -362,6 +459,46 @@ app.post('/api/chat', async (req, res) => {
             console.error('Message:', err.message);
         }
         res.status(500).json({ message: 'AI failed to respond. Please try again later.' });
+    }
+});
+
+// AI Translate Endpoint
+app.post('/api/translate', async (req, res) => {
+    const { text, type } = req.body; // type: 'text' or 'html'
+
+    if (!text) return res.status(400).json({ message: 'Text is required' });
+
+    try {
+        const prompt = type === 'html'
+            ? `Translate the following HTML content from English to Hindi. Keep all HTML tags, classes, and structure EXACTLY as they are. Only translate the human-readable text inside the tags:\n\n${text}`
+            : `Translate the following text from English to Hindi:\n\n${text}`;
+
+        const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
+            model: "openai/gpt-3.5-turbo",
+            messages: [
+                {
+                    role: "system",
+                    content: "You are a professional translator specialized in English to Hindi legal and technical translations. Preserve the tone and formatting of the original source."
+                },
+                {
+                    role: "user",
+                    content: prompt
+                }
+            ]
+        }, {
+            headers: {
+                'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                'HTTP-Referer': 'http://localhost:5173',
+                'X-Title': 'ZoyaLegal AI Translator',
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const translatedText = response.data.choices[0].message.content.trim();
+        res.json({ translation: translatedText });
+    } catch (err) {
+        console.error('Translation error:', err.message);
+        res.status(500).json({ message: 'Translation failed' });
     }
 });
 

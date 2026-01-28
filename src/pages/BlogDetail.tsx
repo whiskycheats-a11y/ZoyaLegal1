@@ -214,14 +214,8 @@ export default function BlogDetail() {
                 </div>
 
                 <div
-                    className="prose prose-lg max-w-none 
-             prose-headings:font-black prose-headings:uppercase prose-headings:tracking-tighter prose-headings:italic prose-headings:text-black
-             prose-p:text-gray-600 prose-p:font-bold prose-p:leading-relaxed
-             prose-strong:text-black prose-strong:font-black
-             prose-blockquote:border-l-4 prose-blockquote:border-black prose-blockquote:font-black prose-blockquote:italic prose-blockquote:text-xl prose-blockquote:bg-gray-50 prose-blockquote:py-4 prose-blockquote:px-8 prose-blockquote:rounded-r-2xl
-             prose-ul:text-gray-600 prose-ul:font-bold
-           "
-                    dangerouslySetInnerHTML={{ __html: (language === 'hi' && post.content_hi) ? post.content_hi : post.content }}
+                    className="prose prose-lg max-w-none text-gray-700 leading-relaxed font-bold editor-content"
+                    dangerouslySetInnerHTML={{ __html: (language === 'hi' && post.content_hi && post.content_hi.trim() !== "") ? post.content_hi : post.content }}
                 />
 
                 {/* Action Bottom */}
