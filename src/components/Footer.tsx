@@ -81,8 +81,13 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-8 pt-8 text-center">
-          <p className="text-gray-400">
+        <div className="border-t border-gray-800 mt-8 pt-8 text-center space-y-4">
+          <div className="max-w-4xl mx-auto px-4">
+            <p className="text-[10px] md:text-xs text-gray-500 leading-relaxed uppercase tracking-tighter">
+              <span className="font-bold text-gray-400">Disclaimer:</span> ZOYA LEGAL & BUSINESS SERVICES provides legal and allied services. The content available on this website is for general informational purposes only and does not constitute legal advice. Any legal guidance is case-specific and based solely on the facts and documents provided by the client. As per the rules of the Bar Council of India, this firm does not solicit or advertise legal services. By accessing this website, you acknowledge that you are doing so voluntarily to seek information and that there has been no solicitation, invitation, or inducement of any kind by the firm.
+            </p>
+          </div>
+          <p className="text-gray-400 text-sm">
             © 2025 ZoyaLegal - CSC + Advocate Multi-Service Centre. All rights reserved.
           </p>
         </div>

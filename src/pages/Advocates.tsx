@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Users, Phone, MapPin, Search, ArrowRight, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import SkeletonAdvocate from '../components/SkeletonAdvocate';
 
 interface Advocate {
     _id: string;
@@ -16,11 +17,28 @@ export default function Advocates() {
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
+        // Try to load from cache first for instant UI
+        const cachedData = sessionStorage.getItem('zoya_advocates_cache');
+        if (cachedData) {
+            try {
+                setAdvocates(JSON.parse(cachedData));
+                setLoading(false);
+            } catch (e) {
+                console.error('Cache parse error:', e);
+            }
+        }
+
         const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
         fetch(`${API_BASE_URL}/api/advocates`)
             .then(res => res.json())
             .then(data => {
-                setAdvocates(data);
+                // Optimize image URLs with Cloudinary transformations
+                const optimizedData = data.map((adv: Advocate) => ({
+                    ...adv,
+                    photo: adv.photo ? adv.photo.replace('/upload/', '/upload/q_auto,f_auto,w_500,c_fill,g_face/') : adv.photo
+                }));
+                setAdvocates(optimizedData);
+                sessionStorage.setItem('zoya_advocates_cache', JSON.stringify(optimizedData));
                 setLoading(false);
             })
             .catch(err => {
@@ -60,10 +78,11 @@ export default function Advocates() {
 
             {/* Advocates Grid */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 md:mt-12">
-                {loading ? (
-                    <div className="flex flex-col justify-center items-center py-20">
-                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-black mb-4"></div>
-                        <p className="text-gray-500 font-medium animate-pulse">Finding advocates...</p>
+                {loading && filteredAdvocates.length === 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                        {[1, 2, 3, 4, 5, 6].map((n) => (
+                            <SkeletonAdvocate key={n} />
+                        ))}
                     </div>
                 ) : filteredAdvocates.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">

@@ -20,6 +20,7 @@ import BlogDetail from './pages/BlogDetail';
 import Admin from './pages/Admin';
 import AIChatbot from './components/AIChatbot';
 import LegalDisclaimer from './components/LegalDisclaimer';
+import ActsJudgments from './pages/ActsJudgments';
 import { BlogProvider } from './context/BlogContext';
 
 function App() {
@@ -44,6 +45,7 @@ function App() {
               <Route path="/payment" element={<Payment />} />
               <Route path="/advocates" element={<Advocates />} />
               <Route path="/advocate-registration" element={<AdvocateRegistration />} />
+              <Route path="/acts-judgments" element={<ActsJudgments />} />
               <Route path="/blogs" element={<Blogs />} />
               <Route path="/blogs/:id" element={<BlogDetail />} />
               <Route path="/admin" element={<Admin />} />

@@ -66,6 +66,30 @@ const blogSchema = new mongoose.Schema({
 
 const Blog = mongoose.model('Blog', blogSchema);
 
+// Act Schema
+const actSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    sections: { type: String }, // Can be a summary or specific sections
+    category: { type: String, enum: ['Central', 'State'], default: 'Central' },
+    description: { type: String },
+    pdfUrl: { type: String },
+    createdAt: { type: Date, default: Date.now }
+});
+
+const Act = mongoose.model('Act', actSchema);
+
+// Judgment Schema
+const judgmentSchema = new mongoose.Schema({
+    title: { type: String, required: true },
+    court: { type: String, required: true }, // e.g., Supreme Court, High Court Allahabad
+    date: { type: String },
+    simpleExplanation: { type: String },
+    pdfUrl: { type: String },
+    createdAt: { type: Date, default: Date.now }
+});
+
+const Judgment = mongoose.model('Judgment', judgmentSchema);
+
 // API Endpoints
 // --- Blogs ---
 
@@ -319,6 +343,92 @@ app.get('/api/advocates', async (req, res) => {
     try {
         const advocates = await Advocate.find().sort({ createdAt: -1 });
         res.json(advocates);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// Delete an advocate
+app.delete('/api/advocates/:id', async (req, res) => {
+    try {
+        await Advocate.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Advocate deleted' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// --- Acts ---
+app.get('/api/acts', async (req, res) => {
+    try {
+        const acts = await Act.find().sort({ createdAt: -1 });
+        res.json(acts);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+app.post('/api/acts', async (req, res) => {
+    try {
+        const act = new Act(req.body);
+        const newAct = await act.save();
+        res.status(201).json(newAct);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+});
+
+app.put('/api/acts/:id', async (req, res) => {
+    try {
+        const updatedAct = await Act.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.json(updatedAct);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+});
+
+app.delete('/api/acts/:id', async (req, res) => {
+    try {
+        await Act.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Act deleted' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// --- Judgments ---
+app.get('/api/judgments', async (req, res) => {
+    try {
+        const judgments = await Judgment.find().sort({ createdAt: -1 });
+        res.json(judgments);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+app.post('/api/judgments', async (req, res) => {
+    try {
+        const judgment = new Judgment(req.body);
+        const newJudgment = await judgment.save();
+        res.status(201).json(newJudgment);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+});
+
+app.put('/api/judgments/:id', async (req, res) => {
+    try {
+        const updatedJudgment = await Judgment.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.json(updatedJudgment);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+});
+
+app.delete('/api/judgments/:id', async (req, res) => {
+    try {
+        await Judgment.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Judgment deleted' });
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

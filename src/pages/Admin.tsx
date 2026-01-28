@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useBlogs } from '../context/BlogContext';
+import { BlogPost, Act, Judgment, SiteSettings } from '../types/legal';
 import {
     Plus, Edit2, Trash2, X, Image as ImageIcon, Search, LayoutDashboard,
-    Settings as SettingsIcon, MessageSquare, Globe, Phone,
+    Settings as SettingsIcon, MessageSquare, Globe, Phone, Users, Book, Scale,
     Bold, List, ListOrdered, Heading2, Heading3, Type, Code
 } from 'lucide-react';
 
@@ -16,8 +17,14 @@ const EDITOR_STYLES = `
 `;
 
 export default function Admin() {
-    const { blogs, addBlog, updateBlog, deleteBlog, loading, settings, updateSettings } = useBlogs();
-    const [activeTab, setActiveTab] = useState<'blogs' | 'settings'>('blogs');
+    const {
+        blogs, addBlog, updateBlog, deleteBlog,
+        advocates, deleteAdvocate,
+        acts, addAct, updateAct, deleteAct,
+        judgments, addJudgment, updateJudgment, deleteJudgment,
+        loading, settings, updateSettings, fetchSettings
+    } = useBlogs();
+    const [activeTab, setActiveTab] = useState<'blogs' | 'settings' | 'advocates' | 'acts' | 'judgments'>('blogs');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
@@ -47,6 +54,21 @@ export default function Admin() {
             twitter: "",
             facebook: ""
         }
+    });
+
+    const [actFormData, setActFormData] = useState({
+        name: "",
+        category: "Central" as "Central" | "State",
+        sections: "",
+        pdfUrl: ""
+    });
+
+    const [judgmentFormData, setJudgmentFormData] = useState({
+        title: "",
+        court: "",
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        simpleExplanation: "",
+        pdfUrl: ""
     });
 
     useEffect(() => {
@@ -79,14 +101,29 @@ export default function Admin() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            if (editingId) {
-                await updateBlog(editingId, formData);
-            } else {
-                await addBlog(formData);
+            if (activeTab === 'blogs') {
+                if (editingId) {
+                    await updateBlog(editingId, formData);
+                } else {
+                    await addBlog(formData);
+                }
+            } else if (activeTab === 'acts') {
+                if (editingId) {
+                    await updateAct(editingId, actFormData);
+                } else {
+                    await addAct(actFormData);
+                }
+            } else if (activeTab === 'judgments') {
+                if (editingId) {
+                    await updateJudgment(editingId, judgmentFormData);
+                } else {
+                    await addJudgment(judgmentFormData);
+                }
             }
             resetForm();
         } catch (err) {
-            alert("Error saving post");
+            console.error("Submit error:", err);
+            alert("Error saving data");
         }
     };
 
@@ -110,6 +147,19 @@ export default function Admin() {
             author: "Zoya Legal Team",
             date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
             readTime: "5 min read"
+        });
+        setActFormData({
+            name: "",
+            category: "Central",
+            sections: "",
+            pdfUrl: ""
+        });
+        setJudgmentFormData({
+            title: "",
+            court: "",
+            date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+            simpleExplanation: "",
+            pdfUrl: ""
         });
         setEditingId(null);
         setIsModalOpen(false);
@@ -142,6 +192,29 @@ export default function Admin() {
         }
     };
 
+    const handleEditAct = (act: Act) => {
+        setActFormData({
+            name: act.name,
+            category: act.category,
+            sections: act.sections,
+            pdfUrl: act.pdfUrl || ""
+        });
+        setEditingId(act._id);
+        setIsModalOpen(true);
+    };
+
+    const handleEditJudgment = (j: Judgment) => {
+        setJudgmentFormData({
+            title: j.title,
+            court: j.court,
+            date: j.date,
+            simpleExplanation: j.simpleExplanation,
+            pdfUrl: j.pdfUrl || ""
+        });
+        setEditingId(j._id);
+        setIsModalOpen(true);
+    };
+
     const filteredBlogs = blogs.filter(b =>
         b.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         b.category.toLowerCase().includes(searchTerm.toLowerCase())
@@ -150,69 +223,121 @@ export default function Admin() {
     return (
         <div className="min-h-screen bg-gray-50 flex">
             {/* Sidebar */}
-            <div className="w-64 bg-black text-white p-6 hidden md:block">
-                <div className="flex items-center space-x-2 mb-12">
-                    <LayoutDashboard className="h-8 w-8 text-white" />
-                    <span className="text-xl font-black tracking-tighter uppercase italic">Admin.</span>
+            <div className="w-72 bg-[#050505] text-white p-8 hidden md:flex flex-col border-r border-white/5">
+                <div className="flex items-center space-x-3 mb-10 group cursor-pointer">
+                    <div className="p-2 bg-gradient-to-br from-white to-gray-400 rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.1)] group-hover:scale-110 transition-transform">
+                        <LayoutDashboard className="h-6 w-6 text-black" />
+                    </div>
+                    <span className="text-2xl font-black tracking-tighter uppercase italic bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">Admin_</span>
                 </div>
                 <nav className="space-y-2">
                     <button
                         onClick={() => setActiveTab('blogs')}
-                        className={`w - full flex items - center space - x - 3 p - 4 rounded - 2xl transition - all ${activeTab === 'blogs' ? 'bg-white text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'} `}
+                        className={`w-full flex items-center space-x-4 p-4 rounded-2xl transition-all duration-300 group ${activeTab === 'blogs' ? 'bg-white text-black shadow-[0_10px_30px_rgba(255,255,255,0.1)]' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}
                     >
-                        <MessageSquare className="h-5 w-5" />
-                        <span className="font-black uppercase text-xs tracking-widest">Blogs</span>
+                        <MessageSquare className={`h-5 w-5 transition-transform duration-300 group-hover:scale-110 ${activeTab === 'blogs' ? 'text-black' : 'text-gray-500'}`} />
+                        <span className="font-extrabold uppercase text-[10px] tracking-[0.2em]">Articles</span>
                     </button>
 
                     <button
-                        onClick={() => setActiveTab('settings')}
-                        className={`w - full flex items - center space - x - 3 p - 4 rounded - 2xl transition - all ${activeTab === 'settings' ? 'bg-white text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'} `}
+                        onClick={() => setActiveTab('advocates')}
+                        className={`w-full flex items-center space-x-4 p-4 rounded-2xl transition-all duration-300 group ${activeTab === 'advocates' ? 'bg-white text-black shadow-[0_10px_30px_rgba(255,255,255,0.1)]' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}
                     >
-                        <SettingsIcon className="h-5 w-5" />
-                        <span className="font-black uppercase text-xs tracking-widest">Settings</span>
+                        <Users className={`h-5 w-5 transition-transform duration-300 group-hover:scale-110 ${activeTab === 'advocates' ? 'text-black' : 'text-gray-500'}`} />
+                        <span className="font-extrabold uppercase text-[10px] tracking-[0.2em]">Advocates</span>
                     </button>
+
+                    <button
+                        onClick={() => setActiveTab('acts')}
+                        className={`w-full flex items-center space-x-4 p-4 rounded-2xl transition-all duration-300 group ${activeTab === 'acts' ? 'bg-white text-black shadow-[0_10px_30px_rgba(255,255,255,0.1)]' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}
+                    >
+                        <Book className={`h-5 w-5 transition-transform duration-300 group-hover:scale-110 ${activeTab === 'acts' ? 'text-black' : 'text-gray-500'}`} />
+                        <span className="font-extrabold uppercase text-[10px] tracking-[0.2em]">Legal Acts</span>
+                    </button>
+
+                    <button
+                        onClick={() => setActiveTab('judgments')}
+                        className={`w-full flex items-center space-x-4 p-4 rounded-2xl transition-all duration-300 group ${activeTab === 'judgments' ? 'bg-white text-black shadow-[0_10px_30px_rgba(255,255,255,0.1)]' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}
+                    >
+                        <Scale className={`h-5 w-5 transition-transform duration-300 group-hover:scale-110 ${activeTab === 'judgments' ? 'text-black' : 'text-gray-500'}`} />
+                        <span className="font-extrabold uppercase text-[10px] tracking-[0.2em]">Judgments</span>
+                    </button>
+
                 </nav>
+
+                <div className="mt-auto pt-6 border-t border-white/5">
+                    <button
+                        onClick={() => setActiveTab('settings')}
+                        className={`w-full flex items-center space-x-4 p-4 rounded-2xl transition-all duration-300 group ${activeTab === 'settings' ? 'bg-white text-black shadow-[0_10px_30px_rgba(255,255,255,0.1)]' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}
+                    >
+                        <SettingsIcon className={`h-5 w-5 transition-transform duration-300 group-hover:rotate-90 ${activeTab === 'settings' ? 'text-black' : 'text-gray-500'}`} />
+                        <span className="font-extrabold uppercase text-[10px] tracking-[0.2em]">Settings</span>
+                    </button>
+                </div>
+            </div>
+
+            {/* Mobile Navigation Tabs */}
+            <div className="md:hidden flex overflow-x-auto bg-black p-2 sticky top-0 z-40 border-b border-white/10 no-scrollbar">
+                {[
+                    { id: 'blogs', label: 'Articles', icon: MessageSquare },
+                    { id: 'advocates', label: 'Advocates', icon: Users },
+                    { id: 'acts', label: 'Acts', icon: Book },
+                    { id: 'judgments', label: 'Judgments', icon: Scale },
+                    { id: 'settings', label: 'Settings', icon: SettingsIcon }
+                ].map((tab) => (
+                    <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id as any)}
+                        className={`flex items-center space-x-2 px-6 py-3 rounded-xl transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-white text-black' : 'text-gray-400'}`}
+                    >
+                        <tab.icon className="h-4 w-4" />
+                        <span className="text-[10px] font-black uppercase tracking-widest">{tab.label}</span>
+                    </button>
+                ))}
             </div>
 
             {/* Content */}
-            <div className="flex-1 p-6 md:p-12 overflow-y-auto">
-                {activeTab === 'blogs' ? (
+            <div className="flex-1 p-6 lg:p-12 overflow-y-auto">
+                {activeTab === 'blogs' && (
                     <>
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
+                        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12 gap-8">
                             <div>
-                                <h1 className="text-4xl font-black text-black tracking-tighter uppercase italic">Manage Content_</h1>
-                                <p className="text-gray-500 font-bold">Add, Edit or Delete blog articles in real-time.</p>
+                                <h1 className="text-5xl font-black text-black tracking-tighter uppercase italic mb-2">Manage Content_</h1>
+                                <div className="flex items-center space-x-2">
+                                    <div className="h-1 w-12 bg-black rounded-full"></div>
+                                    <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Articles & Publications</p>
+                                </div>
                             </div>
                             <button
                                 onClick={() => { resetForm(); setIsModalOpen(true); }}
-                                className="bg-black text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-gray-800 transition-all shadow-xl flex items-center"
+                                className="bg-black text-white px-10 py-5 rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:bg-gray-800 transition-all shadow-[0_20px_40px_rgba(0,0,0,0.1)] flex items-center group active:scale-95"
                             >
-                                <Plus className="mr-2 h-5 w-5" />
+                                <Plus className="mr-3 h-5 w-5 transition-transform group-hover:rotate-90" />
                                 Create New Post
                             </button>
                         </div>
 
-                        {/* Filters */}
-                        <div className="mb-8 relative max-w-xl">
-                            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                            <input
-                                type="text"
-                                placeholder="Search articles..."
-                                className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-gray-200 focus:border-black outline-none transition-all font-bold"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
+                        <div className="mb-10 group max-w-2xl">
+                            <div className="relative">
+                                <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 group-focus-within:text-black transition-colors" />
+                                <input
+                                    type="text"
+                                    placeholder="Search by title, category or keyword..."
+                                    className="w-full pl-16 pr-8 py-5 rounded-2xl bg-white border border-gray-100 shadow-[0_10px_30px_rgba(0,0,0,0.02)] focus:border-black outline-none transition-all font-bold placeholder:text-gray-300"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
                         </div>
 
-                        {/* Table */}
-                        <div className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
-                            <table className="w-full text-left">
+                        <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-[0_20px_50px_rgba(0,0,0,0.03)] overflow-x-auto no-scrollbar">
+                            <table className="w-full text-left border-collapse min-w-[750px]">
                                 <thead>
-                                    <tr className="bg-black text-white text-[10px] font-black uppercase tracking-widest">
-                                        <th className="px-6 py-4">Article</th>
-                                        <th className="px-6 py-4">Category</th>
-                                        <th className="px-6 py-4">Date</th>
-                                        <th className="px-6 py-4">Actions</th>
+                                    <tr className="bg-gray-50/50 border-b border-gray-100">
+                                        <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Article</th>
+                                        <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Category</th>
+                                        <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Date</th>
+                                        <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-right text-gray-400">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100">
@@ -257,7 +382,217 @@ export default function Admin() {
                             </table>
                         </div>
                     </>
-                ) : (
+                )}
+
+                {activeTab === 'advocates' && (
+                    <>
+                        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12 gap-8">
+                            <div>
+                                <h1 className="text-5xl font-black text-black tracking-tighter uppercase italic mb-2">Advocates_</h1>
+                                <div className="flex items-center space-x-2">
+                                    <div className="h-1 w-12 bg-black rounded-full"></div>
+                                    <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Directory Management</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-[0_20px_50px_rgba(0,0,0,0.03)] overflow-x-auto no-scrollbar">
+                            <table className="w-full text-left border-collapse min-w-[650px]">
+                                <thead>
+                                    <tr className="bg-gray-50/50 border-b border-gray-100">
+                                        <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Advocate</th>
+                                        <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Court</th>
+                                        <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Phone</th>
+                                        <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-right text-gray-400">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {loading ? (
+                                        <tr>
+                                            <td colSpan={4} className="px-8 py-12 text-center text-gray-400 font-bold uppercase tracking-widest">Loading directory...</td>
+                                        </tr>
+                                    ) : advocates.length > 0 ? (
+                                        advocates.map((adv) => (
+                                            <tr key={adv._id} className="hover:bg-gray-50/50 transition-colors group">
+                                                <td className="px-8 py-6">
+                                                    <div className="flex items-center space-x-4">
+                                                        <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200">
+                                                            {adv.photo ? <img src={adv.photo} className="w-full h-full object-cover grayscale" /> : <Users className="h-6 w-6 text-gray-300" />}
+                                                        </div>
+                                                        <div>
+                                                            <p className="font-extrabold text-black leading-tight">{adv.name}</p>
+                                                            <p className="text-[10px] text-gray-400 font-black uppercase tracking-tighter mt-1">Legit Profile</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-8 py-6 font-bold text-sm text-gray-600">
+                                                    {adv.court}
+                                                </td>
+                                                <td className="px-8 py-6 text-sm text-gray-400 font-bold">{adv.phone}</td>
+                                                <td className="px-8 py-6 text-right">
+                                                    <button
+                                                        onClick={() => {
+                                                            if (window.confirm("Are you sure you want to delete this advocate?")) {
+                                                                deleteAdvocate(adv._id);
+                                                            }
+                                                        }}
+                                                        className="p-3 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-all shadow-sm"
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={4} className="px-8 py-12 text-center text-gray-400 font-bold uppercase tracking-widest">No advocates registered yet</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </>
+                )}
+
+                {activeTab === 'acts' && (
+                    <>
+                        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12 gap-8">
+                            <div>
+                                <h1 className="text-5xl font-black text-black tracking-tighter uppercase italic mb-2">Legal Acts_</h1>
+                                <div className="flex items-center space-x-2">
+                                    <div className="h-1 w-12 bg-black rounded-full"></div>
+                                    <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Statute Management</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => { resetForm(); setIsModalOpen(true); }}
+                                className="bg-black text-white px-10 py-5 rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:bg-gray-800 transition-all shadow-[0_20px_40px_rgba(0,0,0,0.1)] flex items-center group active:scale-95"
+                            >
+                                <Plus className="mr-3 h-5 w-5 transition-transform group-hover:rotate-90" />
+                                Add New Act
+                            </button>
+                        </div>
+
+                        <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-[0_20px_50px_rgba(0,0,0,0.03)] overflow-x-auto no-scrollbar">
+                            <table className="w-full text-left border-collapse min-w-[600px]">
+                                <thead>
+                                    <tr className="bg-gray-50/50 border-b border-gray-100">
+                                        <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Act Name</th>
+                                        <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Category</th>
+                                        <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-right text-gray-400">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {loading ? (
+                                        <tr>
+                                            <td colSpan={3} className="px-8 py-12 text-center text-gray-400 font-bold uppercase tracking-widest">Loading acts...</td>
+                                        </tr>
+                                    ) : acts.length > 0 ? (
+                                        acts.map((act) => (
+                                            <tr key={act._id} className="hover:bg-gray-50/50 transition-colors">
+                                                <td className="px-8 py-6 font-extrabold text-black">{act.name}</td>
+                                                <td className="px-8 py-6">
+                                                    <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase ${act.category === 'Central' ? 'bg-blue-50 text-blue-600' : 'bg-orange-50 text-orange-600'}`}>{act.category}</span>
+                                                </td>
+                                                <td className="px-8 py-6 text-right">
+                                                    <div className="flex justify-end space-x-2">
+                                                        <button onClick={() => handleEditAct(act)} className="p-3 bg-gray-50 text-gray-500 hover:bg-black hover:text-white rounded-xl transition-all">
+                                                            <Edit2 className="h-4 w-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                if (window.confirm("Are you sure you want to delete this act?")) {
+                                                                    deleteAct(act._id!);
+                                                                }
+                                                            }}
+                                                            className="p-3 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-all"
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={3} className="px-8 py-12 text-center text-gray-400 font-bold uppercase tracking-widest">No legal acts added</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </>
+                )}
+
+                {activeTab === 'judgments' && (
+                    <>
+                        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12 gap-8">
+                            <div>
+                                <h1 className="text-5xl font-black text-black tracking-tighter uppercase italic mb-2">Judgments_</h1>
+                                <div className="flex items-center space-x-2">
+                                    <div className="h-1 w-12 bg-black rounded-full"></div>
+                                    <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Ruling Repository</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => { resetForm(); setIsModalOpen(true); }}
+                                className="bg-black text-white px-10 py-5 rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:bg-gray-800 transition-all shadow-[0_20px_40px_rgba(0,0,0,0.1)] flex items-center group active:scale-95"
+                            >
+                                <Plus className="mr-3 h-5 w-5 transition-transform group-hover:rotate-90" />
+                                Add Judgment
+                            </button>
+                        </div>
+
+                        <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-[0_20px_50px_rgba(0,0,0,0.03)] overflow-x-auto no-scrollbar">
+                            <table className="w-full text-left border-collapse min-w-[600px]">
+                                <thead>
+                                    <tr className="bg-gray-50/50 border-b border-gray-100">
+                                        <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Judgment Title</th>
+                                        <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Court</th>
+                                        <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-right text-gray-400">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {loading ? (
+                                        <tr>
+                                            <td colSpan={3} className="px-8 py-12 text-center text-gray-400 font-bold uppercase tracking-widest">Loading judgments...</td>
+                                        </tr>
+                                    ) : judgments.length > 0 ? (
+                                        judgments.map((j) => (
+                                            <tr key={j._id} className="hover:bg-gray-50/50 transition-colors">
+                                                <td className="px-8 py-6 font-extrabold text-black">{j.title}</td>
+                                                <td className="px-8 py-6 text-sm font-bold text-gray-500">{j.court}</td>
+                                                <td className="px-8 py-6 text-right">
+                                                    <div className="flex justify-end space-x-2">
+                                                        <button onClick={() => handleEditJudgment(j)} className="p-3 bg-gray-50 text-gray-500 hover:bg-black hover:text-white rounded-xl transition-all">
+                                                            <Edit2 className="h-4 w-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                if (window.confirm("Are you sure you want to delete this judgment?")) {
+                                                                    deleteJudgment(j._id!);
+                                                                }
+                                                            }}
+                                                            className="p-3 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-all"
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={3} className="px-8 py-12 text-center text-gray-400 font-bold uppercase tracking-widest">No judgments recorded</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </>
+                )}
+
+                {activeTab === 'settings' && (
                     <div className="max-w-4xl">
                         <h1 className="text-4xl font-black text-black tracking-tighter uppercase italic mb-2">General Settings_</h1>
                         <p className="text-gray-500 font-bold mb-12">Update your site's contact info and social links.</p>
@@ -342,9 +677,9 @@ export default function Admin() {
                                     <div className="pt-10">
                                         <button
                                             type="submit"
-                                            className="w-full bg-black text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-gray-800 transition-all shadow-xl shadow-gray-200"
+                                            className="w-full bg-black text-white py-5 rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:bg-gray-800 transition-all shadow-[0_20px_40px_rgba(0,0,0,0.1)] active:scale-95"
                                         >
-                                            Save All Settings
+                                            Save All Settings_
                                         </button>
                                     </div>
                                 </div>
@@ -356,8 +691,8 @@ export default function Admin() {
 
             {/* Modal Form */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
-                    <div className="bg-white w-full max-w-3xl rounded-[2.5rem] shadow-2xl relative p-8 md:p-12 my-8">
+                <div className="fixed inset-0 z-50 flex items-start justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto pt-8 pb-20 md:pt-20">
+                    <div className="bg-white w-full max-w-3xl rounded-3xl md:rounded-[2.5rem] shadow-2xl relative p-6 md:p-12">
                         <button
                             onClick={resetForm}
                             className="absolute top-8 right-8 p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -366,137 +701,234 @@ export default function Admin() {
                         </button>
 
                         <h2 className="text-3xl font-black text-black tracking-tighter uppercase italic mb-8">
-                            {editingId ? "Edit Article_" : "New Article_"}
+                            {activeTab === 'acts' ? "New Act_" : activeTab === 'judgments' ? "New Judgment_" : editingId ? "Edit Article_" : "New Article_"}
                         </h2>
 
                         <form onSubmit={handleSubmit} className="space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Title</label>
-                                    <input
-                                        required
-                                        className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition-all font-bold"
-                                        value={formData.title}
-                                        onChange={e => setFormData({ ...formData, title: e.target.value })}
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Category</label>
-                                    <select
-                                        className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition-all font-bold"
-                                        value={formData.category}
-                                        onChange={e => setFormData({ ...formData, category: e.target.value })}
-                                    >
-                                        <option>Legal Insights</option>
-                                        <option>Digital Privacy</option>
-                                        <option>Business Support</option>
-                                        <option>Innovation</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Short Description</label>
-                                <input
-                                    required
-                                    className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition-all font-bold"
-                                    value={formData.description}
-                                    onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                />
-                            </div>
-
-                            {/* Visual Editor Section */}
-                            <div>
-                                <div className="flex justify-between items-center mb-2">
-                                    <label className="block text-xs font-black uppercase tracking-widest text-gray-500">Write Blog Content Here (Visual Editor)</label>
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsCodeView(!isCodeView)}
-                                        className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-black flex items-center transition-all"
-                                    >
-                                        <Code className="h-3 w-3 mr-1" />
-                                        {isCodeView ? "Switch to Visual" : "Switch to HTML"}
+                            {activeTab === 'acts' && (
+                                <div className="space-y-6">
+                                    <div>
+                                        <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Act Name</label>
+                                        <input
+                                            required
+                                            className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition-all font-bold"
+                                            value={actFormData.name}
+                                            onChange={e => setActFormData({ ...actFormData, name: e.target.value })}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Category</label>
+                                        <select
+                                            className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition-all font-bold"
+                                            value={actFormData.category}
+                                            onChange={e => setActFormData({ ...actFormData, category: e.target.value as any })}
+                                        >
+                                            <option value="Central">Central Act</option>
+                                            <option value="State">State Act</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Summary / Sections</label>
+                                        <textarea
+                                            rows={4}
+                                            className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition-all font-bold"
+                                            value={actFormData.sections}
+                                            onChange={e => setActFormData({ ...actFormData, sections: e.target.value })}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">PDF URL (Optional)</label>
+                                        <input
+                                            className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition-all font-bold"
+                                            value={actFormData.pdfUrl}
+                                            onChange={e => setActFormData({ ...actFormData, pdfUrl: e.target.value })}
+                                        />
+                                    </div>
+                                    <button type="submit" className="w-full bg-black text-white py-5 rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:bg-gray-800 transition-all shadow-[0_10px_30px_rgba(0,0,0,0.1)] active:scale-95">
+                                        {editingId ? "Update Act_" : "Add Act_"}
                                     </button>
                                 </div>
+                            )}
 
-                                {!isCodeView ? (
-                                    <div className="border-2 border-gray-100 rounded-3xl overflow-hidden focus-within:border-black transition-all">
-                                        {/* Toolbar */}
-                                        <div className="bg-gray-50 p-2 border-b border-gray-100 flex flex-wrap gap-1">
-                                            <button type="button" onClick={() => execCommand('bold')} className="p-2 hover:bg-white rounded-lg transition-all" title="Bold">
-                                                <Bold className="h-4 w-4" />
-                                            </button>
-                                            <button type="button" onClick={() => execCommand('formatBlock', 'h2')} className="p-2 hover:bg-white rounded-lg transition-all" title="Heading 2">
-                                                <Heading2 className="h-4 w-4" />
-                                            </button>
-                                            <button type="button" onClick={() => execCommand('formatBlock', 'h3')} className="p-2 hover:bg-white rounded-lg transition-all" title="Heading 3">
-                                                <Heading3 className="h-4 w-4" />
-                                            </button>
-                                            <div className="w-px h-6 bg-gray-200 mx-1 self-center"></div>
-                                            <button type="button" onClick={() => execCommand('insertUnorderedList')} className="p-2 hover:bg-white rounded-lg transition-all" title="Bullet List">
-                                                <List className="h-4 w-4" />
-                                            </button>
-                                            <button type="button" onClick={() => execCommand('insertOrderedList')} className="p-2 hover:bg-white rounded-lg transition-all" title="Numbered List">
-                                                <ListOrdered className="h-4 w-4" />
-                                            </button>
-                                            <button type="button" onClick={() => execCommand('formatBlock', 'p')} className="p-2 hover:bg-white rounded-lg transition-all" title="Normal Text">
-                                                <Type className="h-4 w-4" />
+                            {activeTab === 'judgments' && (
+                                <div className="space-y-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Judgment Title</label>
+                                            <input
+                                                required
+                                                className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition-all font-bold"
+                                                value={judgmentFormData.title}
+                                                onChange={e => setJudgmentFormData({ ...judgmentFormData, title: e.target.value })}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Court</label>
+                                            <input
+                                                required
+                                                placeholder="e.g. Supreme Court"
+                                                className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition-all font-bold"
+                                                value={judgmentFormData.court}
+                                                onChange={e => setJudgmentFormData({ ...judgmentFormData, court: e.target.value })}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Simple Explanation</label>
+                                        <textarea
+                                            required
+                                            rows={4}
+                                            placeholder="Explain the judgment in simple language..."
+                                            className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition-all font-bold"
+                                            value={judgmentFormData.simpleExplanation}
+                                            onChange={e => setJudgmentFormData({ ...judgmentFormData, simpleExplanation: e.target.value })}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">PDF URL (Optional)</label>
+                                        <input
+                                            className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition-all font-bold"
+                                            value={judgmentFormData.pdfUrl}
+                                            onChange={e => setJudgmentFormData({ ...judgmentFormData, pdfUrl: e.target.value })}
+                                        />
+                                    </div>
+                                    <button type="submit" className="w-full bg-black text-white py-5 rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:bg-gray-800 transition-all shadow-[0_10px_30px_rgba(0,0,0,0.1)] active:scale-95">
+                                        {editingId ? "Update Judgment_" : "Add Judgment_"}
+                                    </button>
+                                </div>
+                            )}
+
+                            {(activeTab === 'blogs' || activeTab === 'advocates' || activeTab === 'settings') && (
+                                <div className="space-y-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Title</label>
+                                            <input
+                                                required
+                                                className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition-all font-bold"
+                                                value={formData.title}
+                                                onChange={e => setFormData({ ...formData, title: e.target.value })}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Category</label>
+                                            <select
+                                                className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition-all font-bold"
+                                                value={formData.category}
+                                                onChange={e => setFormData({ ...formData, category: e.target.value })}
+                                            >
+                                                <option>Legal Insights</option>
+                                                <option>Digital Privacy</option>
+                                                <option>Business Support</option>
+                                                <option>Innovation</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Short Description</label>
+                                        <input
+                                            required
+                                            className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition-all font-bold"
+                                            value={formData.description}
+                                            onChange={e => setFormData({ ...formData, description: e.target.value })}
+                                        />
+                                    </div>
+
+                                    {/* Visual Editor Section */}
+                                    <div>
+                                        <div className="flex justify-between items-center mb-2">
+                                            <label className="block text-xs font-black uppercase tracking-widest text-gray-500">Write Blog Content Here (Visual Editor)</label>
+                                            <button
+                                                type="button"
+                                                onClick={() => setIsCodeView(!isCodeView)}
+                                                className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-black flex items-center transition-all"
+                                            >
+                                                <Code className="h-3 w-3 mr-1" />
+                                                {isCodeView ? "Switch to Visual" : "Switch to HTML"}
                                             </button>
                                         </div>
-                                        {/* Editable Area */}
-                                        <style>{EDITOR_STYLES}</style>
-                                        <div
-                                            ref={editorRef}
-                                            contentEditable
-                                            onInput={handleEditorChange}
-                                            className="editor-content min-h-[300px] p-6 outline-none prose prose-sm max-w-none font-medium text-gray-700 bg-white"
-                                            style={{ minHeight: '300px' }}
-                                        />
-                                    </div>
-                                ) : (
-                                    <textarea
-                                        required
-                                        rows={12}
-                                        className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition-all font-mono text-sm bg-gray-50"
-                                        value={formData.content}
-                                        onChange={e => setFormData({ ...formData, content: e.target.value })}
-                                    />
-                                )}
-                            </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Cover Image</label>
-                                    <label className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 rounded-2xl cursor-pointer hover:border-black transition-all group overflow-hidden relative">
-                                        {formData.image ? (
-                                            <img src={formData.image} className="w-full h-full object-cover grayscale opacity-50" />
-                                        ) : (
-                                            <div className="text-center">
-                                                <ImageIcon className="h-8 w-8 mx-auto text-gray-400 group-hover:text-black" />
-                                                <span className="text-xs font-bold text-gray-400 group-hover:text-black">Choose Image</span>
+                                        {!isCodeView ? (
+                                            <div className="border-2 border-gray-100 rounded-3xl overflow-hidden focus-within:border-black transition-all">
+                                                {/* Toolbar */}
+                                                <div className="bg-gray-50 p-2 border-b border-gray-100 flex flex-wrap gap-1">
+                                                    <button type="button" onClick={() => execCommand('bold')} className="p-2 hover:bg-white rounded-lg transition-all" title="Bold">
+                                                        <Bold className="h-4 w-4" />
+                                                    </button>
+                                                    <button type="button" onClick={() => execCommand('formatBlock', 'h2')} className="p-2 hover:bg-white rounded-lg transition-all" title="Heading 2">
+                                                        <Heading2 className="h-4 w-4" />
+                                                    </button>
+                                                    <button type="button" onClick={() => execCommand('formatBlock', 'h3')} className="p-2 hover:bg-white rounded-lg transition-all" title="Heading 3">
+                                                        <Heading3 className="h-4 w-4" />
+                                                    </button>
+                                                    <div className="w-px h-6 bg-gray-200 mx-1 self-center"></div>
+                                                    <button type="button" onClick={() => execCommand('insertUnorderedList')} className="p-2 hover:bg-white rounded-lg transition-all" title="Bullet List">
+                                                        <List className="h-4 w-4" />
+                                                    </button>
+                                                    <button type="button" onClick={() => execCommand('insertOrderedList')} className="p-2 hover:bg-white rounded-lg transition-all" title="Numbered List">
+                                                        <ListOrdered className="h-4 w-4" />
+                                                    </button>
+                                                    <button type="button" onClick={() => execCommand('formatBlock', 'p')} className="p-2 hover:bg-white rounded-lg transition-all" title="Normal Text">
+                                                        <Type className="h-4 w-4" />
+                                                    </button>
+                                                </div>
+                                                {/* Editable Area */}
+                                                <style>{EDITOR_STYLES}</style>
+                                                <div
+                                                    ref={editorRef}
+                                                    contentEditable
+                                                    onInput={handleEditorChange}
+                                                    className="editor-content min-h-[300px] p-6 outline-none prose prose-sm max-w-none font-medium text-gray-700 bg-white"
+                                                    style={{ minHeight: '300px' }}
+                                                />
                                             </div>
+                                        ) : (
+                                            <textarea
+                                                required
+                                                rows={12}
+                                                className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition-all font-mono text-sm bg-gray-50"
+                                                value={formData.content}
+                                                onChange={e => setFormData({ ...formData, content: e.target.value })}
+                                            />
                                         )}
-                                        <input type="file" className="hidden" onChange={handleImageChange} accept="image/*" />
-                                    </label>
-                                </div>
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Read Time</label>
-                                        <input
-                                            placeholder="e.g. 5 min read"
-                                            className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition-all font-bold"
-                                            value={formData.readTime}
-                                            onChange={e => setFormData({ ...formData, readTime: e.target.value })}
-                                        />
                                     </div>
-                                    <button
-                                        type="submit"
-                                        className="w-full bg-black text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-gray-800 transition-all shadow-xl"
-                                    >
-                                        {editingId ? "Update Article" : "Publish Article"}
-                                    </button>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Cover Image</label>
+                                            <label className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 rounded-2xl cursor-pointer hover:border-black transition-all group overflow-hidden relative">
+                                                {formData.image ? (
+                                                    <img src={formData.image} className="w-full h-full object-cover grayscale opacity-50" />
+                                                ) : (
+                                                    <div className="text-center">
+                                                        <ImageIcon className="h-8 w-8 mx-auto text-gray-400 group-hover:text-black" />
+                                                        <span className="text-xs font-bold text-gray-400 group-hover:text-black">Choose Image</span>
+                                                    </div>
+                                                )}
+                                                <input type="file" className="hidden" onChange={handleImageChange} accept="image/*" />
+                                            </label>
+                                        </div>
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Read Time</label>
+                                                <input
+                                                    placeholder="e.g. 5 min read"
+                                                    className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition-all font-bold"
+                                                    value={formData.readTime}
+                                                    onChange={e => setFormData({ ...formData, readTime: e.target.value })}
+                                                />
+                                            </div>
+                                            <button
+                                                type="submit"
+                                                className="w-full bg-black text-white py-5 rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:bg-gray-800 transition-all shadow-[0_10px_30px_rgba(0,0,0,0.1)] active:scale-95"
+                                            >
+                                                {editingId ? "Update Article_" : "Publish Article_"}
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
                         </form>
                     </div>
                 </div>

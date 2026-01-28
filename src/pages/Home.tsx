@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   Scale,
@@ -156,18 +155,26 @@ export default function Home() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-white border-b border-gray-100">
+      <section className="py-20 bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
             {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="flex justify-center mb-4">
-                  <div className="p-3 bg-gray-100 rounded-full">
-                    <stat.icon className="h-8 w-8 text-black" />
+              <div
+                key={index}
+                className="text-center group p-8 rounded-[2rem] hover:bg-gray-50 transition-all duration-500 hover:shadow-[0_20px_40px_rgba(0,0,0,0.03)] transform hover:-translate-y-2 animate-fade-in"
+                style={{ animationDelay: `${index * 150}ms` }}
+              >
+                <div className="flex justify-center mb-6">
+                  <div className="p-4 bg-gray-100 rounded-2xl group-hover:bg-black group-hover:text-white transition-all duration-500 transform group-hover:rotate-12 group-hover:scale-110 shadow-sm">
+                    <stat.icon className="h-8 w-8 text-black group-hover:text-white transition-colors duration-500" />
                   </div>
                 </div>
-                <div className="text-3xl font-black text-black mb-2">{stat.number}</div>
-                <div className="text-gray-600 font-semibold">{stat.label}</div>
+                <div className="text-4xl font-black text-black mb-2 tracking-tighter transform transition-all group-hover:scale-110">
+                  {stat.number}
+                </div>
+                <div className="text-gray-400 font-black uppercase text-[10px] tracking-[0.2em] group-hover:text-black transition-colors duration-500">
+                  {stat.label}_
+                </div>
               </div>
             ))}
           </div>

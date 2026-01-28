@@ -20,6 +20,7 @@ export default function Header() {
   const mainLinks = [
     { name: 'Home', href: '/' },
     { name: 'Advocates', href: '/advocates' },
+    { name: 'Acts & Judgments', href: '/acts-judgments' },
     { name: 'Blogs', href: '/blogs' },
     { name: 'Payment', href: '/payment' },
     { name: 'Contact', href: '/contact' },
