@@ -34,6 +34,22 @@ export default function ActsJudgments() {
         window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
     };
 
+    const sanitizeUrl = (url: string | undefined, name: string) => {
+        if (!url) return "";
+        if (url.includes('lscontent.nic.in')) {
+            if (url.includes('A2023-45.pdf')) return "https://prsindia.org/files/bills_acts/acts_parliament/2023/The%20Bharatiya%20Nyaya%20Sanhita,%202023.pdf";
+            if (url.includes('A2023-46.pdf')) return "https://prsindia.org/files/bills_acts/acts_parliament/2023/The%20Bharatiya%20Nagarik%20Suraksha%20Sanhita,%202023.pdf";
+            if (url.includes('A2023-47.pdf')) return "https://prsindia.org/files/bills_acts/acts_parliament/2023/The%20Bharatiya%20Sakshya%20Adhiniyam,%202023.pdf";
+            if (name.includes('Constitution')) return "https://www.indiacode.nic.in/bitstream/123456789/15240/1/constitution_of_india.pdf";
+            return `https://www.indiacode.nic.in/simple-search?query=${encodeURIComponent(name)}`;
+        }
+        if (url === "#") {
+            if (name.includes('Kesavananda Bharati')) return "https://www.scobserver.in/wp-content/uploads/2021/10/Kesavananda-Bharati-Judgment.pdf";
+            if (name.includes('Maneka Gandhi')) return "https://www.scobserver.in/wp-content/uploads/2021/10/Maneka-Gandhi-v.-Union-of-India.pdf";
+        }
+        return url;
+    };
+
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
             <TopProgressBar />
@@ -143,7 +159,12 @@ export default function ActsJudgments() {
                                             <Eye className="h-4 w-4 mr-2" /> Read_
                                         </button>
                                         {act.pdfUrl && (
-                                            <a href={act.pdfUrl} target="_blank" className="bg-black text-white px-6 rounded-xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center hover:bg-gray-800 transition-all">
+                                            <a
+                                                href={sanitizeUrl(act.pdfUrl, act.name)}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="bg-black text-white px-6 rounded-xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center hover:bg-gray-800 transition-all focus:ring-2 focus:ring-offset-2 focus:ring-black outline-none"
+                                            >
                                                 <Download className="h-4 w-4" />
                                             </a>
                                         )}
@@ -185,7 +206,12 @@ export default function ActsJudgments() {
                                             <Eye className="h-3.5 w-3.5 mr-2" /> Read_
                                         </button>
                                         {j.pdfUrl && (
-                                            <a href={j.pdfUrl} target="_blank" className="bg-black text-white px-5 rounded-xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center hover:bg-gray-800 transition-all">
+                                            <a
+                                                href={sanitizeUrl(j.pdfUrl, j.title)}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="bg-black text-white px-5 rounded-xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center hover:bg-gray-800 transition-all focus:ring-2 focus:ring-offset-2 focus:ring-black outline-none"
+                                            >
                                                 <Download className="h-3.5 w-3.5" />
                                             </a>
                                         )}
