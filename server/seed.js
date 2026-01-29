@@ -84,6 +84,17 @@ async function seed() {
                 description: "The Bharatiya Sakshya Adhiniyam replaces the Indian Evidence Act, 1872. It expands the definition of evidence to include digital and electronic records as primary evidence.",
                 description_hi: "भारतीय साक्ष्य अधिनियम 1872 के भारतीय साक्ष्य अधिनियम का स्थान लेता है। यह प्राथमिक साक्ष्य के रूप में डिजिटल और इलेक्ट्रॉनिक रिकॉर्ड को शामिल करने के लिए साक्ष्य की परिभाषा का विस्तार करता है।",
                 pdfUrl: "https://prsindia.org/files/bills_acts/acts_parliament/2023/The%20Bharatiya%20Sakshya%20Adhiniyam,%202023.pdf"
+            },
+            {
+                name: "The Constitution of India",
+                name_hi: "भारत का संविधान",
+                category: "Central",
+                category_hi: "केंद्रीय",
+                sections: "448 Articles, 12 Schedules",
+                sections_hi: "448 अनुच्छेद, 12 अनुसूचियां",
+                description: "The Constitution of India is the supreme law of India. The document lays down the framework that demarcates fundamental political code, structure, procedures, powers, and duties of government institutions and sets out fundamental rights, directive principles, and the duties of citizens.",
+                description_hi: "भारत का संविधान भारत का सर्वोच्च कानून है। यह दस्तावेज उस ढांचे को निर्धारित करता है जो सरकारी संस्थानों के मौलिक राजनीतिक कोड, संरचना, प्रक्रियाओं, शक्तियों और कर्तव्यों का सीमांकन करता है और नागरिकों के मौलिक अधिकारों, निर्देशक सिद्धांतों और कर्तव्यों को निर्धारित करता है।",
+                pdfUrl: "https://www.indiacode.nic.in/bitstream/123456789/15240/1/constitution_of_india.pdf"
             }
         ];
 
@@ -97,7 +108,7 @@ async function seed() {
                 date_hi: "24 अप्रैल, 1973",
                 simpleExplanation: "Parliament cannot amend the essential features of the Constitution (Basic Structure Doctrine).",
                 simpleExplanation_hi: "संसद संविधान की आवश्यक विशेषताओं (बुनियादी संरचना सिद्धांत) में संशोधन नहीं कर सकती है।",
-                pdfUrl: "#"
+                pdfUrl: "https://www.scobserver.in/wp-content/uploads/2021/10/Kesavananda-Bharati-Judgment.pdf"
             },
             {
                 title: "Maneka Gandhi v. Union of India (1978)",
@@ -108,7 +119,7 @@ async function seed() {
                 date_hi: "25 जनवरी, 1978",
                 simpleExplanation: "Any procedure established by law must be fair, just, and reasonable, not arbitrary.",
                 simpleExplanation_hi: "कानून द्वारा स्थापित कोई भी प्रक्रिया निष्पक्ष, न्यायपूर्ण और उचित होनी चाहिए, मनमानी नहीं।",
-                pdfUrl: "#"
+                pdfUrl: "https://www.scobserver.in/wp-content/uploads/2021/10/Maneka-Gandhi-v.-Union-of-India.pdf"
             }
         ];
 

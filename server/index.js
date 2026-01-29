@@ -270,14 +270,38 @@ const repairActLinks = async () => {
                 if (act.pdfUrl.includes('A2023-46.pdf')) newUrl = "https://prsindia.org/files/bills_acts/acts_parliament/2023/The%20Bharatiya%20Nagarik%20Suraksha%20Sanhita,%202023.pdf";
                 if (act.pdfUrl.includes('A2023-47.pdf')) newUrl = "https://prsindia.org/files/bills_acts/acts_parliament/2023/The%20Bharatiya%20Sakshya%20Adhiniyam,%202023.pdf";
 
+                // Fix Constitution if it also uses the broken domain (common source for these files)
+                if (act.name.includes('Constitution')) newUrl = "https://www.indiacode.nic.in/bitstream/123456789/15240/1/constitution_of_india.pdf";
+
+                // General fallback for any other broken links on that domain
+                if (newUrl === act.pdfUrl) {
+                    newUrl = `https://www.indiacode.nic.in/simple-search?query=${encodeURIComponent(act.name)}`;
+                }
+
                 if (newUrl !== act.pdfUrl) {
                     await Act.findByIdAndUpdate(act._id, { pdfUrl: newUrl });
                     console.log(`[Background] Fixed link for: ${act.name}`);
                 }
             }
         }
+
+        // Repair Judgment links
+        const brokenJudgments = await Judgment.find({ pdfUrl: "#" });
+        if (brokenJudgments.length > 0) {
+            console.log(`[Background] Repairing ${brokenJudgments.length} Judgment placeholder links...`);
+            for (let j of brokenJudgments) {
+                let newUrl = j.pdfUrl;
+                if (j.title.includes('Kesavananda Bharati')) newUrl = "https://www.scobserver.in/wp-content/uploads/2021/10/Kesavananda-Bharati-Judgment.pdf";
+                if (j.title.includes('Maneka Gandhi')) newUrl = "https://www.scobserver.in/wp-content/uploads/2021/10/Maneka-Gandhi-v.-Union-of-India.pdf";
+
+                if (newUrl !== j.pdfUrl) {
+                    await Judgment.findByIdAndUpdate(j._id, { pdfUrl: newUrl });
+                    console.log(`[Background] Fixed link for: ${j.title}`);
+                }
+            }
+        }
     } catch (err) {
-        console.error("[Background] Act link repair error:", err);
+        console.error("[Background] Link repair error:", err);
     }
 };
 

@@ -108,8 +108,19 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
                 setActs(JSON.parse(cachedActs));
             }
             const response = await axios.get(`${API_URL}/api/acts?t=${Date.now()}`);
-            setActs(response.data);
-            sessionStorage.setItem('zoya_acts_cache', JSON.stringify(response.data));
+            const sanitizedData = response.data.map((act: any) => {
+                let url = act.pdfUrl;
+                if (url && url.includes('lscontent.nic.in')) {
+                    if (url.includes('A2023-45.pdf')) url = "https://prsindia.org/files/bills_acts/acts_parliament/2023/The%20Bharatiya%20Nyaya%20Sanhita,%202023.pdf";
+                    else if (url.includes('A2023-46.pdf')) url = "https://prsindia.org/files/bills_acts/acts_parliament/2023/The%20Bharatiya%20Nagarik%20Suraksha%20Sanhita,%202023.pdf";
+                    else if (url.includes('A2023-47.pdf')) url = "https://prsindia.org/files/bills_acts/acts_parliament/2023/The%20Bharatiya%20Sakshya%20Adhiniyam,%202023.pdf";
+                    else if (act.name.includes('Constitution')) url = "https://www.indiacode.nic.in/bitstream/123456789/15240/1/constitution_of_india.pdf";
+                    else url = `https://www.indiacode.nic.in/simple-search?query=${encodeURIComponent(act.name)}`;
+                }
+                return { ...act, pdfUrl: url };
+            });
+            setActs(sanitizedData);
+            sessionStorage.setItem('zoya_acts_cache', JSON.stringify(sanitizedData));
         } catch (err) {
             console.error('Error fetching acts:', err);
         }
@@ -122,8 +133,16 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
                 setJudgments(JSON.parse(cachedJudgments));
             }
             const response = await axios.get(`${API_URL}/api/judgments?t=${Date.now()}`);
-            setJudgments(response.data);
-            sessionStorage.setItem('zoya_judgments_cache', JSON.stringify(response.data));
+            const sanitizedData = response.data.map((j: any) => {
+                let url = j.pdfUrl;
+                if (url === "#" || !url) {
+                    if (j.title.includes('Kesavananda Bharati')) url = "https://www.scobserver.in/wp-content/uploads/2021/10/Kesavananda-Bharati-Judgment.pdf";
+                    else if (j.title.includes('Maneka Gandhi')) url = "https://www.scobserver.in/wp-content/uploads/2021/10/Maneka-Gandhi-v.-Union-of-India.pdf";
+                }
+                return { ...j, pdfUrl: url };
+            });
+            setJudgments(sanitizedData);
+            sessionStorage.setItem('zoya_judgments_cache', JSON.stringify(sanitizedData));
         } catch (err) {
             console.error('Error fetching judgments:', err);
         }
