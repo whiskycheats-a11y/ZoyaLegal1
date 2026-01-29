@@ -8,6 +8,7 @@ export default function AdvocateRegistration() {
         name: '',
         phone: '',
         court: '',
+        post: 'Advocate',
         barCouncilId: '',
         photo: ''
     });
@@ -158,6 +159,28 @@ export default function AdvocateRegistration() {
                                     value={formData.barCouncilId}
                                     onChange={(e) => setFormData({ ...formData, barCouncilId: e.target.value })}
                                 />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                            {/* Post / Designation */}
+                            <div className="space-y-2.5">
+                                <label className="text-sm font-black text-black flex items-center ml-1 uppercase tracking-tighter">
+                                    <ShieldCheck className="h-4 w-4 mr-2" /> Professional Designation
+                                </label>
+                                <select
+                                    required
+                                    className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 bg-gray-50 focus:bg-white focus:border-black transition-all outline-none font-bold text-black shadow-sm appearance-none"
+                                    value={formData.post}
+                                    onChange={(e) => setFormData({ ...formData, post: e.target.value })}
+                                >
+                                    <option value="Advocate">Advocate</option>
+                                    <option value="Senior Advocate">Senior Advocate</option>
+                                    <option value="Legal Consultant">Legal Consultant</option>
+                                    <option value="Criminal Lawyer">Criminal Lawyer</option>
+                                    <option value="Civil Lawyer">Civil Lawyer</option>
+                                    <option value="Corporate Lawyer">Corporate Lawyer</option>
+                                </select>
                             </div>
                         </div>
 

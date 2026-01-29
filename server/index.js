@@ -474,6 +474,7 @@ app.post('/api/advocates', async (req, res) => {
             name: req.body.name,
             phone: req.body.phone,
             court: req.body.court,
+            post: req.body.post || 'Advocate',
             barCouncilId: req.body.barCouncilId,
             photo: photoUrl
         });

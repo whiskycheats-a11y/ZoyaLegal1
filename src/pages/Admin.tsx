@@ -475,6 +475,7 @@ export default function Admin() {
                                     <tr className="bg-gray-50/50 border-b border-gray-100">
                                         <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Advocate</th>
                                         <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Court</th>
+                                        <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Designation</th>
                                         <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Phone</th>
                                         <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-right text-gray-400">Actions</th>
                                     </tr>
@@ -500,6 +501,9 @@ export default function Admin() {
                                                 </td>
                                                 <td className="px-8 py-6 font-bold text-sm text-gray-600">
                                                     {adv.court}
+                                                </td>
+                                                <td className="px-8 py-6">
+                                                    <span className="text-[10px] font-black bg-blue-50 text-blue-600 px-3 py-1 rounded-full uppercase">{adv.post || 'Advocate'}</span>
                                                 </td>
                                                 <td className="px-8 py-6 text-sm text-gray-400 font-bold">{adv.phone}</td>
                                                 <td className="px-8 py-6 text-right">

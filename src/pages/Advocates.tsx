@@ -79,9 +79,14 @@ export default function Advocates() {
 
                                 <div className="p-6 md:p-8">
                                     <h3 className="text-xl md:text-2xl font-black text-black mb-1 group-hover:text-gray-700 transition-colors duration-300">{advocate.name}</h3>
-                                    <div className="flex items-center text-gray-600 font-bold text-sm mb-6">
-                                        <MapPin className="h-4 w-4 mr-1.5" />
-                                        {advocate.court}
+                                    <div className="flex flex-col space-y-1 mb-6">
+                                        <div className="text-[10px] font-black uppercase text-blue-600 tracking-widest flex items-center">
+                                            <Shield className="h-3 w-3 mr-1" /> {advocate.post || 'Advocate'}
+                                        </div>
+                                        <div className="flex items-center text-gray-600 font-bold text-sm">
+                                            <MapPin className="h-4 w-4 mr-1.5" />
+                                            {advocate.court}
+                                        </div>
                                     </div>
 
                                     <div className="space-y-4 mb-8">
