@@ -288,15 +288,19 @@ const repairActLinks = async () => {
         // Repair Judgment links
         const brokenJudgments = await Judgment.find({ pdfUrl: "#" });
         if (brokenJudgments.length > 0) {
-            console.log(`[Background] Repairing ${brokenJudgments.length} Judgment placeholder links...`);
+            console.log(`[Background] Checking ${brokenJudgments.length} Judgment placeholder links...`);
             for (let j of brokenJudgments) {
                 let newUrl = j.pdfUrl;
                 if (j.title.includes('Kesavananda Bharati')) newUrl = "https://www.scobserver.in/wp-content/uploads/2021/10/Kesavananda-Bharati-Judgment.pdf";
-                if (j.title.includes('Maneka Gandhi')) newUrl = "https://www.scobserver.in/wp-content/uploads/2021/10/Maneka-Gandhi-v.-Union-of-India.pdf";
+                else if (j.title.includes('Maneka Gandhi')) newUrl = "https://www.scobserver.in/wp-content/uploads/2021/10/Maneka-Gandhi-v.-Union-of-India.pdf";
+                else {
+                    // General fallback to Indian Kanoon search for any other placeholder judgments
+                    newUrl = `https://indiankanoon.org/search/?formInput=${encodeURIComponent(j.title)} judgment`;
+                }
 
                 if (newUrl !== j.pdfUrl) {
                     await Judgment.findByIdAndUpdate(j._id, { pdfUrl: newUrl });
-                    console.log(`[Background] Fixed link for: ${j.title}`);
+                    console.log(`[Background] Repaired link for: ${j.title}`);
                 }
             }
         }
