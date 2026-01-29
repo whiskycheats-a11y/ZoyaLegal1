@@ -24,7 +24,7 @@ export default function Admin() {
         deleteAdvocate,
         addAct, updateAct, deleteAct,
         addJudgment, updateJudgment, deleteJudgment,
-        updateSettings, translateText
+        updateSettings, translateText, cleanHindi
     } = useBlogs();
     const [activeTab, setActiveTab] = useState<'blogs' | 'settings' | 'advocates' | 'acts' | 'judgments'>('blogs');
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -124,9 +124,9 @@ export default function Admin() {
 
             setFormData(prev => ({
                 ...prev,
-                title_hi: titleHi,
-                description_hi: descHi,
-                content_hi: contentHi
+                title_hi: cleanHindi(titleHi),
+                description_hi: cleanHindi(descHi),
+                content_hi: cleanHindi(contentHi)
             }));
 
             // If we are currently on Hindi tab, update editor content

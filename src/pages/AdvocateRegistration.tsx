@@ -41,6 +41,7 @@ export default function AdvocateRegistration() {
 
             if (response.ok) {
                 setSubmitted(true);
+                sessionStorage.removeItem('zoya_advocates_cache');
                 setTimeout(() => navigate('/advocates'), 3000);
             } else {
                 const errorData = await response.json();

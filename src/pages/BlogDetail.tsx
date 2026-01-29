@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 
 export default function BlogDetail() {
     const { id } = useParams();
-    const { blogs, loading: globalLoading, language, setLanguage } = useBlogs();
+    const { blogs, loading: globalLoading, language, setLanguage, cleanHindi } = useBlogs();
     const post = blogs.find(p => p._id === id);
     const [isSaved, setIsSaved] = useState(false);
     const [showNotification, setShowNotification] = useState<{ show: boolean, message: string }>({ show: false, message: "" });
@@ -147,7 +147,7 @@ export default function BlogDetail() {
                             {translateCategory(post.category)}
                         </span>
                         <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white tracking-tighter uppercase italic leading-tight mb-6">
-                            {language === 'hi' && post.title_hi ? post.title_hi : post.title}
+                            {language === 'hi' && post.title_hi ? cleanHindi(post.title_hi) : post.title}
                         </h1>
                         <div className="flex flex-wrap items-center gap-6 text-sm font-bold text-white/80 uppercase tracking-widest">
                             <div className="flex items-center">
@@ -215,7 +215,7 @@ export default function BlogDetail() {
 
                 <div
                     className="prose prose-lg max-w-none text-gray-700 leading-relaxed font-bold editor-content"
-                    dangerouslySetInnerHTML={{ __html: (language === 'hi' && post.content_hi && post.content_hi.trim() !== "") ? post.content_hi : post.content }}
+                    dangerouslySetInnerHTML={{ __html: (language === 'hi' && post.content_hi && post.content_hi.trim() !== "") ? cleanHindi(post.content_hi) : post.content }}
                 />
 
                 {/* Action Bottom */}
@@ -251,7 +251,7 @@ export default function BlogDetail() {
                         {blogs.filter(p => p._id !== post._id).slice(0, 3).map(p => (
                             <Link key={p._id} to={`/blogs/${p._id}`} className="group block bg-white p-6 rounded-3xl border border-gray-100 hover:border-black transition-all shadow-sm hover:shadow-xl">
                                 <span className="text-[10px] font-black tracking-widest uppercase text-gray-400 mb-2 block">{translateCategory(p.category)}</span>
-                                <h3 className="text-xl font-black text-black group-hover:underline decoration-2 underline-offset-4 mb-3">{language === 'hi' && p.title_hi ? p.title_hi : p.title}</h3>
+                                <h3 className="text-xl font-black text-black group-hover:underline decoration-2 underline-offset-4 mb-3">{language === 'hi' && p.title_hi ? cleanHindi(p.title_hi) : p.title}</h3>
                                 <div className="flex items-center text-xs font-bold text-gray-400 uppercase tracking-widest">
                                     <Clock className="h-3 w-3 mr-1.5" /> {translateReadTime(p.readTime)}
                                 </div>

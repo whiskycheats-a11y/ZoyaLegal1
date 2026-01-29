@@ -259,6 +259,28 @@ const repairBlogData = async () => {
     }
 };
 
+const repairActLinks = async () => {
+    try {
+        const brokenActs = await Act.find({ pdfUrl: { $regex: 'lscontent\\.nic\\.in' } });
+        if (brokenActs.length > 0) {
+            console.log(`[Background] Repairing ${brokenActs.length} broken Act PDF links...`);
+            for (let act of brokenActs) {
+                let newUrl = act.pdfUrl;
+                if (act.pdfUrl.includes('A2023-45.pdf')) newUrl = "https://prsindia.org/files/bills_acts/acts_parliament/2023/The%20Bharatiya%20Nyaya%20Sanhita,%202023.pdf";
+                if (act.pdfUrl.includes('A2023-46.pdf')) newUrl = "https://prsindia.org/files/bills_acts/acts_parliament/2023/The%20Bharatiya%20Nagarik%20Suraksha%20Sanhita,%202023.pdf";
+                if (act.pdfUrl.includes('A2023-47.pdf')) newUrl = "https://prsindia.org/files/bills_acts/acts_parliament/2023/The%20Bharatiya%20Sakshya%20Adhiniyam,%202023.pdf";
+
+                if (newUrl !== act.pdfUrl) {
+                    await Act.findByIdAndUpdate(act._id, { pdfUrl: newUrl });
+                    console.log(`[Background] Fixed link for: ${act.name}`);
+                }
+            }
+        }
+    } catch (err) {
+        console.error("[Background] Act link repair error:", err);
+    }
+};
+
 // Settings Schema
 const settingsSchema = new mongoose.Schema({
     whatsapp: { type: String, default: "919454950104" },
@@ -363,6 +385,8 @@ const seedDB = async () => {
 
         // Repair any blogs missing Hindi translations
         await repairBlogData();
+        // Repair broken act links
+        await repairActLinks();
     } catch (err) {
         console.error('Seed error:', err);
     }

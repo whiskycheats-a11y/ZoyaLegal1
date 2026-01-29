@@ -30,6 +30,7 @@ interface BlogContextType {
     fetchSettings: () => Promise<void>;
     updateSettings: (settings: Partial<SiteSettings>) => Promise<void>;
     translateText: (text: string, type?: 'text' | 'html') => Promise<string>;
+    cleanHindi: (text: string | undefined) => string;
     language: 'en' | 'hi';
     setLanguage: (lang: 'en' | 'hi') => void;
 }
@@ -65,7 +66,7 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
             }
 
             setLoading(true);
-            const response = await axios.get(`${API_URL}/api/blogs`);
+            const response = await axios.get(`${API_URL}/api/blogs?t=${Date.now()}`);
             setBlogs(response.data);
             sessionStorage.setItem('zoya_blogs_cache', JSON.stringify(response.data));
             setError(null);
@@ -86,9 +87,13 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
             }
 
             setLoading(true);
-            const response = await axios.get(`${API_URL}/api/advocates`);
-            setAdvocates(response.data);
-            sessionStorage.setItem('zoya_advocates_cache', JSON.stringify(response.data));
+            const response = await axios.get(`${API_URL}/api/advocates?t=${Date.now()}`);
+            const optimizedData = response.data.map((adv: Advocate) => ({
+                ...adv,
+                photo: adv.photo ? adv.photo.replace('/upload/', '/upload/q_auto,f_auto,w_500,c_fill,g_face/') : adv.photo
+            }));
+            setAdvocates(optimizedData);
+            sessionStorage.setItem('zoya_advocates_cache', JSON.stringify(optimizedData));
         } catch (err) {
             console.error('Error fetching advocates:', err);
         } finally {
@@ -102,7 +107,7 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
             if (cachedActs) {
                 setActs(JSON.parse(cachedActs));
             }
-            const response = await axios.get(`${API_URL}/api/acts`);
+            const response = await axios.get(`${API_URL}/api/acts?t=${Date.now()}`);
             setActs(response.data);
             sessionStorage.setItem('zoya_acts_cache', JSON.stringify(response.data));
         } catch (err) {
@@ -116,7 +121,7 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
             if (cachedJudgments) {
                 setJudgments(JSON.parse(cachedJudgments));
             }
-            const response = await axios.get(`${API_URL}/api/judgments`);
+            const response = await axios.get(`${API_URL}/api/judgments?t=${Date.now()}`);
             setJudgments(response.data);
             sessionStorage.setItem('zoya_judgments_cache', JSON.stringify(response.data));
         } catch (err) {
@@ -131,7 +136,7 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
                 setSettings(JSON.parse(cachedSiteSettings));
             }
 
-            const response = await axios.get(`${API_URL}/api/settings`);
+            const response = await axios.get(`${API_URL}/api/settings?t=${Date.now()}`);
             setSettings(response.data);
             sessionStorage.setItem('zoya_settings_cache', JSON.stringify(response.data));
         } catch (err) {
@@ -162,7 +167,9 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
     const addAct = async (act: Omit<Act, '_id'>) => {
         try {
             const response = await axios.post(`${API_URL}/api/acts`, act);
-            setActs(prev => [response.data, ...prev]);
+            const updated = [response.data, ...acts];
+            setActs(updated);
+            sessionStorage.setItem('zoya_acts_cache', JSON.stringify(updated));
         } catch (err) {
             console.error('Error adding act:', err);
             throw err;
@@ -172,7 +179,9 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
     const updateAct = async (id: string, act: Partial<Act>) => {
         try {
             const response = await axios.put(`${API_URL}/api/acts/${id}`, act);
-            setActs(prev => prev.map(a => a._id === id ? response.data : a));
+            const updated = acts.map(a => a._id === id ? response.data : a);
+            setActs(updated);
+            sessionStorage.setItem('zoya_acts_cache', JSON.stringify(updated));
         } catch (err) {
             console.error('Error updating act:', err);
             throw err;
@@ -182,7 +191,9 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
     const deleteAct = async (id: string) => {
         try {
             await axios.delete(`${API_URL}/api/acts/${id}`);
-            setActs(prev => prev.filter(a => a._id !== id));
+            const updated = acts.filter(a => a._id !== id);
+            setActs(updated);
+            sessionStorage.setItem('zoya_acts_cache', JSON.stringify(updated));
         } catch (err) {
             console.error('Error deleting act:', err);
             throw err;
@@ -192,7 +203,9 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
     const addJudgment = async (judgment: Omit<Judgment, '_id'>) => {
         try {
             const response = await axios.post(`${API_URL}/api/judgments`, judgment);
-            setJudgments(prev => [response.data, ...prev]);
+            const updated = [response.data, ...judgments];
+            setJudgments(updated);
+            sessionStorage.setItem('zoya_judgments_cache', JSON.stringify(updated));
         } catch (err) {
             console.error('Error adding judgment:', err);
             throw err;
@@ -202,7 +215,9 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
     const updateJudgment = async (id: string, judgment: Partial<Judgment>) => {
         try {
             const response = await axios.put(`${API_URL}/api/judgments/${id}`, judgment);
-            setJudgments(prev => prev.map(j => j._id === id ? response.data : j));
+            const updated = judgments.map(j => j._id === id ? response.data : j);
+            setJudgments(updated);
+            sessionStorage.setItem('zoya_judgments_cache', JSON.stringify(updated));
         } catch (err) {
             console.error('Error updating judgment:', err);
             throw err;
@@ -212,7 +227,9 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
     const deleteJudgment = async (id: string) => {
         try {
             await axios.delete(`${API_URL}/api/judgments/${id}`);
-            setJudgments(prev => prev.filter(j => j._id !== id));
+            const updated = judgments.filter(j => j._id !== id);
+            setJudgments(updated);
+            sessionStorage.setItem('zoya_judgments_cache', JSON.stringify(updated));
         } catch (err) {
             console.error('Error deleting judgment:', err);
             throw err;
@@ -222,10 +239,9 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
     const deleteAdvocate = async (id: string) => {
         try {
             await axios.delete(`${API_URL}/api/advocates/${id}`);
-            setAdvocates(prev => prev.filter(a => a._id !== id));
-            // Update cache
-            const updated = advocates.filter(a => a._id !== id);
-            sessionStorage.setItem('zoya_advocates_cache', JSON.stringify(updated));
+            const updatedAdvocates = advocates.filter(a => a._id !== id);
+            setAdvocates(updatedAdvocates);
+            sessionStorage.setItem('zoya_advocates_cache', JSON.stringify(updatedAdvocates));
         } catch (err) {
             console.error('Error deleting advocate:', err);
             throw err;
@@ -235,7 +251,9 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
     const addBlog = async (blog: Omit<BlogPost, '_id'>) => {
         try {
             const response = await axios.post(`${API_URL}/api/blogs`, blog);
-            setBlogs(prev => [response.data, ...prev]);
+            const updatedBlogs = [response.data, ...blogs];
+            setBlogs(updatedBlogs);
+            sessionStorage.setItem('zoya_blogs_cache', JSON.stringify(updatedBlogs));
         } catch (err) {
             console.error('Error adding blog:', err);
             throw err;
@@ -245,7 +263,9 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
     const updateBlog = async (id: string, blog: Partial<BlogPost>) => {
         try {
             const response = await axios.put(`${API_URL}/api/blogs/${id}`, blog);
-            setBlogs(prev => prev.map(b => b._id === id ? response.data : b));
+            const updatedBlogs = blogs.map(b => b._id === id ? response.data : b);
+            setBlogs(updatedBlogs);
+            sessionStorage.setItem('zoya_blogs_cache', JSON.stringify(updatedBlogs));
         } catch (err) {
             console.error('Error updating blog:', err);
             throw err;
@@ -255,7 +275,9 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
     const deleteBlog = async (id: string) => {
         try {
             await axios.delete(`${API_URL}/api/blogs/${id}`);
-            setBlogs(prev => prev.filter(b => b._id !== id));
+            const updatedBlogs = blogs.filter(b => b._id !== id);
+            setBlogs(updatedBlogs);
+            sessionStorage.setItem('zoya_blogs_cache', JSON.stringify(updatedBlogs));
         } catch (err) {
             console.error('Error deleting blog:', err);
             throw err;
@@ -266,6 +288,7 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
         try {
             const response = await axios.post(`${API_URL}/api/settings`, newSiteSettings);
             setSettings(response.data);
+            sessionStorage.setItem('zoya_settings_cache', JSON.stringify(response.data));
         } catch (err) {
             console.error('Error updating settings:', err);
             throw err;
@@ -282,6 +305,12 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const cleanHindi = (text: string | undefined): string => {
+        if (!text) return "";
+        // Remove <HINDI>, </HINDI>, <hindi>, </hindi> tags and trim
+        return text.replace(/<(?:HINDI|hindi)>|<\/(?:HINDI|hindi)>/g, "").trim();
+    };
+
     return (
         <BlogContext.Provider value={{
             blogs, advocates, acts, judgments, settings, loading, error,
@@ -291,6 +320,7 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
             fetchJudgments, addJudgment, updateJudgment, deleteJudgment,
             fetchSettings, updateSettings,
             translateText,
+            cleanHindi,
             language, setLanguage
         }}>
             {children}

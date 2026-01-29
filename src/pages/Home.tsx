@@ -18,7 +18,7 @@ import {
 import { useBlogs } from '../context/BlogContext';
 
 export default function Home() {
-  const { blogs, loading: blogsLoading } = useBlogs();
+  const { blogs, loading: blogsLoading, language, cleanHindi } = useBlogs();
   const services = [
     {
       title: 'Legal Services',
@@ -323,7 +323,7 @@ export default function Home() {
                   />
                 </div>
                 <h3 className="text-xl font-black text-black group-hover:underline decoration-2 underline-offset-4 transition-all">
-                  {blog.title}
+                  {language === 'hi' && blog.title_hi ? cleanHindi(blog.title_hi) : blog.title}
                 </h3>
                 <p className="text-gray-500 text-sm mt-2 font-bold uppercase tracking-widest flex items-center">
                   <Calendar className="h-3 w-3 mr-1.5" /> {blog.date}

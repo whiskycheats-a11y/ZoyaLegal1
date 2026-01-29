@@ -6,7 +6,7 @@ import SkeletonBlog from '../components/SkeletonBlog';
 import TopProgressBar from '../components/TopProgressBar';
 
 export default function Blogs() {
-    const { blogs, loading, language, setLanguage } = useBlogs();
+    const { blogs, loading, language, setLanguage, cleanHindi } = useBlogs();
     const [searchTerm, setSearchTerm] = useState("");
 
     const getTranslation = (en: string, hi: string) => language === 'hi' ? hi : en;
@@ -56,8 +56,8 @@ export default function Blogs() {
     };
 
     const filteredPosts = blogs.filter(post => {
-        const title = language === 'en' ? post.title : (post.title_hi || post.title);
-        const description = language === 'en' ? post.description : (post.description_hi || post.description);
+        const title = language === 'en' ? post.title : cleanHindi(post.title_hi || post.title);
+        const description = language === 'en' ? post.description : cleanHindi(post.description_hi || post.description);
         return title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             description.toLowerCase().includes(searchTerm.toLowerCase()) ||
             post.category.toLowerCase().includes(searchTerm.toLowerCase());
@@ -149,11 +149,11 @@ export default function Blogs() {
                                         </div>
 
                                         <h2 className="text-2xl md:text-3xl font-black text-black group-hover:underline decoration-4 underline-offset-8 decoration-gray-200 transition-all">
-                                            {language === 'hi' && post.title_hi ? post.title_hi : post.title}
+                                            {language === 'hi' && post.title_hi ? cleanHindi(post.title_hi) : post.title}
                                         </h2>
 
                                         <p className="text-gray-600 text-lg leading-relaxed font-bold">
-                                            {language === 'hi' && post.description_hi ? post.description_hi : post.description}
+                                            {language === 'hi' && post.description_hi ? cleanHindi(post.description_hi) : post.description}
                                         </p>
 
                                         <Link

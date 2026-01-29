@@ -4,48 +4,15 @@ import { Link } from 'react-router-dom';
 import SkeletonAdvocate from '../components/SkeletonAdvocate';
 import TopProgressBar from '../components/TopProgressBar';
 
-interface Advocate {
-    _id: string;
-    name: string;
-    phone: string;
-    court: string;
-    photo?: string;
-}
+
+import { useBlogs } from '../context/BlogContext';
 
 export default function Advocates() {
-    const [advocates, setAdvocates] = useState<Advocate[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { advocates, loading, fetchAdvocates } = useBlogs();
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
-        // Try to load from cache first for instant UI
-        const cachedData = sessionStorage.getItem('zoya_advocates_cache');
-        if (cachedData) {
-            try {
-                setAdvocates(JSON.parse(cachedData));
-                setLoading(false);
-            } catch (e) {
-                console.error('Cache parse error:', e);
-            }
-        }
-
-        const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-        fetch(`${API_BASE_URL}/api/advocates`)
-            .then(res => res.json())
-            .then(data => {
-                // Optimize image URLs with Cloudinary transformations
-                const optimizedData = data.map((adv: Advocate) => ({
-                    ...adv,
-                    photo: adv.photo ? adv.photo.replace('/upload/', '/upload/q_auto,f_auto,w_500,c_fill,g_face/') : adv.photo
-                }));
-                setAdvocates(optimizedData);
-                sessionStorage.setItem('zoya_advocates_cache', JSON.stringify(optimizedData));
-                setLoading(false);
-            })
-            .catch(err => {
-                console.error('Error fetching advocates:', err);
-                setLoading(false);
-            });
+        fetchAdvocates();
     }, []);
 
     const filteredAdvocates = advocates.filter(adv =>

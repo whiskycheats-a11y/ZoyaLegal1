@@ -50,7 +50,7 @@ async function seed() {
                 sections_hi: "358 धाराएं",
                 description: "The Bharatiya Nyaya Sanhita (BNS) is the official criminal code of India, replacing the Indian Penal Code (IPC) of 1860. It streamlines offenses, introduces community service as a punishment, and modernizes the legal framework for the 21st century.",
                 description_hi: "भारतीय न्याय संहिता (BNS) भारत की आधिकारिक आपराधिक संहिता है, जो 1860 के भारतीय दंड संहिता (IPC) का स्थान लेती है। यह अपराधों को सरल बनाती है, सजा के रूप में सामुदायिक सेवा को पेश करती है, और 21 वीं सदी के लिए कानूनी ढांचे को आधुनिक बनाती है।",
-                pdfUrl: "https://lscontent.nic.in/LegisUpdate/A2023-45.pdf"
+                pdfUrl: "https://prsindia.org/files/bills_acts/acts_parliament/2023/The%20Bharatiya%20Nyaya%20Sanhita,%202023.pdf"
             },
             {
                 name: "Bharatiya Nagarik Suraksha Sanhita (BNSS), 2023",
@@ -61,7 +61,7 @@ async function seed() {
                 sections_hi: "531 धाराएं",
                 description: "The Bharatiya Nagarik Suraksha Sanhita (BNSS) replaces the Code of Criminal Procedure (CrPC). It focuses on digitizing the entire trial process, from FIR registration to judgment delivery.",
                 description_hi: "भारतीय नागरिक सुरक्षा संहिता (BNSS) दंड प्रक्रिया संहिता (CrPC) का स्थान लेती है। यह प्राथमिकी (FIR) पंजीकरण से लेकर निर्णय वितरण तक, पूरी मुकदमे की प्रक्रिया को डिजिटल बनाने पर केंद्रित है।",
-                pdfUrl: "https://lscontent.nic.in/LegisUpdate/A2023-46.pdf"
+                pdfUrl: "https://prsindia.org/files/bills_acts/acts_parliament/2023/The%20Bharatiya%20Nagarik%20Suraksha%20Sanhita,%202023.pdf"
             },
             {
                 name: "Code of Civil Procedure (CPC), 1908",
@@ -83,7 +83,7 @@ async function seed() {
                 sections_hi: "170 धाराएं",
                 description: "The Bharatiya Sakshya Adhiniyam replaces the Indian Evidence Act, 1872. It expands the definition of evidence to include digital and electronic records as primary evidence.",
                 description_hi: "भारतीय साक्ष्य अधिनियम 1872 के भारतीय साक्ष्य अधिनियम का स्थान लेता है। यह प्राथमिक साक्ष्य के रूप में डिजिटल और इलेक्ट्रॉनिक रिकॉर्ड को शामिल करने के लिए साक्ष्य की परिभाषा का विस्तार करता है।",
-                pdfUrl: "https://lscontent.nic.in/LegisUpdate/A2023-47.pdf"
+                pdfUrl: "https://prsindia.org/files/bills_acts/acts_parliament/2023/The%20Bharatiya%20Sakshya%20Adhiniyam,%202023.pdf"
             }
         ];
 

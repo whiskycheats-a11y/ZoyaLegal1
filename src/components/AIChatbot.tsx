@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageSquare, X, Send, Bot, User, Sparkles, ChevronDown } from 'lucide-react';
+import { MessageSquare, X, Send, Bot, Sparkles } from 'lucide-react';
 
 interface Message {
     id: string;
@@ -65,9 +65,11 @@ export default function AIChatbot() {
 
             const data = await response.json();
 
+            const cleanResponse = data.content.replace(/<(?:HINDI|hindi)>|<\/(?:HINDI|hindi)>/g, "").trim();
+
             const aiMsg: Message = {
                 id: (Date.now() + 1).toString(),
-                text: data.content,
+                text: cleanResponse,
                 sender: 'ai',
                 timestamp: new Date(),
             };
