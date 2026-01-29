@@ -50,6 +50,19 @@ export default function ActsJudgments() {
         return url;
     };
 
+    const downloadAsFile = (title: string, content: string) => {
+        const text = `${title}\n\n${content}\n\nDownloaded from ZoyaLegal - Your Digital Legal Aide`;
+        const blob = new Blob([text], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.txt`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
             <TopProgressBar />
@@ -158,14 +171,27 @@ export default function ActsJudgments() {
                                         >
                                             <Eye className="h-4 w-4 mr-2" /> Read_
                                         </button>
+
+                                        {/* Download Text Button */}
+                                        <button
+                                            onClick={() => downloadAsFile(act.name, act.description || "")}
+                                            className="bg-gray-100 text-black px-4 rounded-xl font-black uppercase text-[8px] tracking-widest flex flex-col items-center justify-center hover:bg-black hover:text-white transition-all min-w-[50px] border border-gray-200"
+                                            title="Download Text Content"
+                                        >
+                                            <FileText className="h-3.5 w-3.5 mb-0.5" />
+                                            TEXT
+                                        </button>
+
                                         {act.pdfUrl && (
                                             <a
                                                 href={sanitizeUrl(act.pdfUrl, act.name)}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="bg-black text-white px-6 rounded-xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center hover:bg-gray-800 transition-all focus:ring-2 focus:ring-offset-2 focus:ring-black outline-none"
+                                                className="bg-black text-white px-4 rounded-xl font-black uppercase text-[8px] tracking-widest flex flex-col items-center justify-center hover:bg-gray-800 transition-all min-w-[50px]"
+                                                title="Download Official PDF"
                                             >
-                                                <Download className="h-4 w-4" />
+                                                <Download className="h-3.5 w-3.5 mb-0.5" />
+                                                PDF
                                             </a>
                                         )}
                                     </div>
@@ -194,7 +220,7 @@ export default function ActsJudgments() {
                                         </p>
                                     </div>
 
-                                    <div className="flex gap-3">
+                                    <div className="flex gap-2">
                                         <button
                                             onClick={() => setSelectedItem({
                                                 title: j.title,
@@ -205,19 +231,32 @@ export default function ActsJudgments() {
                                         >
                                             <Eye className="h-3.5 w-3.5 mr-2" /> Read_
                                         </button>
+
+                                        {/* Download Text Button */}
+                                        <button
+                                            onClick={() => downloadAsFile(j.title, j.simpleExplanation)}
+                                            className="bg-gray-100 text-black px-4 rounded-xl font-black uppercase text-[8px] tracking-widest flex flex-col items-center justify-center hover:bg-black hover:text-white transition-all min-w-[50px] border border-gray-200"
+                                            title="Download Explanation Text"
+                                        >
+                                            <FileText className="h-3.5 w-3.5 mb-0.5" />
+                                            TEXT
+                                        </button>
+
                                         {j.pdfUrl && (
                                             <a
                                                 href={sanitizeUrl(j.pdfUrl, j.title)}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="bg-black text-white px-5 rounded-xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center hover:bg-gray-800 transition-all focus:ring-2 focus:ring-offset-2 focus:ring-black outline-none"
+                                                className="bg-black text-white px-4 rounded-xl font-black uppercase text-[8px] tracking-widest flex flex-col items-center justify-center hover:bg-gray-800 transition-all min-w-[50px]"
+                                                title="Download Official PDF"
                                             >
-                                                <Download className="h-3.5 w-3.5" />
+                                                <Download className="h-3.5 w-3.5 mb-0.5" />
+                                                PDF
                                             </a>
                                         )}
                                         <button
                                             onClick={() => handleWhatsAppShare(j.title)}
-                                            className="px-6 bg-[#25D366] text-white rounded-xl hover:bg-[#128C7E] transition-all flex items-center justify-center"
+                                            className="px-5 bg-[#25D366] text-white rounded-xl hover:bg-[#128C7E] transition-all flex items-center justify-center"
                                         >
                                             <Share2 className="h-4 w-4" />
                                         </button>
@@ -263,7 +302,13 @@ export default function ActsJudgments() {
                                 </div>
                             </div>
 
-                            <div className="mt-12 pt-8 border-t border-gray-100 flex justify-center">
+                            <div className="mt-12 pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-center gap-4">
+                                <button
+                                    onClick={() => downloadAsFile(selectedItem.title, selectedItem.content)}
+                                    className="bg-blue-600 text-white px-8 py-5 rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:bg-blue-700 transition-all shadow-xl flex items-center justify-center active:scale-95"
+                                >
+                                    <Download className="h-4 w-4 mr-2" /> Download Text_
+                                </button>
                                 <button
                                     onClick={() => setSelectedItem(null)}
                                     className="bg-black text-white px-12 py-5 rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:bg-gray-800 transition-all shadow-xl active:scale-95"
