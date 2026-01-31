@@ -6,51 +6,17 @@ import SkeletonBlog from '../components/SkeletonBlog';
 import TopProgressBar from '../components/TopProgressBar';
 
 export default function Blogs() {
-    const { blogs, loading, language, setLanguage, cleanHindi } = useBlogs();
+    const { blogs, loading, language, setLanguage, cleanHindi, t } = useBlogs();
     const [searchTerm, setSearchTerm] = useState("");
 
-    const getTranslation = (en: string, hi: string) => language === 'hi' ? hi : en;
-
-    const translateCategory = (cat: string) => {
-        if (language === 'en') return cat;
-        const mappings: Record<string, string> = {
-            'Legal Insights': 'कानूनी अंतर्दृष्टि',
-            'Digital Privacy': 'डिजिटल गोपनीयता',
-            'Business Support': 'व्यापार सहायता',
-            'Innovation': 'नवाचार'
-        };
-        return mappings[cat] || cat;
-    };
-
-    const translateReadTime = (time: string) => {
-        if (language === 'en') return time;
-        return time.replace('min read', 'मिनट की पढ़ाई')
-            .replace('4', '4')
-            .replace('5', '5')
-            .replace('6', '6')
-            .replace('7', '7');
-    };
-
-    const translateAuthor = (author: string) => {
-        if (language === 'en') return author;
-        const mappings: Record<string, string> = {
-            'Zoya Legal Team': 'ज़ोया लीगल टीम',
-            'Tech Support Unit': 'टेक सपोर्ट यूनिट',
-            'Corporate Desk': 'कॉर्पोरेट डेस्क'
-        };
-        return mappings[author] || author;
-    };
+    const translateCategory = (cat: string) => t(cat);
+    const translateReadTime = (time: string) => time.replace('min read', t('min read'));
+    const translateAuthor = (author: string) => t(author);
 
     const translateDate = (dateStr: string) => {
-        if (language === 'en') return dateStr;
-        const months: Record<string, string> = {
-            'Jan': 'जनवरी', 'Feb': 'फरवरी', 'Mar': 'मार्च', 'Apr': 'अप्रैल',
-            'May': 'मई', 'Jun': 'जून', 'Jul': 'जुलाई', 'Aug': 'अगस्त',
-            'Sep': 'सितंबर', 'Oct': 'अक्टूबर', 'Nov': 'नवंबर', 'Dec': 'दिसंबर'
-        };
         let translated = dateStr;
-        Object.entries(months).forEach(([en, hi]) => {
-            translated = translated.replace(en, hi);
+        ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].forEach(m => {
+            translated = translated.replace(m, t(m));
         });
         return translated;
     };
@@ -82,27 +48,11 @@ export default function Blogs() {
                         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5 group-focus-within:text-white transition-all duration-300" />
                         <input
                             type="text"
-                            placeholder={language === 'en' ? "Search articles, categories..." : "लेख, श्रेणियां खोजें..."}
+                            placeholder={t("Search articles, categories...")}
                             className="w-full pl-12 pr-4 py-4 rounded-2xl bg-gray-900/50 border-2 border-gray-800 text-white shadow-2xl transition-all duration-300 outline-none focus:border-white focus:bg-black placeholder:text-gray-600 font-bold"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
-                    </div>
-
-                    {/* Language Switcher */}
-                    <div className="flex bg-gray-100/10 p-1.5 rounded-2xl w-fit mx-auto mt-10 border border-gray-800 backdrop-blur-sm">
-                        <button
-                            onClick={() => setLanguage('en')}
-                            className={`px-8 py-3 rounded-xl font-black uppercase text-xs tracking-widest transition-all ${language === 'en' ? 'bg-white text-black shadow-lg' : 'text-gray-400 hover:text-white'}`}
-                        >
-                            English
-                        </button>
-                        <button
-                            onClick={() => setLanguage('hi')}
-                            className={`px-8 py-3 rounded-xl font-black uppercase text-xs tracking-widest transition-all ${language === 'hi' ? 'bg-white text-black shadow-lg' : 'text-gray-400 hover:text-white'}`}
-                        >
-                            हिन्दी
-                        </button>
                     </div>
                 </div>
             </section>
@@ -160,7 +110,7 @@ export default function Blogs() {
                                             to={`/blogs/${post._id}`}
                                             className="inline-flex items-center text-black font-black uppercase tracking-widest group/link transition-all"
                                         >
-                                            {language === 'en' ? 'Read Full Article' : 'पूरा लेख पढ़ें'}
+                                            {t('Read Full Article')}
                                             <ArrowRight className="ml-2 h-5 w-5 group-hover/link:translate-x-2 transition-transform duration-300" />
                                         </Link>
                                     </div>
@@ -170,13 +120,13 @@ export default function Blogs() {
                     ) : (
                         <div className="text-center py-20">
                             <Search className="h-20 w-20 mx-auto mb-6 text-gray-200" />
-                            <h3 className="text-2xl font-black text-black mb-2 uppercase">{getTranslation('No articles found', 'कोई लेख नहीं मिला')}</h3>
-                            <p className="text-gray-500 font-bold mb-8">{getTranslation("We couldn't find any articles matching your search.", "हमें आपकी खोज से मेल खाने वाला कोई लेख नहीं मिला।")}</p>
+                            <h3 className="text-2xl font-black text-black mb-2 uppercase">{t('No articles found')}</h3>
+                            <p className="text-gray-500 font-bold mb-8">{t("We couldn't find any articles matching your search.")}</p>
                             <button
                                 onClick={() => setSearchTerm("")}
                                 className="text-black font-black hover:underline underline-offset-4"
                             >
-                                {getTranslation('Clear Search', 'खोज साफ़ करें')}
+                                {t('Clear Search')}
                             </button>
                         </div>
                     )}
@@ -186,14 +136,14 @@ export default function Blogs() {
             {/* Newsletter Section */}
             <section className="py-20 bg-black text-white border-t border-gray-800">
                 <div className="max-w-4xl mx-auto px-4 text-center">
-                    <h2 className="text-3xl md:text-5xl font-black mb-6 tracking-tighter uppercase italic">{getTranslation('Stay Informed_', 'सूचित रहें_')}</h2>
+                    <h2 className="text-3xl md:text-5xl font-black mb-6 tracking-tighter uppercase italic">{t('Stay Informed_')}</h2>
                     <p className="text-xl text-gray-400 mb-10 font-bold">
                         {language === 'en' ? 'Subscribe to our newsletter for exclusive insights.' : 'विशेष अंतर्दृष्टि के लिए हमारे न्यूज़लेटर की सदस्यता लें।'}
                     </p>
                     <form className="flex flex-col sm:flex-row gap-4">
                         <input
                             type="email"
-                            placeholder={language === 'en' ? "Enter your email" : "अपना ईमेल दर्ज करें"}
+                            placeholder={t("Enter your email")}
                             className="flex-1 px-8 py-5 rounded-2xl bg-gray-900 border-2 border-gray-800 text-white outline-none focus:border-white focus:bg-black transition-all font-bold shadow-2xl"
                             required
                         />
@@ -201,7 +151,7 @@ export default function Blogs() {
                             type="submit"
                             className="px-10 py-5 bg-white text-black rounded-2xl font-black uppercase tracking-widest hover:bg-gray-100 transition-all shadow-2xl transform active:scale-95"
                         >
-                            {language === 'en' ? 'Subscribe' : 'सब्सक्राइब करें'}
+                            {t('Subscribe')}
                         </button>
                     </form>
                 </div>

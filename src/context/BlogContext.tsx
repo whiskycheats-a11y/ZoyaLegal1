@@ -33,6 +33,7 @@ interface BlogContextType {
     cleanHindi: (text: string | undefined) => string;
     language: 'en' | 'hi';
     setLanguage: (lang: 'en' | 'hi') => void;
+    t: (key: string) => string;
 }
 
 const BlogContext = createContext<BlogContextType | undefined>(undefined);
@@ -326,8 +327,60 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
 
     const cleanHindi = (text: string | undefined): string => {
         if (!text) return "";
-        // Remove <HINDI>, </HINDI>, <hindi>, </hindi> tags and trim
         return text.replace(/<(?:HINDI|hindi)>|<\/(?:HINDI|hindi)>/g, "").trim();
+    };
+
+    const translations: Record<'en' | 'hi', Record<string, string>> = {
+        en: {
+            'Read Full Article': 'Read Full Article',
+            'Back to Articles': 'Back to Articles',
+            'Suggested Reading_': 'Suggested Reading_',
+            'Stay Informed_': 'Stay Informed_',
+            'Search articles, categories...': 'Search articles, categories...',
+            'Senior Contributor': 'Senior Contributor',
+            'Legal Insights': 'Legal Insights',
+            'Digital Privacy': 'Digital Privacy',
+            'Business Support': 'Business Support',
+            'Innovation': 'Innovation',
+            'min read': 'min read',
+            'Zoya Legal Team': 'Zoya Legal Team',
+            'Tech Support Unit': 'Tech Support Unit',
+            'Corporate Desk': 'Corporate Desk',
+            'No articles found': 'No articles found',
+            "We couldn't find any articles matching your search.": "We couldn't find any articles matching your search.",
+            'Clear Search': 'Clear Search',
+            'Subscribe': 'Subscribe',
+            'Enter your email': 'Enter your email',
+            'Jan': 'Jan', 'Feb': 'Feb', 'Mar': 'Mar', 'Apr': 'Apr', 'May': 'May', 'Jun': 'Jun',
+            'Jul': 'Jul', 'Aug': 'Aug', 'Sep': 'Sep', 'Oct': 'Oct', 'Nov': 'Nov', 'Dec': 'Dec'
+        },
+        hi: {
+            'Read Full Article': 'पूरा लेख पढ़ें',
+            'Back to Articles': 'वापस लेखों पर',
+            'Suggested Reading_': 'सुझाए गए लेख_',
+            'Stay Informed_': 'सूचित रहें_',
+            'Search articles, categories...': 'लेख, श्रेणियां खोजें...',
+            'Senior Contributor': 'वरिष्ठ योगदानकर्ता',
+            'Legal Insights': 'कानूनी अंतर्दृष्टि',
+            'Digital Privacy': 'डिजिटल गोपनीयता',
+            'Business Support': 'व्यापार सहायता',
+            'Innovation': 'नवाचार',
+            'min read': 'मिनट की पढ़ाई',
+            'Zoya Legal Team': 'ज़ोया लीगल टीम',
+            'Tech Support Unit': 'टेक सपोर्ट यूनिट',
+            'Corporate Desk': 'कॉर्पोरेट डेस्क',
+            'No articles found': 'कोई लेख नहीं मिला',
+            "We couldn't find any articles matching your search.": "हमें आपकी खोज से मेल खाने वाला कोई लेख नहीं मिला।",
+            'Clear Search': 'खोज साफ़ करें',
+            'Subscribe': 'सब्सक्राइब करें',
+            'Enter your email': 'अपना ईमेल दर्ज करें',
+            'Jan': 'जनवरी', 'Feb': 'फरवरी', 'Mar': 'मार्च', 'Apr': 'अप्रैल', 'May': 'मई', 'Jun': 'जून',
+            'Jul': 'जुलाई', 'Aug': 'अगस्त', 'Sep': 'सितंबर', 'Oct': 'अक्टूबर', 'Nov': 'नवंबर', 'Dec': 'दिसंबर'
+        }
+    };
+
+    const t = (key: string): string => {
+        return translations[language][key] || key;
     };
 
     return (
@@ -340,7 +393,8 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
             fetchSettings, updateSettings,
             translateText,
             cleanHindi,
-            language, setLanguage
+            language, setLanguage,
+            t
         }}>
             {children}
         </BlogContext.Provider>

@@ -41,7 +41,7 @@ export default function Header() {
     setIsServicesOpen(false);
   }, [location]);
 
-  const { settings } = useBlogs();
+  const { settings, language, setLanguage } = useBlogs();
 
   return (
     <>
@@ -80,6 +80,22 @@ export default function Header() {
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center space-x-1">
+              {/* Language Switcher Desktop */}
+              <div className="flex bg-gray-100 p-1 rounded-xl mr-2">
+                <button
+                  onClick={() => setLanguage('en')}
+                  className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${language === 'en' ? 'bg-black text-white shadow-md' : 'text-gray-400 hover:text-black'}`}
+                >
+                  EN
+                </button>
+                <button
+                  onClick={() => setLanguage('hi')}
+                  className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${language === 'hi' ? 'bg-black text-white shadow-md' : 'text-gray-400 hover:text-black'}`}
+                >
+                  हिन्दी
+                </button>
+              </div>
+
               <Link
                 to="/"
                 className={`${location.pathname === '/' ? 'text-black bg-gray-100' : 'text-gray-600 hover:text-black hover:bg-gray-50'} px-4 py-2 rounded-lg transition-all font-bold text-sm`}
@@ -195,7 +211,24 @@ export default function Header() {
               ))}
             </div>
 
-            <Link to="/payment" className="block w-full text-center bg-black text-white py-4 rounded-xl font-bold shadow-lg">Pay Online Now</Link>
+            <div className="pt-4 space-y-4 border-t border-gray-100">
+              <div className="flex bg-gray-100 p-1.5 rounded-xl w-full">
+                <button
+                  onClick={() => setLanguage('en')}
+                  className={`flex-1 py-3 rounded-lg font-black uppercase text-xs tracking-widest transition-all ${language === 'en' ? 'bg-white text-black shadow-sm' : 'text-gray-400'}`}
+                >
+                  English
+                </button>
+                <button
+                  onClick={() => setLanguage('hi')}
+                  className={`flex-1 py-3 rounded-lg font-black uppercase text-xs tracking-widest transition-all ${language === 'hi' ? 'bg-white text-black shadow-sm' : 'text-gray-400'}`}
+                >
+                  हिन्दी
+                </button>
+              </div>
+
+              <Link to="/payment" className="block w-full text-center bg-black text-white py-4 rounded-xl font-bold shadow-lg">Pay Online Now</Link>
+            </div>
           </div>
         </div>
       </header>

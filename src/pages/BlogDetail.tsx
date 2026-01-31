@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 
 export default function BlogDetail() {
     const { id } = useParams();
-    const { blogs, loading: globalLoading, language, setLanguage, cleanHindi } = useBlogs();
+    const { blogs, loading: globalLoading, language, setLanguage, cleanHindi, t } = useBlogs();
     const post = blogs.find(p => p._id === id);
     const [isSaved, setIsSaved] = useState(false);
     const [showNotification, setShowNotification] = useState<{ show: boolean, message: string }>({ show: false, message: "" });
@@ -19,42 +19,14 @@ export default function BlogDetail() {
 
     const getTranslation = (en: string, hi: string) => language === 'hi' ? hi : en;
 
-    const translateCategory = (cat: string) => {
-        if (language === 'en') return cat;
-        const mappings: Record<string, string> = {
-            'Legal Insights': 'कानूनी अंतर्दृष्टि',
-            'Digital Privacy': 'डिजिटल गोपनीयता',
-            'Business Support': 'व्यापार सहायता',
-            'Innovation': 'नवाचार'
-        };
-        return mappings[cat] || cat;
-    };
-
-    const translateReadTime = (time: string) => {
-        if (language === 'en') return time;
-        return time.replace('min read', 'मिनट की पढ़ाई');
-    };
-
-    const translateAuthor = (author: string) => {
-        if (language === 'en') return author;
-        const mappings: Record<string, string> = {
-            'Zoya Legal Team': 'ज़ोया लीगल टीम',
-            'Tech Support Unit': 'टेक सपोर्ट यूनिट',
-            'Corporate Desk': 'कॉर्पोरेट डेस्क'
-        };
-        return mappings[author] || author;
-    };
+    const translateCategory = (cat: string) => t(cat);
+    const translateReadTime = (time: string) => time.replace('min read', t('min read'));
+    const translateAuthor = (author: string) => t(author);
 
     const translateDate = (dateStr: string) => {
-        if (language === 'en') return dateStr;
-        const months: Record<string, string> = {
-            'Jan': 'जनवरी', 'Feb': 'फरवरी', 'Mar': 'मार्च', 'Apr': 'अप्रैल',
-            'May': 'मई', 'Jun': 'जून', 'Jul': 'जुलाई', 'Aug': 'अगस्त',
-            'Sep': 'सितंबर', 'Oct': 'अक्टूबर', 'Nov': 'नवंबर', 'Dec': 'दिसंबर'
-        };
         let translated = dateStr;
-        Object.entries(months).forEach(([en, hi]) => {
-            translated = translated.replace(en, hi);
+        ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].forEach(m => {
+            translated = translated.replace(m, t(m));
         });
         return translated;
     };
@@ -107,7 +79,7 @@ export default function BlogDetail() {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white px-4">
                 <div className="text-center">
-                    <h1 className="text-4xl font-black mb-4">{getTranslation('Post Not Found', 'लेख नहीं मिला')}</h1>
+                    <h1 className="text-4xl font-black mb-4">{t('Post Not Found')}</h1>
                     <Link to="/blogs" className="text-black font-bold hover:underline">{getTranslation('Back to Blogs', 'ब्लॉग पर वापस जाएं')}</Link>
                 </div>
             </div>
@@ -140,7 +112,7 @@ export default function BlogDetail() {
                         className="inline-flex items-center text-white/80 hover:text-white mb-6 font-bold transition-colors group"
                     >
                         <ArrowLeft className="mr-2 h-5 w-5 group-hover:-translate-x-1 transition-transform" />
-                        {language === 'en' ? 'Back to Articles' : 'वापस लेखों पर'}
+                        {t('Back to Articles')}
                     </Link>
                     <div className="max-w-4xl">
                         <span className="bg-white text-black text-[10px] font-black tracking-widest py-1.5 px-4 rounded-full uppercase mb-4 inline-block">
@@ -176,25 +148,11 @@ export default function BlogDetail() {
                         </div>
                         <div>
                             <p className="font-black text-black text-lg">{translateAuthor(post.author)}</p>
-                            <p className="text-gray-400 text-xs font-bold uppercase tracking-widest italic">{getTranslation('Senior Contributor', 'वरिष्ठ योगदानकर्ता')}</p>
+                            <p className="text-gray-400 text-xs font-bold uppercase tracking-widest italic">{t('Senior Contributor')}</p>
                         </div>
                     </div>
                     <div className="flex space-x-2">
                         <div className="flex space-x-2 items-center">
-                            <div className="flex bg-gray-100 p-1.5 rounded-2xl mr-4 border border-gray-200">
-                                <button
-                                    onClick={() => setLanguage('en')}
-                                    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${language === 'en' ? 'bg-black text-white shadow-lg' : 'text-gray-400 hover:text-black'}`}
-                                >
-                                    English
-                                </button>
-                                <button
-                                    onClick={() => setLanguage('hi')}
-                                    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${language === 'hi' ? 'bg-black text-white shadow-lg' : 'text-gray-400 hover:text-black'}`}
-                                >
-                                    हिन्दी
-                                </button>
-                            </div>
                             <button
                                 onClick={handleShare}
                                 className="p-3 rounded-full hover:bg-gray-100 transition-colors group"
@@ -257,7 +215,7 @@ export default function BlogDetail() {
             {/* Suggested Reading */}
             <section className="bg-gray-50 py-20 border-t border-gray-100">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <h2 className="text-3xl font-black mb-12 text-black tracking-tighter uppercase italic underline decoration-4 underline-offset-8 decoration-gray-200">{getTranslation('Suggested Reading_', 'सुझाए गए लेख_')}</h2>
+                    <h2 className="text-3xl font-black mb-12 text-black tracking-tighter uppercase italic underline decoration-4 underline-offset-8 decoration-gray-200">{t('Suggested Reading_')}</h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         {blogs.filter(p => p._id !== post._id).slice(0, 3).map(p => (
                             <Link key={p._id} to={`/blogs/${p._id}`} className="group block bg-white p-6 rounded-3xl border border-gray-100 hover:border-black transition-all shadow-sm hover:shadow-xl">
