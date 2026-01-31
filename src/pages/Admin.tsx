@@ -47,7 +47,8 @@ export default function Admin() {
         category: "Legal Insights",
         author: "Zoya Legal Team",
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-        readTime: "5 min read"
+        readTime: "5 min read",
+        pdfUrl: ""
     });
     const [editLang, setEditLang] = useState<'en' | 'hi'>('en');
 
@@ -199,7 +200,8 @@ export default function Admin() {
             category: "Legal Insights",
             author: "Zoya Legal Team",
             date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-            readTime: "5 min read"
+            readTime: "5 min read",
+            pdfUrl: ""
         });
         if (editorRef.current) editorRef.current.innerHTML = "";
         setActFormData({
@@ -237,6 +239,7 @@ export default function Admin() {
             date: blog.date,
             readTime: blog.readTime,
             image: blog.image,
+            pdfUrl: blog.pdfUrl || '',
             content: blog.content,
             content_hi: blog.content_hi || ''
         });

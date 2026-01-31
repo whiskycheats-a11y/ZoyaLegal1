@@ -156,7 +156,7 @@ export default function ActsJudgments() {
                                             <Eye className="h-4 w-4 mr-2" /> Read_
                                         </button>
 
-                                        {/* PDF Link Button */}
+                                        {/* PDF link from admin panel */}
                                         {act.pdfUrl && (
                                             <a
                                                 href={act.pdfUrl}
@@ -207,15 +207,19 @@ export default function ActsJudgments() {
                                             <Eye className="h-3.5 w-3.5 mr-2" /> Read_
                                         </button>
 
-                                        {/* Download Text Button */}
-                                        <button
-                                            onClick={() => downloadAsFile(j.title, j.simpleExplanation)}
-                                            className="bg-gray-100 text-black px-4 rounded-xl font-black uppercase text-[8px] tracking-widest flex flex-col items-center justify-center hover:bg-black hover:text-white transition-all min-w-[50px] border border-gray-200"
-                                            title="Download Explanation Text"
-                                        >
-                                            <FileText className="h-3.5 w-3.5 mb-0.5" />
-                                            TEXT
-                                        </button>
+                                        {/* Redirect to PDF URL from Admin Panel */}
+                                        {j.pdfUrl && j.pdfUrl !== "#" && (
+                                            <a
+                                                href={j.pdfUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="bg-gray-100 text-black px-4 rounded-xl font-black uppercase text-[8px] tracking-widest flex flex-col items-center justify-center hover:bg-black hover:text-white transition-all min-w-[50px] border border-gray-200"
+                                                title="View PDF Document"
+                                            >
+                                                <FileText className="h-3.5 w-3.5 mb-0.5" />
+                                                PDF
+                                            </a>
+                                        )}
                                         <button
                                             onClick={() => handleWhatsAppShare(j.title)}
                                             className="px-5 bg-[#25D366] text-white rounded-xl hover:bg-[#128C7E] transition-all flex items-center justify-center"

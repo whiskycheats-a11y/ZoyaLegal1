@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const axios = require('axios');
 const cloudinary = require('cloudinary').v2;
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -69,6 +70,7 @@ const blogSchema = new mongoose.Schema({
     author: { type: String, required: true },
     date: { type: String, required: true },
     readTime: { type: String, required: true },
+    pdfUrl: { type: String }, // PDF document link
     createdAt: { type: Date, default: Date.now }
 });
 
@@ -129,35 +131,87 @@ const translateBlogIfMissing = async (blogData) => {
         { key: 'content', hiKey: 'content_hi', type: 'html' }
     ];
 
-    for (const field of fieldsToTranslate) {
-        if (blogData[field.key] && (!blogData[field.hiKey] || blogData[field.hiKey].trim() === "")) {
-            try {
-                const prompt = field.type === 'html'
-                    ? `Translate the following HTML content from English to Hindi. Keep all HTML tags, classes, and structure EXACTLY as they are. ONLY translate the human-readable text inside the tags. Do not add any new tags or remove existing ones. The output must be valid HTML. Content:\n\n${blogData[field.key]}`
-                    : `Translate the following text from English to Hindi. Preserve the tone and meaning. Text:\n\n${blogData[field.key]}`;
+    // Helper to clean bloated Word HTML which wastes tokens
+    const cleanWordHtml = (html) => {
+        if (!html) return "";
+        return html
+            .replace(/style="[^"]*"/gi, "") // Remove inline styles
+            .replace(/class="[^"]*"/gi, "") // Remove classes
+            .replace(/<span[^>]*>/gi, "") // Remove spans
+            .replace(/<\/span>/gi, "")
+            .replace(/<o:p>[^<]*<\/o:p>/gi, "") // Remove Word specific tags
+            .replace(/&nbsp;/gi, " ")
+            .replace(/\s+/g, " "); // Collapse whitespace
+    };
 
-                const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
-                    model: "openai/gpt-3.5-turbo",
-                    messages: [
-                        { role: "system", content: "You are a professional Hindi translator specializing in legal and technical content. You provide ONLY the translated text without any explanation." },
-                        { role: "user", content: prompt }
-                    ]
-                }, {
-                    headers: {
-                        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-                        'HTTP-Referer': 'http://localhost:5173',
-                        'X-Title': 'ZoyaLegal Auto Translator',
-                        'Content-Type': 'application/json',
-                    }
-                });
+    // Helper to chunk text/html for translation
+    const chunkTranslate = async (text, type) => {
+        if (!text) return "";
+        const MAX_CHUNK_SIZE = 5000; // Safe chunk size for 16k context
 
-                if (response.data.choices && response.data.choices[0]) {
-                    blogData[field.hiKey] = response.data.choices[0].message.content.trim();
-                    console.log(`Auto-translated ${field.key} successfully.`);
+        if (text.length <= MAX_CHUNK_SIZE) {
+            return await performTranslation(text, type);
+        }
+
+        console.log(`[AI Chunking] Content too large (${text.length} chars), splitting...`);
+        // Simple splitting for now, could be improved to split on tags
+        const chunks = [];
+        for (let i = 0; i < text.length; i += MAX_CHUNK_SIZE) {
+            chunks.push(text.substring(i, i + MAX_CHUNK_SIZE));
+        }
+
+        const results = [];
+        for (let j = 0; j < chunks.length; j++) {
+            console.log(`[AI Chunking] Translating chunk ${j + 1}/${chunks.length}...`);
+            const translated = await performTranslation(chunks[j], type);
+            results.push(translated);
+        }
+        return results.join("");
+    };
+
+    const performTranslation = async (text, type) => {
+        try {
+            const prompt = type === 'html'
+                ? `Translate the following HTML content from English to Hindi. Keep all HTML tags EXACTLY as they are. ONLY translate the human-readable text inside the tags. Content:\n\n${text}`
+                : `Translate the following text from English to Hindi. Preserve the tone and meaning. Text:\n\n${text}`;
+
+            const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
+                model: "openai/gpt-3.5-turbo",
+                messages: [
+                    { role: "system", content: "You are a professional Hindi translator specializing in legal and technical content. You provide ONLY the translated text without any explanation." },
+                    { role: "user", content: prompt }
+                ]
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                    'HTTP-Referer': 'http://localhost:5173',
+                    'X-Title': 'ZoyaLegal Auto Translator',
+                    'Content-Type': 'application/json',
                 }
-            } catch (err) {
-                console.error(`Auto-translation fallback failed for ${field.key}:`, err.message);
+            });
+
+            if (response.data.choices && response.data.choices[0]) {
+                return response.data.choices[0].message.content.trim();
             }
+        } catch (err) {
+            console.error(`AI Translation failed:`, err.message);
+            if (err.response) console.error('Error Data:', JSON.stringify(err.response.data));
+            return text; // Return original on failure to keep flow
+        }
+        return text;
+    };
+
+    for (const field of fieldsToTranslate) {
+        const enValue = blogData[field.key];
+        const hiValue = blogData[field.hiKey];
+
+        if (enValue && (!hiValue || hiValue.trim() === "" || hiValue === enValue)) {
+            // Clean content if it's HTML to prevent token bloat
+            const valueToTranslate = field.type === 'html' ? cleanWordHtml(enValue) : enValue;
+
+            console.log(`[AI Repair] Translating ${field.key} (${valueToTranslate.length} chars)...`);
+            blogData[field.hiKey] = await chunkTranslate(valueToTranslate, field.type);
+            console.log(`[AI Repair] Finished ${field.key}.`);
         }
     }
     return blogData;

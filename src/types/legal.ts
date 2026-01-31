@@ -12,6 +12,7 @@ export interface BlogPost {
     author: string;
     date: string;
     readTime: string;
+    pdfUrl?: string;
     createdAt?: string;
 }
 

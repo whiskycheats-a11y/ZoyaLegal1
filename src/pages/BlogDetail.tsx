@@ -209,6 +209,17 @@ export default function BlogDetail() {
                             >
                                 <Bookmark className={`h-5 w-5 ${isSaved ? 'text-white' : 'text-gray-400 group-hover:text-black'}`} />
                             </button>
+                            {post.pdfUrl && (
+                                <a
+                                    href={post.pdfUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="px-4 py-2 bg-black text-white rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-gray-800 transition-all flex items-center gap-2"
+                                    title={getTranslation("View PDF Document", "PDF दस्तावेज़ देखें")}
+                                >
+                                    📄 PDF
+                                </a>
+                            )}
                         </div>
                     </div>
                 </div>
