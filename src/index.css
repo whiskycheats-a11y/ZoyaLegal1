@@ -64,11 +64,25 @@
   /* Smooth scroll behavior */
   html {
     scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Custom hover glow effect */
-  .hover-glow:hover {
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  body {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  /* Responsive Typography Utility */
+  @media (max-width: 640px) {
+    .text-responsive-h1 { font-size: 2.5rem; line-height: 1.1; }
+    .text-responsive-p { font-size: 1rem; line-height: 1.5; }
+  }
+
+  /* Improved Touch Targets for Mobile */
+  button, a {
+    touch-action: manipulation;
   }
 
   /* Skeleton Loading Animation */

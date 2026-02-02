@@ -53,6 +53,8 @@ export default function AIChatbot() {
             }));
 
             const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            console.log(`[AI Request] Sending to ${API_BASE_URL}/api/chat`);
+
             const response = await fetch(`${API_BASE_URL}/api/chat`, {
                 method: 'POST',
                 headers: {
@@ -61,9 +63,19 @@ export default function AIChatbot() {
                 body: JSON.stringify({ messages: apiMessages }),
             });
 
-            if (!response.ok) throw new Error('Failed to connect to AI');
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                console.error('[AI Error] Server responded with:', response.status, errorData);
+                throw new Error(errorData.message || 'Failed to connect to AI');
+            }
 
             const data = await response.json();
+            console.log('[AI Success] Received response');
+
+            if (!data.content) {
+                console.error('[AI Error] Missing content in response:', data);
+                throw new Error('AI response was empty');
+            }
 
             const cleanResponse = data.content.replace(/<(?:HINDI|hindi)>|<\/(?:HINDI|hindi)>/g, "").trim();
 
@@ -74,11 +86,13 @@ export default function AIChatbot() {
                 timestamp: new Date(),
             };
             setMessages((prev) => [...prev, aiMsg]);
-        } catch (err) {
-            console.error('AI Error:', err);
+        } catch (err: any) {
+            console.error('[AI Exception]:', err);
             const errorMsg: Message = {
                 id: (Date.now() + 1).toString(),
-                text: "I'm having trouble connecting to my brain. Please try again in a moment!",
+                text: err.message === 'Failed to fetch'
+                    ? "Server is not responding. Please make sure the backend is running on port 5000."
+                    : `Error: ${err.message || "I'm having trouble connecting. Please try again later!"}`,
                 sender: 'ai',
                 timestamp: new Date(),
             };

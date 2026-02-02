@@ -19,7 +19,11 @@ const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://babahacket4_db_use
 // MongoDB Connection logic moved to downstream to include seeding
 
 // AI Configuration
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+const AI_API_KEY = process.env.GITHUB_TOKEN || process.env.OPENROUTER_API_KEY;
+const AI_ENDPOINT = AI_API_KEY?.startsWith('ghp_')
+    ? 'https://models.inference.ai.azure.com/chat/completions'
+    : 'https://openrouter.ai/api/v1/chat/completions';
+const AI_MODEL = AI_API_KEY?.startsWith('ghp_') ? "gpt-4o-mini" : "openai/gpt-3.5-turbo";
 
 // Cloudinary Configuration
 if (process.env.CLOUDINARY_URL) {
@@ -39,7 +43,8 @@ console.log('CLOUDINARY_CLOUD_NAME:', process.env.CLOUDINARY_CLOUD_NAME || 'MISS
 console.log('CLOUDINARY_API_KEY:', process.env.CLOUDINARY_API_KEY ? 'SET (Ends in ' + process.env.CLOUDINARY_API_KEY.slice(-4) + ')' : 'MISSING');
 console.log('CLOUDINARY_API_SECRET:', process.env.CLOUDINARY_API_SECRET ? 'SET (Length: ' + process.env.CLOUDINARY_API_SECRET.length + ')' : 'MISSING');
 console.log('CLOUDINARY_URL:', process.env.CLOUDINARY_URL ? 'SET' : 'NOT SET');
-console.log('OPENROUTER_API_KEY:', process.env.OPENROUTER_API_KEY ? 'SET' : 'MISSING');
+console.log('AI_API_KEY:', AI_API_KEY ? `SET (${AI_API_KEY.startsWith('ghp_') ? 'GitHub' : 'OpenRouter'})` : 'MISSING');
+console.log('AI_ENDPOINT:', AI_ENDPOINT);
 console.log('---------------------------');
 
 const advocateSchema = new mongoose.Schema({
@@ -175,15 +180,15 @@ const translateBlogIfMissing = async (blogData) => {
                 ? `Translate the following HTML content from English to Hindi. Keep all HTML tags EXACTLY as they are. ONLY translate the human-readable text inside the tags. Content:\n\n${text}`
                 : `Translate the following text from English to Hindi. Preserve the tone and meaning. Text:\n\n${text}`;
 
-            const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
-                model: "openai/gpt-3.5-turbo",
+            const response = await axios.post(AI_ENDPOINT, {
+                model: AI_MODEL,
                 messages: [
                     { role: "system", content: "You are a professional Hindi translator specializing in legal and technical content. You provide ONLY the translated text without any explanation." },
                     { role: "user", content: prompt }
                 ]
             }, {
                 headers: {
-                    'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                    'Authorization': `Bearer ${AI_API_KEY}`,
                     'HTTP-Referer': 'http://localhost:5173',
                     'X-Title': 'ZoyaLegal Auto Translator',
                     'Content-Type': 'application/json',
@@ -556,8 +561,8 @@ app.post('/api/chat', async (req, res) => {
     console.log('Messages body:', JSON.stringify(messages));
 
     try {
-        const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
-            model: "openai/gpt-3.5-turbo",
+        const response = await axios.post(AI_ENDPOINT, {
+            model: AI_MODEL,
             messages: [
                 {
                     role: "system",
@@ -567,15 +572,22 @@ app.post('/api/chat', async (req, res) => {
             ]
         }, {
             headers: {
-                'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                'Authorization': `Bearer ${AI_API_KEY}`,
                 'HTTP-Referer': 'http://localhost:5173',
                 'X-Title': 'ZoyaLegal AI Assistant',
                 'Content-Type': 'application/json',
             }
         });
 
-        const aiMessage = response.data.choices[0].message;
-        res.json(aiMessage);
+        console.log('AI Response status:', response.status);
+        if (response.data.choices && response.data.choices[0]) {
+            const aiMessage = response.data.choices[0].message;
+            console.log('AI Response content:', aiMessage.content.substring(0, 50) + '...');
+            res.json(aiMessage);
+        } else {
+            console.error('AI Response Error: Unexpected structure', JSON.stringify(response.data));
+            res.status(500).json({ message: 'AI returned an unexpected response format.' });
+        }
     } catch (err) {
         console.error('--- AI Chat Error ---');
         if (err.response) {
@@ -599,8 +611,8 @@ app.post('/api/translate', async (req, res) => {
             ? `Translate the following HTML content from English to Hindi. Keep all HTML tags, classes, and structure EXACTLY as they are. Only translate the human-readable text inside the tags:\n\n${text}`
             : `Translate the following text from English to Hindi:\n\n${text}`;
 
-        const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
-            model: "openai/gpt-3.5-turbo",
+        const response = await axios.post(AI_ENDPOINT, {
+            model: AI_MODEL,
             messages: [
                 {
                     role: "system",
@@ -613,7 +625,7 @@ app.post('/api/translate', async (req, res) => {
             ]
         }, {
             headers: {
-                'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                'Authorization': `Bearer ${AI_API_KEY}`,
                 'HTTP-Referer': 'http://localhost:5173',
                 'X-Title': 'ZoyaLegal AI Translator',
                 'Content-Type': 'application/json',

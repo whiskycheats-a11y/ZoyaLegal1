@@ -16,6 +16,7 @@ import {
   Calendar
 } from 'lucide-react';
 import { useBlogs } from '../context/BlogContext';
+import AboutSection from '../components/AboutSection';
 
 export default function Home() {
   const { blogs, loading: blogsLoading, language, cleanHindi } = useBlogs();
@@ -282,6 +283,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <AboutSection />
 
       {/* Insights Section */}
       <section className="py-24 bg-gray-50">
