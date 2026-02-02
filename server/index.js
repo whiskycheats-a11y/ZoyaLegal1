@@ -183,7 +183,7 @@ const translateBlogIfMissing = async (blogData) => {
             const response = await axios.post(AI_ENDPOINT, {
                 model: AI_MODEL,
                 messages: [
-                    { role: "system", content: "You are a professional Hindi translator specializing in legal and technical content. You provide ONLY the translated text without any explanation." },
+                    { role: "system", content: "You are a professional Hindi translator specializing in legal and technical content. You provide ONLY the translated text without any explanation or introductory text like 'Here is the translation:'." },
                     { role: "user", content: prompt }
                 ]
             }, {
@@ -196,7 +196,11 @@ const translateBlogIfMissing = async (blogData) => {
             });
 
             if (response.data.choices && response.data.choices[0]) {
-                return response.data.choices[0].message.content.trim();
+                let content = response.data.choices[0].message.content.trim();
+                // Strip common AI noise
+                content = content.replace(/^(Here is the translation:|Translation:|हिन्दी अनुवाद:|अनुवाद:)\s*/i, "");
+                content = content.replace(/^```(html|text|markdown)?\n/i, "").replace(/\n```$/i, "");
+                return content.trim();
             }
         } catch (err) {
             console.error(`AI Translation failed:`, err.message);
@@ -300,7 +304,7 @@ const repairBlogData = async () => {
                 // Special check for content that might be stuck in English
                 { $expr: { $eq: ["$content", "$content_hi"] } }
             ]
-        }).limit(5); // Process in small batches to avoid timeout
+        }).limit(20); // Process in larger batches for faster initial setup
 
         if (blogsToRepair.length > 0) {
             console.log(`[Backgroud] Found ${blogsToRepair.length} blogs needing AI translation repair...`);
@@ -309,7 +313,7 @@ const repairBlogData = async () => {
                 const repairedData = await translateBlogIfMissing(blog.toObject());
                 await Blog.findByIdAndUpdate(blog._id, repairedData);
             }
-            console.log("[Backgroud] Repair completed.");
+            console.log("[Backgroud] Blog Repair completed.");
         }
     } catch (err) {
         console.error("[Backgroud] Repair error:", err);
