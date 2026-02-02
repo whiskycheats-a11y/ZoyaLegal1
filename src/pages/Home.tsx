@@ -155,6 +155,8 @@ export default function Home() {
         </div>
       </section>
 
+      <AboutSection />
+
       {/* Stats Section */}
       <section className="py-20 bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -283,8 +285,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      <AboutSection />
 
       {/* Insights Section */}
       <section className="py-24 bg-gray-50">

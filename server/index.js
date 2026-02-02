@@ -19,11 +19,14 @@ const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://babahacket4_db_use
 // MongoDB Connection logic moved to downstream to include seeding
 
 // AI Configuration
-const AI_API_KEY = process.env.GITHUB_TOKEN || process.env.OPENROUTER_API_KEY;
-const AI_ENDPOINT = AI_API_KEY?.startsWith('ghp_')
-    ? 'https://models.inference.ai.azure.com/chat/completions'
-    : 'https://openrouter.ai/api/v1/chat/completions';
-const AI_MODEL = AI_API_KEY?.startsWith('ghp_') ? "gpt-4o-mini" : "openai/gpt-3.5-turbo";
+const AI_API_KEY = process.env.A4F_API_KEY || process.env.GITHUB_TOKEN;
+const AI_ENDPOINT = process.env.A4F_API_KEY
+    ? 'https://api.a4f.co/v1/chat/completions'
+    : (AI_API_KEY?.startsWith('ghp_')
+        ? 'https://models.inference.ai.azure.com/chat/completions'
+        : 'https://openrouter.ai/api/v1/chat/completions');
+
+const AI_MODEL = process.env.A4F_API_KEY ? "gpt-4o-mini" : (AI_API_KEY?.startsWith('ghp_') ? "gpt-4o-mini" : "openai/gpt-3.5-turbo");
 
 // Cloudinary Configuration
 if (process.env.CLOUDINARY_URL) {
@@ -113,6 +116,48 @@ const judgmentSchema = new mongoose.Schema({
 
 const Judgment = mongoose.model('Judgment', judgmentSchema);
 
+// Usage Schema to track free tier limits
+const usageSchema = new mongoose.Schema({
+    ip: { type: String, required: true, unique: true },
+    count: { type: Number, default: 0 },
+    lastRequestDate: { type: String, required: true }, // Format: YYYY-MM-DD
+    updatedAt: { type: Date, default: Date.now }
+});
+
+const Usage = mongoose.model('Usage', usageSchema);
+
+// Helper to check and increment usage
+const checkRateLimit = async (ip) => {
+    const today = new Date().toISOString().split('T')[0];
+    const LIMIT = 15;
+
+    let usage = await Usage.findOne({ ip });
+
+    if (!usage) {
+        usage = new Usage({ ip, count: 1, lastRequestDate: today });
+        await usage.save();
+        return { allowed: true, remaining: LIMIT - 1 };
+    }
+
+    // Reset if it's a new day
+    if (usage.lastRequestDate !== today) {
+        usage.count = 1;
+        usage.lastRequestDate = today;
+        usage.updatedAt = Date.now();
+        await usage.save();
+        return { allowed: true, remaining: LIMIT - 1 };
+    }
+
+    if (usage.count >= LIMIT) {
+        return { allowed: false, remaining: 0 };
+    }
+
+    usage.count += 1;
+    usage.updatedAt = Date.now();
+    await usage.save();
+    return { allowed: true, remaining: LIMIT - usage.count };
+};
+
 // API Endpoints
 // --- Blogs ---
 
@@ -177,8 +222,15 @@ const translateBlogIfMissing = async (blogData) => {
     const performTranslation = async (text, type) => {
         try {
             const prompt = type === 'html'
-                ? `Translate the following HTML content from English to Hindi. Keep all HTML tags EXACTLY as they are. ONLY translate the human-readable text inside the tags. Content:\n\n${text}`
-                : `Translate the following text from English to Hindi. Preserve the tone and meaning. Text:\n\n${text}`;
+                ? `Translate the following HTML content from English to Hindi. 
+                   CRITICAL: Keep all HTML tags, attributes (like style, class), and structure EXACTLY as they are. 
+                   ONLY translate the human-readable text inside the tags. 
+                   The translation must be professional, natural-sounding, and legally accurate in Hindi, preserving the exact same meaning as the English source. 
+                   Content:\n\n${text}`
+                : `Translate the following text from English to Hindi. 
+                   The translation must be natural, professional, and capture the exact essence and legal meaning of the original. 
+                   Avoid literal machine translation if it sounds awkward in Hindi. 
+                   Text:\n\n${text}`;
 
             const response = await axios.post(AI_ENDPOINT, {
                 model: AI_MODEL,
@@ -304,7 +356,7 @@ const repairBlogData = async () => {
                 // Special check for content that might be stuck in English
                 { $expr: { $eq: ["$content", "$content_hi"] } }
             ]
-        }).limit(20); // Process in larger batches for faster initial setup
+        }).limit(50); // Larger limit for repair
 
         if (blogsToRepair.length > 0) {
             console.log(`[Backgroud] Found ${blogsToRepair.length} blogs needing AI translation repair...`);
@@ -560,11 +612,22 @@ app.post('/api/advocates', async (req, res) => {
 
 // AI Chat Endpoint
 app.post('/api/chat', async (req, res) => {
-    console.log('--- AI Chat Request Received ---');
-    const { messages } = req.body;
-    console.log('Messages body:', JSON.stringify(messages));
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    console.log(`--- AI Chat Request Received from ${ip} ---`);
 
     try {
+        const rateLimitStatus = await checkRateLimit(ip);
+
+        if (!rateLimitStatus.allowed) {
+            console.log(`Rate limit reached for IP: ${ip}`);
+            return res.status(429).json({
+                message: "You have reached your daily limit of 15 free questions. 🛑\n\nUpgrade your plan for unlimited access, premium legal insights, and priority support! 🚀",
+                status: "limit_reached"
+            });
+        }
+
+        const { messages } = req.body;
+
         const response = await axios.post(AI_ENDPOINT, {
             model: AI_MODEL,
             messages: [
@@ -583,23 +646,16 @@ app.post('/api/chat', async (req, res) => {
             }
         });
 
-        console.log('AI Response status:', response.status);
         if (response.data.choices && response.data.choices[0]) {
             const aiMessage = response.data.choices[0].message;
-            console.log('AI Response content:', aiMessage.content.substring(0, 50) + '...');
             res.json(aiMessage);
         } else {
-            console.error('AI Response Error: Unexpected structure', JSON.stringify(response.data));
-            res.status(500).json({ message: 'AI returned an unexpected response format.' });
+            throw new Error('Unexpected AI response format');
         }
     } catch (err) {
-        console.error('--- AI Chat Error ---');
-        if (err.response) {
-            console.error('Status:', err.response.status);
-            console.error('Data:', JSON.stringify(err.response.data));
-        } else {
-            console.error('Message:', err.message);
-        }
+        console.error('--- AI Chat Error ---', err.message);
+        if (err.response?.data) console.error('Error Data:', JSON.stringify(err.response.data));
+
         res.status(500).json({ message: 'AI failed to respond. Please try again later.' });
     }
 });
@@ -637,7 +693,12 @@ app.post('/api/translate', async (req, res) => {
         });
 
         const translatedText = response.data.choices[0].message.content.trim();
-        res.json({ translation: translatedText });
+        // Force cleanup of AI noise if any
+        const cleanedTranslation = translatedText
+            .replace(/^(Here is the translation:|Translation:|हिन्दी अनुवाद:|अनुवाद:)\s*/i, "")
+            .replace(/^```(html|text|markdown)?\n/i, "").replace(/\n```$/i, "")
+            .trim();
+        res.json({ translation: cleanedTranslation });
     } catch (err) {
         console.error('Translation error:', err.message);
         res.status(500).json({ message: 'Translation failed' });
