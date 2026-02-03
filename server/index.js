@@ -11,7 +11,8 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors());
-app.use(express.json({ limit: '10mb' })); // Increased limit for image uploads
+app.use(express.json({ limit: '500mb' }));
+app.use(express.urlencoded({ limit: '500mb', extended: true }));
 
 // MongoDB Connection String
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://babahacket4_db_user:ZoyaLegal123@cluster0.snwxmtr.mongodb.net/zoyaDB?appName=Cluster0";
@@ -26,7 +27,12 @@ const AI_ENDPOINT = process.env.A4F_API_KEY
         ? 'https://models.inference.ai.azure.com/chat/completions'
         : 'https://openrouter.ai/api/v1/chat/completions');
 
-const AI_MODEL = process.env.A4F_API_KEY ? "gpt-4o-mini" : (AI_API_KEY?.startsWith('ghp_') ? "gpt-4o-mini" : "openai/gpt-3.5-turbo");
+const AI_MODEL = process.env.AI_MODEL || "gpt-4o-mini";
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', message: 'Server is running' });
+});
 
 // Cloudinary Configuration
 if (process.env.CLOUDINARY_URL) {
@@ -34,9 +40,9 @@ if (process.env.CLOUDINARY_URL) {
     console.log('Cloudinary: Using CLOUDINARY_URL configuration');
 } else {
     cloudinary.config({
-        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-        api_key: process.env.CLOUDINARY_API_KEY,
-        api_secret: process.env.CLOUDINARY_API_SECRET
+        cloud_name: 'dbcpxmyap',
+        api_key: '966966841754795',
+        api_secret: '9jTMIAOA5dOXcflnICxwiOCgqT4'
     });
 }
 
@@ -116,6 +122,21 @@ const judgmentSchema = new mongoose.Schema({
 
 const Judgment = mongoose.model('Judgment', judgmentSchema);
 
+// Client Submission Schema
+const submissionSchema = new mongoose.Schema({
+    clientName: { type: String, required: true },
+    description: { type: String },
+    files: [{
+        url: { type: String, required: true },
+        public_id: { type: String, required: true },
+        fileName: { type: String },
+        fileType: { type: String }
+    }],
+    createdAt: { type: Date, default: Date.now }
+});
+
+const ClientSubmission = mongoose.model('ClientSubmission', submissionSchema);
+
 // Usage Schema to track free tier limits
 const usageSchema = new mongoose.Schema({
     ip: { type: String, required: true, unique: true },
@@ -156,6 +177,44 @@ const checkRateLimit = async (ip) => {
     usage.updatedAt = Date.now();
     await usage.save();
     return { allowed: true, remaining: LIMIT - usage.count };
+};
+
+// Background repair function to translate missing Hindi content
+const repairBlogData_Deprecated = async () => {
+    try {
+        const blogs = await Blog.find();
+        console.log(`[Background Repair] Checking ${blogs.length} blogs for missing Hindi translations...`);
+
+        let repairedCount = 0;
+        for (const blog of blogs) {
+            let needsUpdate = false;
+            const blogData = blog.toObject();
+
+            // Check if any Hindi field is missing
+            if (!blogData.title_hi || !blogData.description_hi || !blogData.content_hi) {
+                console.log(`[Background Repair] Translating blog: ${blogData.title}`);
+                const translatedData = await translateBlogIfMissing(blogData);
+
+                // Update the blog with translated content
+                await Blog.findByIdAndUpdate(blog._id, {
+                    title_hi: translatedData.title_hi,
+                    description_hi: translatedData.description_hi,
+                    content_hi: translatedData.content_hi
+                });
+
+                repairedCount++;
+                needsUpdate = true;
+            }
+        }
+
+        if (repairedCount > 0) {
+            console.log(`[Background Repair] Successfully translated ${repairedCount} blogs to Hindi.`);
+        } else {
+            console.log(`[Background Repair] All blogs already have Hindi translations.`);
+        }
+    } catch (err) {
+        console.error('[Background Repair] Error:', err.message);
+    }
 };
 
 // API Endpoints
@@ -220,24 +279,34 @@ const translateBlogIfMissing = async (blogData) => {
     };
 
     const performTranslation = async (text, type) => {
+        if (!text || text.trim().length === 0) return "";
+
         try {
             const prompt = type === 'html'
                 ? `Translate the following HTML content from English to Hindi. 
-                   CRITICAL: Keep all HTML tags, attributes (like style, class), and structure EXACTLY as they are. 
-                   ONLY translate the human-readable text inside the tags. 
-                   The translation must be professional, natural-sounding, and legally accurate in Hindi, preserving the exact same meaning as the English source. 
-                   Content:\n\n${text}`
+                   CRITICAL INSTRUCTIONS:
+                   1. Translate strictly based on the provided text. Do NOT hallucinate or add new information.
+                   2. Keep all HTML tags, attributes, and structure EXACTLY as they are. 
+                   3. ONLY translate the human-readable text inside the tags.
+                   4. Maintain the exact legal context. For example, "Right to Education" must be "शिक्षा का अधिकार", NOT "Marriage Law".
+                   5. If the text is short, translate it directly without adding flowery context.
+                   
+                   Content to Translate:\n\n${text}`
                 : `Translate the following text from English to Hindi. 
-                   The translation must be natural, professional, and capture the exact essence and legal meaning of the original. 
-                   Avoid literal machine translation if it sounds awkward in Hindi. 
-                   Text:\n\n${text}`;
+                   CRITICAL INSTRUCTIONS:
+                   1. Translate strictly based on the provided text. Do NOT hallucinate or add new information.
+                   2. Maintain the exact legal context. For example, "Right to Education" must be "शिक्षा का अधिकार".
+                   3. The translation must be professional and accurate.
+                   
+                   Text to Translate:\n\n${text}`;
 
             const response = await axios.post(AI_ENDPOINT, {
                 model: AI_MODEL,
                 messages: [
-                    { role: "system", content: "You are a professional Hindi translator specializing in legal and technical content. You provide ONLY the translated text without any explanation or introductory text like 'Here is the translation:'." },
+                    { role: "system", content: "You are a precise Hindi translator for legal documents. You translate exactly what is given, maintaining total fidelity to the source text. You never hallucinate or change the topic." },
                     { role: "user", content: prompt }
-                ]
+                ],
+                temperature: 0.3 // Lower temperature for more deterministic output
             }, {
                 headers: {
                     'Authorization': `Bearer ${AI_API_KEY}`,
@@ -249,7 +318,6 @@ const translateBlogIfMissing = async (blogData) => {
 
             if (response.data.choices && response.data.choices[0]) {
                 let content = response.data.choices[0].message.content.trim();
-                // Strip common AI noise
                 content = content.replace(/^(Here is the translation:|Translation:|हिन्दी अनुवाद:|अनुवाद:)\s*/i, "");
                 content = content.replace(/^```(html|text|markdown)?\n/i, "").replace(/\n```$/i, "");
                 return content.trim();
@@ -257,7 +325,7 @@ const translateBlogIfMissing = async (blogData) => {
         } catch (err) {
             console.error(`AI Translation failed:`, err.message);
             if (err.response) console.error('Error Data:', JSON.stringify(err.response.data));
-            return text; // Return original on failure to keep flow
+            return text;
         }
         return text;
     };
@@ -328,9 +396,47 @@ app.put('/api/blogs/:id', async (req, res) => {
     }
 });
 
+// Delete blog
+
+// Delete blog with Cloudinary cleanup
+app.delete('/api/blogs/:id', async (req, res) => {
+    try {
+        const blog = await Blog.findById(req.params.id);
+        if (!blog) {
+            return res.status(404).json({ message: 'Blog not found' });
+        }
+
+        // Delete image from Cloudinary if it exists
+        if (blog.image && blog.image.includes('cloudinary')) {
+            try {
+                // Extract public_id from URL
+                // URL format: .../upload/v1234/zoya_blogs/filename.jpg
+                const publicId = blog.image.split('/upload/')[1].split('/')[1] + '/' + blog.image.split('/').pop().split('.')[0];
+                // Or simpler: getting everything after 'zoya_blogs/'
+                // Better approach for Cloudinary URLs:
+                const urlParts = blog.image.split('/');
+                const filenameObj = urlParts.pop(); // filename.jpg
+                const folderObj = urlParts.pop(); // zoya_blogs
+                const publicIdClean = `${folderObj}/${filenameObj.split('.')[0]}`;
+
+                await cloudinary.uploader.destroy(publicIdClean);
+                console.log(`Deleted blog image from Cloudinary: ${publicIdClean}`);
+            } catch (cloudErr) {
+                console.error('Cloudinary delete error:', cloudErr);
+            }
+        }
+
+        await Blog.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Blog deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 // Repair State Management
 let isRepairing = false;
 let lastRepairTime = 0;
+let hasResetTranslations = false;
 const REPAIR_COOLDOWN = 10 * 60 * 1000; // 10 minutes
 
 // Repair Function for missing translations
@@ -345,6 +451,16 @@ const repairBlogData = async () => {
     lastRepairTime = now;
 
     try {
+        // ONE-TIME FORCE RESET: Clear all Hindi translations to fix bad data
+        if (!hasResetTranslations) {
+            console.log('[Background Repair] FORCING RESET of all Hindi translations to fix errors...');
+            await Blog.updateMany({}, {
+                $unset: { title_hi: 1, description_hi: 1, content_hi: 1 }
+            });
+            console.log('[Background Repair] All Hindi translations cleared. Will re-translate now.');
+            hasResetTranslations = true;
+        }
+
         const blogsToRepair = await Blog.find({
             $or: [
                 { title_hi: { $exists: false } },
@@ -796,6 +912,127 @@ app.delete('/api/judgments/:id', async (req, res) => {
     try {
         await Judgment.findByIdAndDelete(req.params.id);
         res.json({ message: 'Judgment deleted' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// --- Client Submissions ---
+
+// Proxy endpoint for downloading files with correct extensions
+app.get('/api/download/:submissionId/:fileIndex', async (req, res) => {
+    try {
+        const { submissionId, fileIndex } = req.params;
+        const submission = await ClientSubmission.findById(submissionId);
+
+        if (!submission || !submission.files[fileIndex]) {
+            return res.status(404).json({ message: 'File not found' });
+        }
+
+        const file = submission.files[fileIndex];
+        const axios = require('axios');
+
+        // Fetch the file from Cloudinary
+        const response = await axios.get(file.url, { responseType: 'arraybuffer' });
+
+        // Set proper headers for download
+        res.setHeader('Content-Disposition', `attachment; filename="${file.fileName}"`);
+        res.setHeader('Content-Type', file.fileType || 'application/octet-stream');
+        res.send(Buffer.from(response.data));
+    } catch (err) {
+        console.error('Download error:', err);
+        res.status(500).json({ message: 'Download failed' });
+    }
+});
+
+// Submit new files
+app.post('/api/submissions', async (req, res) => {
+    const { clientName, description, files } = req.body;
+    console.log(`--- New Submission from ${clientName} (${files?.length || 0} files) ---`);
+    try {
+        if (!files || files.length === 0) {
+            console.log('Error: No files provided');
+            return res.status(400).json({ message: 'No files provided' });
+        }
+
+        const uploadedFiles = [];
+
+        for (const file of files) {
+            // Upload each file to Cloudinary
+            // Note: Cloudinary auto-detects resource_type or we can specify 'auto'
+            const uploadResponse = await cloudinary.uploader.upload(file.data, {
+                folder: 'zoya_submissions',
+                resource_type: 'auto',
+                public_id: file.fileName, // Cloudinary appends its own random suffix if unique_filename is true, 
+                // but we'll use our own to avoid conflict and keep it clean
+                public_id: file.fileName.split('.')[0] + '_' + Date.now() + (file.fileName.includes('.') ? '.' + file.fileName.split('.').pop() : ''),
+                use_filename: true,
+                unique_filename: false
+            });
+
+            uploadedFiles.push({
+                url: uploadResponse.secure_url,
+                public_id: uploadResponse.public_id,
+                fileName: file.fileName,
+                fileType: file.fileType
+            });
+        }
+
+        const submission = new ClientSubmission({
+            clientName,
+            description,
+            files: uploadedFiles
+        });
+
+        const newSubmission = await submission.save();
+        res.status(201).json(newSubmission);
+    } catch (err) {
+        console.error('Submission error:', err);
+        res.status(400).json({ message: err.message });
+    }
+});
+
+// Get all submissions for admin
+app.get('/api/submissions', async (req, res) => {
+    try {
+        const submissions = await ClientSubmission.find().sort({ createdAt: -1 });
+        res.json(submissions);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// Delete submission (and its files from Cloudinary)
+app.delete('/api/submissions/:id', async (req, res) => {
+    try {
+        const submission = await ClientSubmission.findById(req.params.id);
+        if (submission) {
+            // Delete files from Cloudinary first
+            for (const file of submission.files) {
+                try {
+                    // Determine resource_type based on fileType
+                    let resourceType = 'raw'; // Default for documents, executables, etc.
+
+                    if (file.fileType) {
+                        if (file.fileType.startsWith('image/')) {
+                            resourceType = 'image';
+                        } else if (file.fileType.startsWith('video/')) {
+                            resourceType = 'video';
+                        }
+                    }
+
+                    console.log(`Deleting file from Cloudinary: ${file.public_id} (type: ${resourceType})`);
+                    await cloudinary.uploader.destroy(file.public_id, { resource_type: resourceType });
+                } catch (deleteErr) {
+                    console.error(`Failed to delete file ${file.public_id}:`, deleteErr.message);
+                    // Continue with other files even if one fails
+                }
+            }
+            await ClientSubmission.findByIdAndDelete(req.params.id);
+            res.json({ message: 'Submission deleted' });
+        } else {
+            res.status(404).json({ message: 'Submission not found' });
+        }
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

@@ -26,6 +26,7 @@ const Blogs = lazy(() => import('./pages/Blogs'));
 const BlogDetail = lazy(() => import('./pages/BlogDetail'));
 const Admin = lazy(() => import('./pages/Admin'));
 const ActsJudgments = lazy(() => import('./pages/ActsJudgments'));
+const ClientPortal = lazy(() => import('./pages/ClientPortal'));
 
 // Loading fallback
 const PageLoader = () => (
@@ -65,6 +66,7 @@ function App() {
                 <Route path="/blogs" element={<Blogs />} />
                 <Route path="/blogs/:id" element={<BlogDetail />} />
                 <Route path="/admin" element={<Admin />} />
+                <Route path="/client-portal" element={<ClientPortal />} />
               </Routes>
             </Suspense>
           </main>

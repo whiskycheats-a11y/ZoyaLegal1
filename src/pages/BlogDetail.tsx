@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 
 export default function BlogDetail() {
     const { id } = useParams();
-    const { blogs, loading: globalLoading, language, setLanguage, cleanHindi, t } = useBlogs();
+    const { blogs, loading: globalLoading, language, cleanHindi, t } = useBlogs();
     const post = blogs.find(p => p._id === id);
     const [isSaved, setIsSaved] = useState(false);
     const [showNotification, setShowNotification] = useState<{ show: boolean, message: string }>({ show: false, message: "" });
@@ -153,20 +153,7 @@ export default function BlogDetail() {
                     </div>
                     <div className="flex space-x-2">
                         <div className="flex space-x-2 items-center">
-                            <div className="flex bg-gray-100 p-1.5 rounded-2xl mr-4 border border-gray-200">
-                                <button
-                                    onClick={() => setLanguage('en')}
-                                    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${language === 'en' ? 'bg-black text-white shadow-lg' : 'text-gray-400 hover:text-black'}`}
-                                >
-                                    English
-                                </button>
-                                <button
-                                    onClick={() => setLanguage('hi')}
-                                    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${language === 'hi' ? 'bg-black text-white shadow-lg' : 'text-gray-400 hover:text-black'}`}
-                                >
-                                    हिन्दी
-                                </button>
-                            </div>
+
                             <button
                                 onClick={handleShare}
                                 className="p-3 rounded-full hover:bg-gray-100 transition-colors group"

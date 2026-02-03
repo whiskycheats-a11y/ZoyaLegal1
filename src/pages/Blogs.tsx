@@ -6,7 +6,7 @@ import SkeletonBlog from '../components/SkeletonBlog';
 import TopProgressBar from '../components/TopProgressBar';
 
 export default function Blogs() {
-    const { blogs, loading, language, setLanguage, cleanHindi, t } = useBlogs();
+    const { blogs, loading, language, cleanHindi, t } = useBlogs();
     const [searchTerm, setSearchTerm] = useState("");
 
     const translateCategory = (cat: string) => t(cat);
@@ -55,21 +55,7 @@ export default function Blogs() {
                         />
                     </div>
 
-                    {/* Language Switcher */}
-                    <div className="flex bg-gray-100/10 p-1.5 rounded-2xl w-fit mx-auto mt-10 border border-gray-800 backdrop-blur-sm">
-                        <button
-                            onClick={() => setLanguage('en')}
-                            className={`px-8 py-3 rounded-xl font-black uppercase text-xs tracking-widest transition-all ${language === 'en' ? 'bg-white text-black shadow-lg' : 'text-gray-400 hover:text-white'}`}
-                        >
-                            English
-                        </button>
-                        <button
-                            onClick={() => setLanguage('hi')}
-                            className={`px-8 py-3 rounded-xl font-black uppercase text-xs tracking-widest transition-all ${language === 'hi' ? 'bg-white text-black shadow-lg' : 'text-gray-400 hover:text-white'}`}
-                        >
-                            हिन्दी
-                        </button>
-                    </div>
+
                 </div>
             </section>
 

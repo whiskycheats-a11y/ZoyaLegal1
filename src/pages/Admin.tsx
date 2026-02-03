@@ -4,8 +4,10 @@ import { BlogPost, Act, Judgment } from '../types/legal';
 import {
     Plus, Edit2, Trash2, X, Image as ImageIcon, Search, LayoutDashboard,
     Settings as SettingsIcon, MessageSquare, Globe, Phone, Users, Book, Scale,
-    Bold, List, ListOrdered, Heading2, Heading3, Type, Code, Sparkles, Loader2
+    Bold, List, ListOrdered, Heading2, Heading3, Type, Code, Sparkles, Loader2,
+    Folder, Download
 } from 'lucide-react';
+import axios from 'axios';
 
 
 const EDITOR_STYLES = `
@@ -26,7 +28,9 @@ export default function Admin() {
         addJudgment, updateJudgment, deleteJudgment,
         updateSettings, translateText, cleanHindi
     } = useBlogs();
-    const [activeTab, setActiveTab] = useState<'blogs' | 'settings' | 'advocates' | 'acts' | 'judgments'>('blogs');
+    const [activeTab, setActiveTab] = useState<'blogs' | 'settings' | 'advocates' | 'acts' | 'judgments' | 'submissions'>('blogs');
+    const [submissions, setSubmissions] = useState<any[]>([]);
+    const [isSubmissionsLoading, setIsSubmissionsLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
@@ -89,6 +93,73 @@ export default function Admin() {
             setSettingsData(settings);
         }
     }, [settings]);
+
+    useEffect(() => {
+        if (activeTab === 'submissions') {
+            fetchSubmissions();
+        }
+    }, [activeTab]);
+
+    const fetchSubmissions = async () => {
+        setIsSubmissionsLoading(true);
+        try {
+            const res = await axios.get('http://localhost:5000/api/submissions');
+            setSubmissions(res.data);
+        } catch (err) {
+            console.error("Fetch submissions error:", err);
+        } finally {
+            setIsSubmissionsLoading(false);
+        }
+    };
+
+    const handleDeleteSubmission = async (id: string) => {
+        if (!window.confirm("Are you sure you want to delete this submission? All files will be permanently removed from Cloudinary storage.")) return;
+
+        // Find the submission element and show loading state
+        const submissionCard = document.querySelector(`[data-submission-id="${id}"]`);
+        if (submissionCard) {
+            submissionCard.classList.add('opacity-50', 'pointer-events-none');
+            const overlay = document.createElement('div');
+            overlay.className = 'absolute inset-0 flex items-center justify-center bg-white/95 rounded-[2.5rem] z-50';
+            overlay.innerHTML = `
+                <div class="text-center p-6">
+                    <div class="animate-spin rounded-full h-10 w-10 border-4 border-black border-t-transparent mx-auto mb-3"></div>
+                    <p class="text-sm font-black text-black uppercase tracking-wider">Deleting from Cloudinary Storage...</p>
+                </div>
+            `;
+            submissionCard.appendChild(overlay);
+        }
+
+        try {
+            await axios.delete(`http://localhost:5000/api/submissions/${id}`);
+
+            // Show success message
+            if (submissionCard) {
+                const overlay = submissionCard.querySelector('.absolute');
+                if (overlay) {
+                    overlay.innerHTML = `
+                        <div class="text-center p-6">
+                            <div class="text-5xl mb-2">✓</div>
+                            <p class="text-sm font-black text-green-600 uppercase tracking-wider">Deleted from Storage!</p>
+                        </div>
+                    `;
+                }
+            }
+
+            // Remove from UI after showing success
+            setTimeout(() => {
+                setSubmissions(submissions.filter(s => s._id !== id));
+            }, 1500);
+        } catch (err) {
+            alert("Delete failed");
+            // Restore UI on error
+            if (submissionCard) {
+                submissionCard.classList.remove('opacity-50', 'pointer-events-none');
+                const overlay = submissionCard.querySelector('.absolute');
+                if (overlay) overlay.remove();
+            }
+        }
+    };
 
     // Update editor content when editing starts or modal opens with data
     useEffect(() => {
@@ -339,6 +410,14 @@ export default function Admin() {
                         <span className="font-extrabold uppercase text-[10px] tracking-[0.2em]">Judgments</span>
                     </button>
 
+                    <button
+                        onClick={() => setActiveTab('submissions')}
+                        className={`w-full flex items-center space-x-4 p-4 rounded-2xl transition-all duration-300 group ${activeTab === 'submissions' ? 'bg-white text-black shadow-[0_10px_30px_rgba(255,255,255,0.1)]' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}
+                    >
+                        <Folder className={`h-5 w-5 transition-transform duration-300 group-hover:scale-110 ${activeTab === 'submissions' ? 'text-black' : 'text-gray-500'}`} />
+                        <span className="font-extrabold uppercase text-[10px] tracking-[0.2em]">Client Files</span>
+                    </button>
+
                 </nav>
 
                 <div className="mt-auto pt-6 border-t border-white/5">
@@ -359,6 +438,7 @@ export default function Admin() {
                     { id: 'advocates', label: 'Advocates', icon: Users },
                     { id: 'acts', label: 'Acts', icon: Book },
                     { id: 'judgments', label: 'Judgments', icon: Scale },
+                    { id: 'submissions', label: 'Files', icon: Folder },
                     { id: 'settings', label: 'Settings', icon: SettingsIcon }
                 ].map((tab) => (
                     <button
@@ -668,6 +748,81 @@ export default function Admin() {
                                     )}
                                 </tbody>
                             </table>
+                        </div>
+                    </>
+                )}
+
+                {activeTab === 'submissions' && (
+                    <>
+                        <div className="flex justify-between items-center mb-12">
+                            <div>
+                                <h1 className="text-5xl font-black text-black tracking-tighter uppercase italic mb-2">Submissions_</h1>
+                                <div className="flex items-center space-x-2">
+                                    <div className="h-1 w-12 bg-black rounded-full"></div>
+                                    <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Client Documentation</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="space-y-6">
+                            {isSubmissionsLoading ? (
+                                <div className="p-12 text-center text-gray-400 font-black uppercase tracking-widest bg-white rounded-3xl border border-gray-100 italic">
+                                    Retrieving Client Data_
+                                </div>
+                            ) : submissions.length > 0 ? (
+                                submissions.map((sub) => (
+                                    <div key={sub._id} data-submission-id={sub._id} className="relative bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all group">
+                                        <div className="flex flex-col lg:flex-row justify-between mb-8 gap-4">
+                                            <div>
+                                                <h3 className="text-2xl font-black text-black mb-1">{sub.clientName}</h3>
+                                                <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">
+                                                    Submitted on {new Date(sub.createdAt).toLocaleDateString()} at {new Date(sub.createdAt).toLocaleTimeString()}
+                                                </p>
+                                            </div>
+                                            <button
+                                                onClick={() => handleDeleteSubmission(sub._id)}
+                                                className="self-start p-4 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white rounded-2xl transition-all active:scale-95"
+                                            >
+                                                <Trash2 className="h-5 w-5" />
+                                            </button>
+                                        </div>
+
+                                        {sub.description && (
+                                            <div className="mb-8 p-6 bg-gray-50 rounded-2xl border border-gray-100">
+                                                <p className="text-gray-600 font-bold italic leading-relaxed">"{sub.description}"</p>
+                                            </div>
+                                        )}
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                            {sub.files.map((file: any, i: number) => (
+                                                <div key={i} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100 hover:bg-white hover:border-black transition-all group/file">
+                                                    <div className="flex items-center space-x-3 overflow-hidden">
+                                                        <div className="p-2 bg-white rounded-xl border border-gray-100 group-hover/file:border-black/10">
+                                                            <Folder className="h-4 w-4 text-gray-400" />
+                                                        </div>
+                                                        <div className="overflow-hidden">
+                                                            <p className="text-sm font-black text-black truncate">{file.fileName}</p>
+                                                            <p className="text-[10px] text-gray-400 font-bold uppercase">{file.fileType.split('/')[1] || 'FILE'}</p>
+                                                        </div>
+                                                    </div>
+                                                    <a
+                                                        href={`http://localhost:5000/api/download/${sub._id}/${i}`}
+                                                        className="p-2 bg-white rounded-xl text-black hover:bg-black hover:text-white transition-all shadow-sm border border-gray-100"
+                                                        title={`Download ${file.fileName}`}
+                                                    >
+                                                        <Download className="h-4 w-4" />
+                                                    </a>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="p-20 text-center bg-white rounded-[3rem] border border-gray-100 shadow-sm italic">
+                                    <Folder className="h-12 w-12 text-gray-200 mx-auto mb-4" />
+                                    <p className="text-gray-400 font-black uppercase tracking-[0.2em]">No submissions received yet</p>
+                                </div>
+                            )}
                         </div>
                     </>
                 )}
