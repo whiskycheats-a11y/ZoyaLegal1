@@ -302,17 +302,23 @@ const translateBlogIfMissing = async (blogData) => {
                 return content.trim();
             }
         } catch (err) {
-            if (err.response && err.response.status === 429 && retryCount < MAX_RETRIES) {
-                const retryAfter = err.response.headers['retry-after']
-                    ? parseInt(err.response.headers['retry-after']) * 1000
-                    : (60000 * (retryCount + 1)); // Default to 60s, increasing with retries
+            const isRateLimit = (
+                (err.response && (err.response.status === 429 || err.response.status === "429")) ||
+                (err.message && err.message.includes('429')) ||
+                (err.response && err.response.data && err.response.data.error && err.response.data.error.code === 'RateLimitReached')
+            );
 
-                console.log(`[AI Translation] Rate limit hit. Retrying in ${retryAfter / 1000}s... (Attempt ${retryCount + 1}/${MAX_RETRIES})`);
+            if (isRateLimit && retryCount < MAX_RETRIES) {
+                const retryAfter = err.response && err.response.headers && err.response.headers['retry-after']
+                    ? parseInt(err.response.headers['retry-after']) * 1000
+                    : (30000 * (retryCount + 1)); // Increase base delay to 30s
+
+                console.log(`[AI Translation] Rate limit hit. Waiting ${retryAfter / 1000}s... (Attempt ${retryCount + 1}/${MAX_RETRIES})`);
                 await sleep(retryAfter);
                 return performTranslation(text, type, retryCount + 1);
             }
 
-            console.error(`AI Translation failed:`, err.message);
+            console.error(`AI Translation FAILED (Status: ${err.response ? err.response.status : 'N/A'}):`, err.message);
             if (err.response) console.error('Error Data:', JSON.stringify(err.response.data));
             return text;
         }
@@ -340,7 +346,7 @@ const translateBlogIfMissing = async (blogData) => {
             const translated = await performTranslation(chunks[j], type);
             results.push(translated);
             // Delay between chunks to respect rate limits
-            await sleep(5000);
+            await sleep(10000);
         }
         return results.join("");
     };
@@ -356,7 +362,7 @@ const translateBlogIfMissing = async (blogData) => {
             blogData[field.hiKey] = await chunkTranslate(valueToTranslate, field.type);
             console.log(`[AI Repair] Finished ${field.key}.`);
             // Delay between fields
-            await sleep(3000);
+            await sleep(10000);
         }
     }
     return blogData;
@@ -490,7 +496,7 @@ const repairBlogData = async () => {
                 const repairedData = await translateBlogIfMissing(blog.toObject());
                 await Blog.findByIdAndUpdate(blog._id, repairedData);
                 // Throttle requests between blogs
-                await new Promise(resolve => setTimeout(resolve, 5000));
+                await new Promise(resolve => setTimeout(resolve, 10000));
             }
             console.log("[Backgroud] Blog Repair completed.");
         }
