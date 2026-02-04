@@ -23,19 +23,7 @@ export default function Header() {
     { name: 'Blogs & Articles', href: '/blogs', icon: Newspaper, desc: 'Latest Legal Updates & News' },
   ];
 
-  const caseStatusLinks = [
-    { name: 'Supreme Court', href: 'https://www.sci.gov.in/case-status-court/', icon: Landmark, desc: 'SC Case Status Portal' },
-    { name: 'High Court', href: 'https://www.allahabadhighcourt.in/apps/status_ccms/', icon: Library, desc: 'Allahabad HC Status' },
-    { name: 'District Courts', href: 'https://services.ecourts.gov.in/ecourtindia_v6/?p=casestatus/index', icon: Search, desc: 'E-Courts India Status' },
-    { name: 'Revenue Court', href: 'https://vaad.up.nic.in/', icon: Building, desc: 'UP Revenue Cases' },
-    { name: 'Stamp & registration', href: 'https://igrsup.gov.in/', icon: FileText, desc: 'IGRSUP Services' },
-    { name: 'My Aadhaar', href: 'https://myaadhaar.uidai.gov.in/', icon: Fingerprint, desc: 'UIDAI Self Service' },
-    { name: 'Consumer Court', href: 'https://e-jagriti.gov.in/login', icon: Scale, desc: 'E-Jagriti Portal' },
-    { name: 'SLSA Status', href: 'https://uttarpradesh.nalsa.gov.in/', icon: Gavel, desc: 'Legal Services Authority' },
-    { name: 'UP Police', href: 'https://uppolice.gov.in/', icon: ShieldCheck, desc: 'UP Police Official' },
-    { name: 'Bar Council', href: 'http://upbarcouncil.com/', icon: Users, desc: 'UP Bar Council' },
-    { name: 'UP Bhulekh', href: 'https://upbhulekh.gov.in/', icon: Map, desc: 'Land Records Portal' },
-  ];
+
 
   const mainLinks = [
     { name: 'Home', href: '/' },
@@ -182,48 +170,12 @@ export default function Header() {
                 </div>
               </div>
 
-              {/* Case Status Dropdown */}
-              <div
-                className="relative"
-                onMouseEnter={() => setActiveDropdown('caseStatus')}
-                onMouseLeave={() => setActiveDropdown(null)}
+              <Link
+                to="/case-status"
+                className={`${location.pathname === '/case-status' ? 'text-black bg-gray-100' : 'text-gray-600 hover:text-black hover:bg-gray-50'} px-4 py-2 rounded-lg transition-all font-bold text-sm`}
               >
-                <button
-                  className={`flex items-center space-x-1 px-4 py-2 rounded-lg transition-all font-bold text-sm group ${activeDropdown === 'caseStatus' ? 'text-black bg-gray-100' : 'text-gray-600 hover:text-black hover:bg-gray-50'
-                    }`}
-                >
-                  <span>Case Status</span>
-                  <ChevronDown className={`h-4 w-4 transition-transform duration-300 ${activeDropdown === 'caseStatus' ? 'rotate-180' : 'group-hover:translate-y-0.5'}`} />
-                </button>
-
-                <div
-                  className={`absolute top-full left-0 w-72 mt-2 bg-white rounded-xl shadow-xl ring-1 ring-black/5 overflow-hidden transition-all duration-300 origin-top ${activeDropdown === 'caseStatus' ? 'opacity-100 scale-100 translate-y-0 visible' : 'opacity-0 scale-95 translate-y-2 invisible'
-                    }`}
-                >
-                  <div className="p-2 space-y-1">
-                    {caseStatusLinks.map((item) => (
-                      <a
-                        key={item.name}
-                        href={item.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center p-3 rounded-lg transition-all group/item hover:bg-gray-50"
-                      >
-                        <div className="p-2 rounded-md mr-3 bg-gray-100 text-gray-600 group-hover/item:bg-black group-hover/item:text-white transition-colors">
-                          <item.icon className="h-4 w-4" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-bold text-sm text-gray-800 flex items-center justify-between">
-                            {item.name}
-                            <ExternalLink className="h-3 w-3 opacity-0 group-hover/item:opacity-50" />
-                          </p>
-                          <p className="text-[10px] text-gray-500">{item.desc}</p>
-                        </div>
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              </div>
+                Case Status
+              </Link>
 
               {mainLinks.slice(1).map((item) => (
                 <Link
@@ -315,34 +267,27 @@ export default function Header() {
               </div>
             </div>
 
-            {/* Mobile Case Status */}
             <div className="space-y-3">
               <div className="px-4 flex items-center justify-between">
                 <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">Case Status & Portals</p>
                 <div className="h-px bg-gray-100 flex-1 ml-4"></div>
               </div>
-              <div className="grid gap-2 px-2">
-                {caseStatusLinks.map((item) => (
-                  <a
-                    key={item.name}
-                    href={item.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => setIsMenuOpen(false)}
-                    className="flex items-center p-3 rounded-xl bg-gray-50/50 hover:bg-gray-100 transition-colors"
-                  >
-                    <div className="p-2 rounded-lg mr-3 bg-white shadow-sm text-gray-600">
-                      <item.icon className="h-5 w-5" />
-                    </div>
-                    <div className="flex-1">
-                      <span className="font-bold block text-gray-800 text-sm flex items-center justify-between">
-                        {item.name}
-                        <ExternalLink className="h-4 w-4 text-gray-400" />
-                      </span>
-                      <span className="text-[10px] text-gray-500">{item.desc}</span>
-                    </div>
-                  </a>
-                ))}
+              <div className="px-2">
+                <Link
+                  to="/case-status"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex items-center p-3 rounded-xl bg-gray-50/50 hover:bg-gray-100 transition-colors"
+                >
+                  <div className="p-2 rounded-lg mr-3 bg-white shadow-sm text-gray-600">
+                    <Search className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1">
+                    <span className="font-bold block text-gray-800 text-sm">
+                      Check Case Status
+                    </span>
+                    <span className="text-[10px] text-gray-500">Access all court and legal portals</span>
+                  </div>
+                </Link>
               </div>
             </div>
 
