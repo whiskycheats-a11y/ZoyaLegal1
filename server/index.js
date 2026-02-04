@@ -253,33 +253,12 @@ const translateBlogIfMissing = async (blogData) => {
             .replace(/\s+/g, " "); // Collapse whitespace
     };
 
-    // Helper to chunk text/html for translation
-    const chunkTranslate = async (text, type) => {
-        if (!text) return "";
-        const MAX_CHUNK_SIZE = 5000; // Safe chunk size for 16k context
+    // Helper delay function
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-        if (text.length <= MAX_CHUNK_SIZE) {
-            return await performTranslation(text, type);
-        }
-
-        console.log(`[AI Chunking] Content too large (${text.length} chars), splitting...`);
-        // Simple splitting for now, could be improved to split on tags
-        const chunks = [];
-        for (let i = 0; i < text.length; i += MAX_CHUNK_SIZE) {
-            chunks.push(text.substring(i, i + MAX_CHUNK_SIZE));
-        }
-
-        const results = [];
-        for (let j = 0; j < chunks.length; j++) {
-            console.log(`[AI Chunking] Translating chunk ${j + 1}/${chunks.length}...`);
-            const translated = await performTranslation(chunks[j], type);
-            results.push(translated);
-        }
-        return results.join("");
-    };
-
-    const performTranslation = async (text, type) => {
+    const performTranslation = async (text, type, retryCount = 0) => {
         if (!text || text.trim().length === 0) return "";
+        const MAX_RETRIES = 5;
 
         try {
             const prompt = type === 'html'
@@ -306,7 +285,7 @@ const translateBlogIfMissing = async (blogData) => {
                     { role: "system", content: "You are a precise Hindi translator for legal documents. You translate exactly what is given, maintaining total fidelity to the source text. You never hallucinate or change the topic." },
                     { role: "user", content: prompt }
                 ],
-                temperature: 0.3 // Lower temperature for more deterministic output
+                temperature: 0.3
             }, {
                 headers: {
                     'Authorization': `Bearer ${AI_API_KEY}`,
@@ -323,6 +302,16 @@ const translateBlogIfMissing = async (blogData) => {
                 return content.trim();
             }
         } catch (err) {
+            if (err.response && err.response.status === 429 && retryCount < MAX_RETRIES) {
+                const retryAfter = err.response.headers['retry-after']
+                    ? parseInt(err.response.headers['retry-after']) * 1000
+                    : (60000 * (retryCount + 1)); // Default to 60s, increasing with retries
+
+                console.log(`[AI Translation] Rate limit hit. Retrying in ${retryAfter / 1000}s... (Attempt ${retryCount + 1}/${MAX_RETRIES})`);
+                await sleep(retryAfter);
+                return performTranslation(text, type, retryCount + 1);
+            }
+
             console.error(`AI Translation failed:`, err.message);
             if (err.response) console.error('Error Data:', JSON.stringify(err.response.data));
             return text;
@@ -330,17 +319,44 @@ const translateBlogIfMissing = async (blogData) => {
         return text;
     };
 
+    // Helper to chunk text/html for translation
+    const chunkTranslate = async (text, type) => {
+        if (!text) return "";
+        const MAX_CHUNK_SIZE = 4000; // Reduced for safety
+
+        if (text.length <= MAX_CHUNK_SIZE) {
+            return await performTranslation(text, type);
+        }
+
+        console.log(`[AI Chunking] Content too large (${text.length} chars), splitting...`);
+        const chunks = [];
+        for (let i = 0; i < text.length; i += MAX_CHUNK_SIZE) {
+            chunks.push(text.substring(i, i + MAX_CHUNK_SIZE));
+        }
+
+        const results = [];
+        for (let j = 0; j < chunks.length; j++) {
+            console.log(`[AI Chunking] Translating chunk ${j + 1}/${chunks.length}...`);
+            const translated = await performTranslation(chunks[j], type);
+            results.push(translated);
+            // Delay between chunks to respect rate limits
+            await sleep(5000);
+        }
+        return results.join("");
+    };
+
     for (const field of fieldsToTranslate) {
         const enValue = blogData[field.key];
         const hiValue = blogData[field.hiKey];
 
         if (enValue && (!hiValue || hiValue.trim() === "" || hiValue === enValue)) {
-            // Clean content if it's HTML to prevent token bloat
             const valueToTranslate = field.type === 'html' ? cleanWordHtml(enValue) : enValue;
 
             console.log(`[AI Repair] Translating ${field.key} (${valueToTranslate.length} chars)...`);
             blogData[field.hiKey] = await chunkTranslate(valueToTranslate, field.type);
             console.log(`[AI Repair] Finished ${field.key}.`);
+            // Delay between fields
+            await sleep(3000);
         }
     }
     return blogData;
@@ -451,15 +467,8 @@ const repairBlogData = async () => {
     lastRepairTime = now;
 
     try {
-        // ONE-TIME FORCE RESET: Clear all Hindi translations to fix bad data
-        if (!hasResetTranslations) {
-            console.log('[Background Repair] FORCING RESET of all Hindi translations to fix errors...');
-            await Blog.updateMany({}, {
-                $unset: { title_hi: 1, description_hi: 1, content_hi: 1 }
-            });
-            console.log('[Background Repair] All Hindi translations cleared. Will re-translate now.');
-            hasResetTranslations = true;
-        }
+        // ONE-TIME FORCE RESET: Logic removed to prevent data loss on restart
+        // if (!hasResetTranslations) { ... }
 
         const blogsToRepair = await Blog.find({
             $or: [
@@ -480,6 +489,8 @@ const repairBlogData = async () => {
                 console.log(`[Backgroud] Repairing: ${blog.title}`);
                 const repairedData = await translateBlogIfMissing(blog.toObject());
                 await Blog.findByIdAndUpdate(blog._id, repairedData);
+                // Throttle requests between blogs
+                await new Promise(resolve => setTimeout(resolve, 5000));
             }
             console.log("[Backgroud] Blog Repair completed.");
         }
