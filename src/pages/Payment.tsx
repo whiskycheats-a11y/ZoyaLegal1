@@ -63,7 +63,7 @@ export default function Payment() {
           email: payerEmail || undefined,
           contact: payerPhone || undefined,
         },
-        handler: function (response: any) {
+        handler: async function (response: any) {
           alert('Payment Confirmed. Transaction ID: ' + response.razorpay_payment_id);
         },
         modal: { ondismiss: () => setLoading(false) },

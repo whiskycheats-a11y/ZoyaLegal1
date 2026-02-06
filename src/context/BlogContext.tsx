@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-import { BlogPost, Advocate, Act, Judgment, SiteSettings } from '../types/legal';
+import { BlogPost, Advocate, Act, Judgment, SiteSettings, Testimonial } from '../types/legal';
 
 interface BlogContextType {
     blogs: BlogPost[];
@@ -11,12 +11,16 @@ interface BlogContextType {
     acts: Act[];
     judgments: Judgment[];
     settings: SiteSettings | null;
+    testimonials: Testimonial[];
     loading: boolean;
     error: string | null;
     fetchBlogs: () => Promise<void>;
     addBlog: (blog: Omit<BlogPost, '_id'>) => Promise<void>;
     updateBlog: (id: string, blog: Partial<BlogPost>) => Promise<void>;
     deleteBlog: (id: string) => Promise<void>;
+    fetchTestimonials: () => Promise<void>;
+    addTestimonial: (testimonial: Omit<Testimonial, '_id'>) => Promise<void>;
+    deleteTestimonial: (id: string) => Promise<void>;
     fetchAdvocates: () => Promise<void>;
     deleteAdvocate: (id: string) => Promise<void>;
     fetchActs: () => Promise<void>;
@@ -44,6 +48,7 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
     const [acts, setActs] = useState<Act[]>([]);
     const [judgments, setJudgments] = useState<Judgment[]>([]);
     const [settings, setSettings] = useState<SiteSettings | null>(null);
+    const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [language, setLanguage] = useState<'en' | 'hi'>((localStorage.getItem('preferredLanguage') as any) || 'en');
@@ -164,6 +169,21 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const fetchTestimonials = async () => {
+        try {
+            const cachedTestimonials = sessionStorage.getItem('zoya_testimonials_cache');
+            if (cachedTestimonials) {
+                setTestimonials(JSON.parse(cachedTestimonials));
+            }
+
+            const response = await axios.get(`${API_URL}/api/testimonials?t=${Date.now()}`);
+            setTestimonials(response.data);
+            sessionStorage.setItem('zoya_testimonials_cache', JSON.stringify(response.data));
+        } catch (err) {
+            console.error('Error fetching testimonials:', err);
+        }
+    };
+
     useEffect(() => {
         const fetchAll = async () => {
             setLoading(true);
@@ -173,7 +193,8 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
                     fetchAdvocates(),
                     fetchActs(),
                     fetchJudgments(),
-                    fetchSettings()
+                    fetchSettings(),
+                    fetchTestimonials()
                 ]);
             } catch (err) {
                 console.error("Error in initial fetch:", err);
@@ -311,6 +332,30 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
             sessionStorage.setItem('zoya_settings_cache', JSON.stringify(response.data));
         } catch (err) {
             console.error('Error updating settings:', err);
+            throw err;
+        }
+    };
+
+    const addTestimonial = async (testimonial: Omit<Testimonial, '_id'>) => {
+        try {
+            const response = await axios.post(`${API_URL}/api/testimonials`, testimonial);
+            const updated = [response.data, ...testimonials];
+            setTestimonials(updated);
+            sessionStorage.setItem('zoya_testimonials_cache', JSON.stringify(updated));
+        } catch (err) {
+            console.error('Error adding testimonial:', err);
+            throw err;
+        }
+    };
+
+    const deleteTestimonial = async (id: string) => {
+        try {
+            await axios.delete(`${API_URL}/api/testimonials/${id}`);
+            const updated = testimonials.filter(t => t._id !== id);
+            setTestimonials(updated);
+            sessionStorage.setItem('zoya_testimonials_cache', JSON.stringify(updated));
+        } catch (err) {
+            console.error('Error deleting testimonial:', err);
             throw err;
         }
     };
@@ -455,6 +500,7 @@ export function BlogProvider({ children }: { children: React.ReactNode }) {
             fetchActs, addAct, updateAct, deleteAct,
             fetchJudgments, addJudgment, updateJudgment, deleteJudgment,
             fetchSettings, updateSettings,
+            testimonials, fetchTestimonials, addTestimonial, deleteTestimonial,
             translateText,
             cleanHindi,
             language, setLanguage,

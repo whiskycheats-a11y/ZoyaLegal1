@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { CameraOff } from 'lucide-react';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import AIChatbot from './components/AIChatbot';
 import LegalDisclaimer from './components/LegalDisclaimer';
 import TopProgressBar from './components/TopProgressBar';
 import { BlogProvider } from './context/BlogContext';
@@ -28,6 +27,8 @@ import Admin from './pages/Admin';
 import ActsJudgments from './pages/ActsJudgments';
 import ClientPortal from './pages/ClientPortal';
 import CaseStatus from './pages/CaseStatus';
+import ESignServices from './pages/ESignServices';
+import ESignProcess from './pages/ESignProcess';
 
 // Loading fallback
 const PageLoader = () => (
@@ -128,11 +129,12 @@ function App() {
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/client-portal" element={<ClientPortal />} />
                 <Route path="/case-status" element={<CaseStatus />} />
+                <Route path="/esign" element={<ESignServices />} />
+                <Route path="/esign/process" element={<ESignProcess />} />
               </Routes>
             </Suspense>
           </main>
           <Footer />
-          <AIChatbot />
           <LegalDisclaimer />
         </div>
 

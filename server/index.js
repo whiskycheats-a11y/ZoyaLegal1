@@ -20,14 +20,14 @@ const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://babahacket4_db_use
 // MongoDB Connection logic moved to downstream to include seeding
 
 // AI Configuration
-const AI_API_KEY = process.env.A4F_API_KEY || process.env.GITHUB_TOKEN || "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";
+const AI_API_KEY = (process.env.GITHUB_TOKEN || process.env.A4F_API_KEY || "").trim();
 const AI_ENDPOINT = process.env.A4F_API_KEY
     ? 'https://api.a4f.co/v1/chat/completions'
     : (AI_API_KEY?.startsWith('ghp_')
         ? 'https://models.inference.ai.azure.com/chat/completions'
         : 'https://openrouter.ai/api/v1/chat/completions');
 
-const AI_MODEL = process.env.AI_MODEL || (AI_API_KEY?.startsWith('ghp_') ? "gpt-4o" : "gpt-4o");
+const AI_MODEL = process.env.AI_MODEL || (AI_API_KEY?.startsWith('ghp_') ? "gpt-4o" : "google/gemini-2.0-flash-lite-preview-02-05:free");
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -137,6 +137,17 @@ const submissionSchema = new mongoose.Schema({
 
 const ClientSubmission = mongoose.model('ClientSubmission', submissionSchema);
 
+// Testimonial Schema
+const testimonialSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    location: { type: String },
+    content: { type: String, required: true },
+    image: { type: String }, // Cloudinary URL
+    createdAt: { type: Date, default: Date.now }
+});
+
+const Testimonial = mongoose.model('Testimonial', testimonialSchema);
+
 // Usage Schema to track free tier limits
 const usageSchema = new mongoose.Schema({
     ip: { type: String, required: true, unique: true },
@@ -150,9 +161,11 @@ const Usage = mongoose.model('Usage', usageSchema);
 // Helper to check and increment usage
 const checkRateLimit = async (ip) => {
     const today = new Date().toISOString().split('T')[0];
-    const LIMIT = 15;
+    const LIMIT = 4;
 
     let usage = await Usage.findOne({ ip });
+
+    console.log(`[RateLimit Check] IP: ${ip}, Today: ${today}, Existing Count: ${usage ? usage.count : 'None'}`);
 
     if (!usage) {
         usage = new Usage({ ip, count: 1, lastRequestDate: today });
@@ -170,12 +183,14 @@ const checkRateLimit = async (ip) => {
     }
 
     if (usage.count >= LIMIT) {
+        console.log(`[RateLimit Blocked] IP: ${ip}, Count: ${usage.count}`);
         return { allowed: false, remaining: 0 };
     }
 
     usage.count += 1;
     usage.updatedAt = Date.now();
     await usage.save();
+    console.log(`[RateLimit Approved] New Count for ${ip}: ${usage.count}`);
     return { allowed: true, remaining: LIMIT - usage.count };
 };
 
@@ -345,6 +360,27 @@ const INITIAL_BLOGS = [
     }
 ];
 
+const INITIAL_TESTIMONIALS = [
+    {
+        name: "Rahul Sharma",
+        location: "Lucknow, UP",
+        content: "Advocate Irfan and his team helped me resolve my property dispute in record time. Highly professional and trustworthy!",
+        image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974&auto=format&fit=crop"
+    },
+    {
+        name: "Priya Verma",
+        location: "New Delhi",
+        content: "The digital consultancy for my startup was flawless. They handled GST and ITR without any hassle. ZoyaLegal is a game-changer.",
+        image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1974&auto=format&fit=crop"
+    },
+    {
+        name: "Capt. Sameer Khan",
+        location: "Dubai (Ex-Pat)",
+        content: "I needed urgent legal documentation for my family in Lucknow. ZoyaLegal's team handled everything while I was abroad. Remarkable speed.",
+        image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1974&auto=format&fit=crop"
+    }
+];
+
 // Seeding Function
 const seedDB = async () => {
     try {
@@ -354,6 +390,12 @@ const seedDB = async () => {
             await Blog.insertMany(INITIAL_BLOGS);
         } else {
             console.log('Database already seeded.');
+        }
+
+        const testimonialCount = await Testimonial.countDocuments();
+        if (testimonialCount === 0) {
+            console.log('Seeding initial testimonials...');
+            await Testimonial.insertMany(INITIAL_TESTIMONIALS);
         }
 
         const settingsCount = await Settings.countDocuments();
@@ -443,46 +485,60 @@ app.post('/api/chat', async (req, res) => {
     console.log(`--- AI Chat Request Received from ${ip} ---`);
 
     try {
-        const rateLimitStatus = await checkRateLimit(ip);
+        const isAdmin = req.headers['x-zoya-admin'] === 'true';
 
-        if (!rateLimitStatus.allowed) {
-            console.log(`Rate limit reached for IP: ${ip}`);
-            return res.status(429).json({
-                message: "You have reached your daily limit of 15 free questions. 🛑\n\nUpgrade your plan for unlimited access, premium legal insights, and priority support! 🚀",
-                status: "limit_reached"
-            });
+        if (!isAdmin) {
+            const rateLimitStatus = await checkRateLimit(ip);
+
+            if (!rateLimitStatus.allowed) {
+                console.log(`Rate limit reached for IP: ${ip}`);
+                return res.status(429).json({
+                    message: "You have reached your free question limit (4 queries). 🛑\n\nUpgrade your session for ₹350 to get unlimited legal insights and priority support! 🚀",
+                    status: "limit_reached"
+                });
+            }
+        } else {
+            console.log(`[Admin Bypass] Unlimited access granted for IP: ${ip}`);
         }
 
         const { messages } = req.body;
 
+        // Use a more compatible model for GitHub Tokens
+        const modelToUse = AI_API_KEY?.startsWith('ghp_') ? 'gpt-4o-mini' : AI_MODEL;
+
+        const headers = {
+            'Authorization': `Bearer ${AI_API_KEY}`,
+            'Content-Type': 'application/json',
+        };
+
+        // Only add extra headers for OpenRouter (non-GitHub)
+        if (!AI_API_KEY?.startsWith('ghp_')) {
+            headers['HTTP-Referer'] = 'https://zoyalaw.com';
+            headers['X-Title'] = 'ZoyaLegal AI Assistant';
+        }
+
         const response = await axios.post(AI_ENDPOINT, {
-            model: AI_MODEL,
+            model: modelToUse,
             messages: [
                 {
                     role: "system",
-                    content: `You are Zoya AI, the premium legal assistant for ZoyaLegal. 🏢
+                    content: `Role: Tum ek smart Web Assistant ho jo Zoya Legal ki website par aane waale clients ko guide karti ho.
 
-**Your Identity & Authority:**
-- ZoyaLegal is a **Government Authorized CSC & Legal Aid Centre** based in **Husain Ganj, Lucknow**.
-- We operate under the direct supervision of **verified High Court Advocates**, specifically **Adv. Irfan Khan**. Proudly mention him when asked about the team. 👨‍💼
+🗣️ Persona & Tone:
+- Tumhara naam **Zoya** hai.
+- Tum ek professional lekin behadh empathetic assistant ho.
+- Responses short, direct aur asar-daar rakhein. (Keep it concise).
 
-**Your Mission (Proactive Promotion):**
-- **Promote Services:** Whenever someone asks about legal issues, business, or documents, proactively suggest ZoyaLegal's expert services: GST/ITR filing, Business Registration, and Legal Consultations. ⚖️
-- **Client Portal Promotion:** If a user mentions having documents (cases, notices, IDs), suggest they upload them to our **Client Portal** for a professional review. 📤
-- **Trust & Speed:** Always mention that once documents/requests are submitted via the Portal or Payment is made, our team provides a response on email within **24 hours**. ⏱️
-- **Tone:** highly professional, empathetic, and authoritative. Use clear markdown and inviting emojis. ✅
-- **Important:** Provide guidance but always invite them to consult our experts/Advocates for final legal action. 🤝`
+📝 Response Guidelines:
+1. **Empathy First:** Client ko support dein.
+2. **Advocate Irfan Connection:** Direct help ke liye Advocate Irfan ka number dein: **9454950104**.
+3. **Closing:** Polite closing rakhein.
+
+⚠️ Important: Respond in **Hinglish** (Hindi in English script).`
                 },
                 ...messages
             ]
-        }, {
-            headers: {
-                'Authorization': `Bearer ${AI_API_KEY}`,
-                'HTTP-Referer': 'https://zoyalaw.com',
-                'X-Title': 'ZoyaLegal AI Assistant',
-                'Content-Type': 'application/json',
-            }
-        });
+        }, { headers });
 
         if (response.data.choices && response.data.choices[0]) {
             const aiMessage = response.data.choices[0].message;
@@ -497,6 +553,7 @@ app.post('/api/chat', async (req, res) => {
         if (err.response) {
             console.error('Status:', err.response.status);
             console.error('Data:', JSON.stringify(err.response.data));
+            console.error('Headers:', JSON.stringify(err.response.headers));
         }
 
         // Fallback response - promoting direct contact if AI is down
@@ -504,6 +561,24 @@ app.post('/api/chat', async (req, res) => {
             role: "assistant",
             content: "I'm currently undergoing a quick update to serve you better! 🚀\n\nFor immediate assistance, please contact our lead **Adv. Irfan Khan** at **+91 94549 50104** or visit our **ZoyaLegal** office in Lucknow. We guarantee a resolution within 24 hours! 📞⚖️"
         });
+    }
+});
+
+// Unlock Chat Endpoint (Post-Payment)
+app.post('/api/chat/unlock', async (req, res) => {
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    try {
+        const usage = await Usage.findOne({ ip });
+        if (usage) {
+            usage.count = 0;
+            usage.updatedAt = Date.now();
+            await usage.save();
+            res.json({ success: true, message: "Chat unlocked!" });
+        } else {
+            res.status(404).json({ success: false });
+        }
+    } catch (err) {
+        res.status(500).json({ success: false });
     }
 });
 
@@ -526,7 +601,8 @@ app.get('/api/ai-test', async (req, res) => {
             message: err.message,
             details: err.response?.data || 'No response data',
             endpoint: AI_ENDPOINT,
-            key_preview: AI_API_KEY ? `${AI_API_KEY.slice(0, 8)}...` : 'MISSING'
+            key_preview: AI_API_KEY ? `${AI_API_KEY.slice(0, 10)}...` : 'MISSING',
+            model: AI_MODEL
         });
     }
 });
@@ -782,7 +858,64 @@ app.delete('/api/submissions/:id', async (req, res) => {
     }
 });
 
-// Duplicate removed
+// --- Testimonials ---
+
+// Get all testimonials
+app.get('/api/testimonials', async (req, res) => {
+    try {
+        const testimonials = await Testimonial.find().sort({ createdAt: -1 });
+        res.json(testimonials);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// Create testimonial with image upload
+app.post('/api/testimonials', async (req, res) => {
+    try {
+        let imageUrl = req.body.image;
+
+        if (req.body.image && req.body.image.startsWith('data:image')) {
+            const uploadResponse = await cloudinary.uploader.upload(req.body.image, {
+                folder: 'zoya_testimonials',
+            });
+            imageUrl = uploadResponse.secure_url;
+        }
+
+        const testimonial = new Testimonial({ ...req.body, image: imageUrl });
+        const newTestimonial = await testimonial.save();
+        res.status(201).json(newTestimonial);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+});
+
+// Delete testimonial with Cloudinary cleanup
+app.delete('/api/testimonials/:id', async (req, res) => {
+    try {
+        const testimonial = await Testimonial.findById(req.params.id);
+        if (!testimonial) {
+            return res.status(404).json({ message: 'Testimonial not found' });
+        }
+
+        if (testimonial.image && testimonial.image.includes('cloudinary')) {
+            try {
+                const urlParts = testimonial.image.split('/');
+                const filenameObj = urlParts.pop();
+                const folderObj = urlParts.pop();
+                const publicIdClean = `${folderObj}/${filenameObj.split('.')[0]}`;
+                await cloudinary.uploader.destroy(publicIdClean);
+            } catch (cloudErr) {
+                console.error('Cloudinary delete error:', cloudErr);
+            }
+        }
+
+        await Testimonial.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Testimonial deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

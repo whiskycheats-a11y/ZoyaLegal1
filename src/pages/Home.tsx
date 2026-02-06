@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useBlogs } from '../context/BlogContext';
 import AboutSection from '../components/AboutSection';
+import TestimonialsSection from '../components/TestimonialsSection';
 
 export default function Home() {
   const { blogs, loading: blogsLoading, language, cleanHindi } = useBlogs();
@@ -362,6 +363,8 @@ export default function Home() {
         </div>
       </section>
 
+      <TestimonialsSection />
+
       {/* CTA Section */}
       <section className="py-20 bg-black text-white border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -387,6 +390,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-    </div>
+    </div >
   );
 }

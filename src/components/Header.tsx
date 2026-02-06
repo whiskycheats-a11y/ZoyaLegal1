@@ -15,6 +15,7 @@ export default function Header() {
     { name: 'Business Support', href: '/business-support', icon: TrendingUp, desc: 'GST, ITR & Registrations', color: 'text-purple-600', bg: 'bg-purple-50' },
     { name: 'Digital Services', href: '/digital-services', icon: Smartphone, desc: 'Web & Digital Marketing', color: 'text-pink-600', bg: 'bg-pink-50' },
     { name: 'Gulf Jobs & Visa', href: '/gulf-jobs-visa', icon: Globe, desc: 'Placement & Verification', color: 'text-orange-600', bg: 'bg-orange-50' },
+    { name: 'Aadhaar eSign', href: '/esign', icon: Fingerprint, desc: 'Digital Paperless Signing', color: 'text-green-600', bg: 'bg-green-50' },
   ];
 
   const legalResources = [

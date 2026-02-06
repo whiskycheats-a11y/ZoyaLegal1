@@ -155,30 +155,6 @@ export default function Blogs() {
                     )}
                 </div>
             </section>
-
-            {/* Newsletter Section */}
-            <section className="py-20 bg-black text-white border-t border-gray-800">
-                <div className="max-w-4xl mx-auto px-4 text-center">
-                    <h2 className="text-3xl md:text-5xl font-black mb-6 tracking-tighter uppercase italic">{t('Stay Informed_')}</h2>
-                    <p className="text-xl text-gray-400 mb-10 font-bold">
-                        {language === 'en' ? 'Subscribe to our newsletter for exclusive insights.' : 'विशेष अंतर्दृष्टि के लिए हमारे न्यूज़लेटर की सदस्यता लें।'}
-                    </p>
-                    <form className="flex flex-col sm:flex-row gap-4">
-                        <input
-                            type="email"
-                            placeholder={t("Enter your email")}
-                            className="flex-1 px-8 py-5 rounded-2xl bg-gray-900 border-2 border-gray-800 text-white outline-none focus:border-white focus:bg-black transition-all font-bold shadow-2xl"
-                            required
-                        />
-                        <button
-                            type="submit"
-                            className="px-10 py-5 bg-white text-black rounded-2xl font-black uppercase tracking-widest hover:bg-gray-100 transition-all shadow-2xl transform active:scale-95"
-                        >
-                            {t('Subscribe')}
-                        </button>
-                    </form>
-                </div>
-            </section>
         </div>
     );
 }

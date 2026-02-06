@@ -3,11 +3,12 @@ import { useBlogs } from '../context/BlogContext';
 import { BlogPost, Act, Judgment } from '../types/legal';
 import {
     Plus, Edit2, Trash2, X, Image as ImageIcon, Search, LayoutDashboard,
-    Settings as SettingsIcon, MessageSquare, Globe, Phone, Users, Book, Scale,
+    Settings as SettingsIcon, MessageSquare, Globe, Phone, Users, User, Book, Scale,
     Bold, List, ListOrdered, Heading2, Heading3, Type, Code, Sparkles, Loader2,
-    Folder, Download
+    Folder, Download, Fingerprint, Shield
 } from 'lucide-react';
 import axios from 'axios';
+import ESignProcess from './ESignProcess';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -28,9 +29,10 @@ export default function Admin() {
         deleteAdvocate,
         addAct, updateAct, deleteAct,
         addJudgment, updateJudgment, deleteJudgment,
+        testimonials, addTestimonial, deleteTestimonial,
         updateSettings, translateText, cleanHindi
     } = useBlogs();
-    const [activeTab, setActiveTab] = useState<'blogs' | 'settings' | 'advocates' | 'acts' | 'judgments' | 'submissions'>('blogs');
+    const [activeTab, setActiveTab] = useState<'blogs' | 'settings' | 'advocates' | 'acts' | 'judgments' | 'submissions' | 'testimonials' | 'esign-test'>('blogs');
     const [submissions, setSubmissions] = useState<any[]>([]);
     const [isSubmissionsLoading, setIsSubmissionsLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -88,6 +90,13 @@ export default function Admin() {
         simpleExplanation: "",
         simpleExplanation_hi: "",
         pdfUrl: ""
+    });
+
+    const [testimonialFormData, setTestimonialFormData] = useState({
+        name: "",
+        location: "",
+        content: "",
+        image: ""
     });
 
     useEffect(() => {
@@ -243,6 +252,8 @@ export default function Admin() {
                 } else {
                     await addJudgment(judgmentFormData);
                 }
+            } else if (activeTab === 'testimonials') {
+                await addTestimonial(testimonialFormData);
             }
             resetForm();
         } catch (err) {
@@ -295,6 +306,12 @@ export default function Admin() {
             simpleExplanation_hi: "",
             pdfUrl: ""
         });
+        setTestimonialFormData({
+            name: "",
+            location: "",
+            content: "",
+            image: ""
+        });
         setEditingId(null);
         setIsModalOpen(false);
         setIsCodeView(false);
@@ -321,6 +338,18 @@ export default function Admin() {
         setTimeout(() => {
             if (editorRef.current) editorRef.current.innerHTML = editLang === 'en' ? blog.content : (blog.content_hi || "");
         }, 100);
+    };
+
+
+    const handleTestimonialImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setTestimonialFormData(prev => ({ ...prev, image: reader.result as string }));
+            };
+            reader.readAsDataURL(file);
+        }
     };
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -420,6 +449,22 @@ export default function Admin() {
                         <span className="font-extrabold uppercase text-[10px] tracking-[0.2em]">Client Files</span>
                     </button>
 
+                    <button
+                        onClick={() => setActiveTab('testimonials')}
+                        className={`w-full flex items-center space-x-4 p-4 rounded-2xl transition-all duration-300 group ${activeTab === 'testimonials' ? 'bg-white text-black shadow-[0_10px_30px_rgba(255,255,255,0.1)]' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}
+                    >
+                        <Sparkles className={`h-5 w-5 transition-transform duration-300 group-hover:scale-110 ${activeTab === 'testimonials' ? 'text-black' : 'text-gray-500'}`} />
+                        <span className="font-extrabold uppercase text-[10px] tracking-[0.2em]">Testimonials</span>
+                    </button>
+
+                    <button
+                        onClick={() => setActiveTab('esign-test')}
+                        className={`w-full flex items-center space-x-4 p-4 rounded-2xl transition-all duration-300 group ${activeTab === 'esign-test' ? 'bg-white text-black shadow-[0_10px_30px_rgba(255,255,255,0.1)]' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}
+                    >
+                        <Fingerprint className={`h-5 w-5 transition-transform duration-300 group-hover:scale-110 ${activeTab === 'esign-test' ? 'text-black' : 'text-gray-500'}`} />
+                        <span className="font-extrabold uppercase text-[10px] tracking-[0.2em]">E-Sign Test</span>
+                    </button>
+
                 </nav>
 
                 <div className="mt-auto pt-6 border-t border-white/5">
@@ -441,6 +486,8 @@ export default function Admin() {
                     { id: 'acts', label: 'Acts', icon: Book },
                     { id: 'judgments', label: 'Judgments', icon: Scale },
                     { id: 'submissions', label: 'Files', icon: Folder },
+                    { id: 'testimonials', label: 'Testimonials', icon: Sparkles },
+                    { id: 'esign-test', label: 'E-Sign', icon: Fingerprint },
                     { id: 'settings', label: 'Settings', icon: SettingsIcon }
                 ].map((tab) => (
                     <button
@@ -540,6 +587,74 @@ export default function Admin() {
                             </table>
                         </div>
                     </>
+                )}
+
+                {activeTab === 'testimonials' && (
+                    <div className="space-y-12">
+                        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12 gap-8">
+                            <div>
+                                <h1 className="text-5xl font-black text-black tracking-tighter uppercase italic mb-2">Testimonials_</h1>
+                                <div className="flex items-center space-x-2">
+                                    <div className="h-1 w-12 bg-black rounded-full"></div>
+                                    <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Client Reviews & Satisfaction</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => {
+                                    resetForm();
+                                    setIsModalOpen(true);
+                                }}
+                                className="bg-black text-white px-8 py-4 rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] shadow-2xl hover:bg-gray-800 transition-all flex items-center"
+                            >
+                                <Plus className="h-4 w-4 mr-2" />
+                                Add New Review_
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {testimonials.map((t) => (
+                                <div key={t._id} className="bg-white rounded-[2.5rem] border border-gray-100 p-8 relative group hover:shadow-2xl transition-all duration-500 overflow-hidden">
+                                    <div className="absolute top-0 right-0 p-6">
+                                        <button
+                                            onClick={() => deleteTestimonial(t._id!)}
+                                            className="p-3 bg-red-50 text-red-500 rounded-2xl opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 hover:text-white"
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </button>
+                                    </div>
+                                    <div className="flex items-center space-x-4 mb-6">
+                                        <div className="h-14 w-14 rounded-2xl overflow-hidden border-2 border-gray-50 flex-shrink-0">
+                                            {t.image ? (
+                                                <img src={t.image} alt={t.name} className="h-full w-full object-cover" />
+                                            ) : (
+                                                <div className="h-full w-full bg-gray-50 flex items-center justify-center">
+                                                    <User className="h-6 w-6 text-gray-300" />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <h3 className="font-black text-black text-lg tracking-tight leading-none">{t.name}_</h3>
+                                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1.5">{t.location}</p>
+                                        </div>
+                                    </div>
+                                    <p className="text-gray-500 text-sm italic leading-relaxed">"{t.content}"</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'esign-test' && (
+                    <div className="bg-white rounded-[3rem] border border-gray-100 shadow-2xl overflow-hidden p-8 md:p-12">
+                        <div className="mb-12">
+                            <h2 className="text-4xl font-black text-black tracking-tighter uppercase italic mb-2">E-Sign Testing Environment_</h2>
+                            <p className="text-gray-400 font-bold uppercase text-[10px] tracking-widest flex items-center">
+                                <Shield className="h-3 w-3 mr-2 text-green-500" />
+                                Payment Bypassed Mode (Admin Only)
+                            </p>
+                        </div>
+                        <ESignProcess isAdmin={true} />
+                    </div>
                 )}
 
                 {activeTab === 'advocates' && (
@@ -938,7 +1053,7 @@ export default function Admin() {
                         </button>
 
                         <h2 className="text-3xl font-black text-black tracking-tighter uppercase italic mb-8">
-                            {activeTab === 'acts' ? "New Act_" : activeTab === 'judgments' ? "New Judgment_" : editingId ? "Edit Article_" : "New Article_"}
+                            {activeTab === 'acts' ? "New Act_" : activeTab === 'judgments' ? "New Judgment_" : activeTab === 'testimonials' ? "New Testimonial_" : editingId ? "Edit Article_" : "New Article_"}
                         </h2>
 
                         <form onSubmit={handleSubmit} className="space-y-6">
@@ -1045,7 +1160,79 @@ export default function Admin() {
                                 </div>
                             )}
 
-                            {(activeTab === 'blogs' || activeTab === 'advocates' || activeTab === 'settings') && (
+                            {activeTab === 'testimonials' && (
+                                <div className="space-y-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Client Name</label>
+                                            <input
+                                                required
+                                                className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition-all font-bold"
+                                                value={testimonialFormData.name}
+                                                onChange={e => setTestimonialFormData({ ...testimonialFormData, name: e.target.value })}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Location</label>
+                                            <input
+                                                required
+                                                placeholder="e.g. Lucknow, UP"
+                                                className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition-all font-bold"
+                                                value={testimonialFormData.location}
+                                                onChange={e => setTestimonialFormData({ ...testimonialFormData, location: e.target.value })}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Testimonial Content</label>
+                                        <textarea
+                                            required
+                                            rows={4}
+                                            placeholder="What the client said..."
+                                            className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition-all font-bold"
+                                            value={testimonialFormData.content}
+                                            onChange={e => setTestimonialFormData({ ...testimonialFormData, content: e.target.value })}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Client Photo (Optional)</label>
+                                        <div className="flex items-center space-x-6">
+                                            <div className="h-24 w-24 rounded-[2rem] bg-gray-50 overflow-hidden border-2 border-gray-100 flex-shrink-0 relative group">
+                                                {testimonialFormData.image ? (
+                                                    <img src={testimonialFormData.image} alt="Preview" className="h-full w-full object-cover" />
+                                                ) : (
+                                                    <div className="h-full w-full flex items-center justify-center bg-gray-50">
+                                                        <ImageIcon className="h-8 w-8 text-gray-300" />
+                                                    </div>
+                                                )}
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={handleTestimonialImageChange}
+                                                    className="absolute inset-0 opacity-0 cursor-pointer"
+                                                />
+                                            </div>
+                                            <div className="flex-1">
+                                                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-2 leading-relaxed">
+                                                    Upload a professional photo or avatar of the client.
+                                                </p>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => (document.querySelector('input[type="file"]') as HTMLInputElement)?.click()}
+                                                    className="text-[10px] font-black uppercase tracking-[0.2em] text-black border-b-2 border-black pb-1 hover:text-gray-500 hover:border-gray-500 transition-all font-bold"
+                                                >
+                                                    Select Image_
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="submit" className="w-full bg-black text-white py-5 rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:bg-gray-800 transition-all shadow-[0_10px_30px_rgba(0,0,0,0.1)] active:scale-95">
+                                        Add Testimonial_
+                                    </button>
+                                </div>
+                            )}
+
+                            {activeTab === 'blogs' && (
                                 <div className="space-y-6">
                                     <div className="flex flex-wrap items-center gap-4">
                                         <div className="flex bg-gray-100 p-1 rounded-xl w-fit">

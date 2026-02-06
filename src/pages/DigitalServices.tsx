@@ -10,7 +10,8 @@ import {
   Phone,
   Monitor,
   Camera,
-  BarChart
+  BarChart,
+  Fingerprint
 } from 'lucide-react';
 
 export default function DigitalServices() {
@@ -164,6 +165,25 @@ export default function DigitalServices() {
       ],
       price: 'Starting from ₹2,000',
       duration: '1-4 weeks'
+    },
+    {
+      icon: Fingerprint,
+      title: 'Aadhaar eSign',
+      hindi: 'आधार ई-साइन सेवा',
+      description: 'Fully legal digital signatures for all your legal documents and agreements.',
+      details: [
+        'Aadhaar-based OTP verification',
+        'Legally valid in Indian courts',
+        'Tamper-proof signed PDF',
+        'Rent agreement eSigning',
+        'Legal notice digital signing',
+        'Affidavit verification',
+        'Audit trail and timestamping',
+        'Paperless & secure process'
+      ],
+      price: 'Starting from ₹300',
+      duration: '5-10 minutes (Instant)',
+      link: '/esign'
     }
   ];
 

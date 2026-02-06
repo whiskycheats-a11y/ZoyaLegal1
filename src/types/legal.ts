@@ -69,3 +69,11 @@ export interface SiteSettings {
         facebook: string;
     };
 }
+export interface Testimonial {
+    _id?: string;
+    name: string;
+    location: string;
+    content: string;
+    image: string;
+    createdAt?: string;
+}
