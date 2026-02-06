@@ -108,13 +108,34 @@ export default function Blogs() {
                                             {language === 'hi' && post.description_hi ? cleanHindi(post.description_hi) : post.description}
                                         </p>
 
-                                        <Link
-                                            to={`/blogs/${post._id}`}
-                                            className="inline-flex items-center text-black font-black uppercase tracking-widest group/link transition-all"
-                                        >
-                                            {t('Read Full Article')}
-                                            <ArrowRight className="ml-2 h-5 w-5 group-hover/link:translate-x-2 transition-transform duration-300" />
-                                        </Link>
+                                        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 pt-4">
+                                            <Link
+                                                to={`/blogs/${post._id}`}
+                                                className="inline-flex items-center text-black font-black uppercase tracking-widest group/link transition-all h-fit"
+                                            >
+                                                {t('Read Full Article')}
+                                                <ArrowRight className="ml-2 h-5 w-5 group-hover/link:translate-x-2 transition-transform duration-300" />
+                                            </Link>
+
+                                            {/* Premium 3D Promotional Block */}
+                                            <div className="card-3d-wrap max-w-[300px]">
+                                                <div className="card-3d-inner glass-card p-5 rounded-2xl border-l-4 border-l-blue-600 shadow-xl group/promo hover:shadow-blue-500/10 transition-all">
+                                                    <p className="text-[14px] font-black text-black leading-tight mb-2">
+                                                        क्या आप इस समस्या से परेशान हैं?
+                                                    </p>
+                                                    <p className="text-[11px] font-bold text-gray-500 leading-snug mb-3">
+                                                        अगर आपकी स्थिति अलग है या मामला गंभीर है, तो सही कानूनी सलाह बहुत ज़रूरी है।
+                                                    </p>
+                                                    <Link
+                                                        to="/contact"
+                                                        className="flex items-center justify-between bg-black text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all group-hover/promo:scale-105"
+                                                    >
+                                                        ZoyaLegal एक्सपर्ट से परामर्श लें
+                                                        <ArrowRight className="h-3 w-3 ml-2" />
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             ))}
