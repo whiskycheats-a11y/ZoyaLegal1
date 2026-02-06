@@ -41,7 +41,6 @@ const PageLoader = () => (
 
 function App() {
   const [screenshotWarning, setScreenshotWarning] = useState(false);
-  const [isBlurred, setIsBlurred] = useState(false);
 
   useEffect(() => {
     // 1. Disable Right Click
@@ -78,46 +77,32 @@ function App() {
       }
     };
 
-    // 3. Disable Focus Capture attempt (Blur content)
+    // 3. Document Protection Logic
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
         document.title = "Protected Content | ZoyaLegal";
-        setIsBlurred(true);
       } else {
         document.title = "ZoyaLegal - CSC + Advocate Multi-Service Centre";
-        setIsBlurred(false);
       }
-    };
-
-    const handleBlur = () => {
-      setIsBlurred(true);
-    };
-
-    const handleFocus = () => {
-      setIsBlurred(false);
     };
 
     document.addEventListener('contextmenu', handleContextMenu);
     document.addEventListener('keydown', handleKeyDown);
     document.addEventListener('keyup', handleKeyUp);
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('blur', handleBlur);
-    window.addEventListener('focus', handleFocus);
 
     return () => {
       document.removeEventListener('contextmenu', handleContextMenu);
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('keyup', handleKeyUp);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('blur', handleBlur);
-      window.removeEventListener('focus', handleFocus);
     };
   }, []);
 
   return (
     <BlogProvider>
       <Router>
-        <div className={`min-h-screen bg-gray-50 flex flex-col transition-all duration-300 ${isBlurred ? 'blur-3xl' : ''}`}>
+        <div className="min-h-screen bg-gray-50 flex flex-col transition-all duration-300">
           <TopProgressBar />
           <Header />
           <main className="flex-grow">

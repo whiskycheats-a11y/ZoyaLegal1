@@ -9,6 +9,8 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 
 const EDITOR_STYLES = `
   .editor-content h2 { font-size: 1.5rem; font-weight: 900; margin-top: 1.5rem; margin-bottom: 0.5rem; }
@@ -103,7 +105,7 @@ export default function Admin() {
     const fetchSubmissions = async () => {
         setIsSubmissionsLoading(true);
         try {
-            const res = await axios.get('http://localhost:5000/api/submissions');
+            const res = await axios.get(`${API_BASE_URL}/api/submissions`);
             setSubmissions(res.data);
         } catch (err) {
             console.error("Fetch submissions error:", err);
@@ -131,7 +133,7 @@ export default function Admin() {
         }
 
         try {
-            await axios.delete(`http://localhost:5000/api/submissions/${id}`);
+            await axios.delete(`${API_BASE_URL}/api/submissions/${id}`);
 
             // Show success message
             if (submissionCard) {

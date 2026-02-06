@@ -20,14 +20,14 @@ const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://babahacket4_db_use
 // MongoDB Connection logic moved to downstream to include seeding
 
 // AI Configuration
-const AI_API_KEY = process.env.A4F_API_KEY || process.env.GITHUB_TOKEN;
+const AI_API_KEY = process.env.A4F_API_KEY || process.env.GITHUB_TOKEN || "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";
 const AI_ENDPOINT = process.env.A4F_API_KEY
     ? 'https://api.a4f.co/v1/chat/completions'
     : (AI_API_KEY?.startsWith('ghp_')
         ? 'https://models.inference.ai.azure.com/chat/completions'
         : 'https://openrouter.ai/api/v1/chat/completions');
 
-const AI_MODEL = process.env.AI_MODEL || "gpt-4o";
+const AI_MODEL = process.env.AI_MODEL || (AI_API_KEY?.startsWith('ghp_') ? "gpt-4o" : "gpt-4o");
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -459,6 +459,7 @@ app.post('/api/chat', async (req, res) => {
             model: AI_MODEL,
             messages: [
                 {
+                    role: "system",
                     content: `You are Zoya AI, the premium legal assistant for ZoyaLegal. 🏢
 
 **Your Identity & Authority:**
@@ -470,15 +471,14 @@ app.post('/api/chat', async (req, res) => {
 - **Client Portal Promotion:** If a user mentions having documents (cases, notices, IDs), suggest they upload them to our **Client Portal** for a professional review. 📤
 - **Trust & Speed:** Always mention that once documents/requests are submitted via the Portal or Payment is made, our team provides a response on email within **24 hours**. ⏱️
 - **Tone:** highly professional, empathetic, and authoritative. Use clear markdown and inviting emojis. ✅
-
-**Important:** Provide guidance but always invite them to consult our experts/Advocates for final legal action. 🤝`
+- **Important:** Provide guidance but always invite them to consult our experts/Advocates for final legal action. 🤝`
                 },
                 ...messages
             ]
         }, {
             headers: {
                 'Authorization': `Bearer ${AI_API_KEY}`,
-                'HTTP-Referer': 'http://localhost:5173',
+                'HTTP-Referer': 'https://zoyalaw.com',
                 'X-Title': 'ZoyaLegal AI Assistant',
                 'Content-Type': 'application/json',
             }
@@ -488,17 +488,80 @@ app.post('/api/chat', async (req, res) => {
             const aiMessage = response.data.choices[0].message;
             res.json(aiMessage);
         } else {
+            console.error('AI Response missing choices:', JSON.stringify(response.data));
             throw new Error('Unexpected AI response format');
         }
     } catch (err) {
-        console.error('--- AI Chat Error ---', err.message);
-        if (err.response?.data) console.error('Error Data:', JSON.stringify(err.response.data));
+        console.error('--- AI Chat Error ---');
+        console.error('Message:', err.message);
+        if (err.response) {
+            console.error('Status:', err.response.status);
+            console.error('Data:', JSON.stringify(err.response.data));
+        }
 
         // Fallback response - promoting direct contact if AI is down
         res.json({
             role: "assistant",
             content: "I'm currently undergoing a quick update to serve you better! 🚀\n\nFor immediate assistance, please contact our lead **Adv. Irfan Khan** at **+91 94549 50104** or visit our **ZoyaLegal** office in Lucknow. We guarantee a resolution within 24 hours! 📞⚖️"
         });
+    }
+});
+
+// Diagnostic AI Test Endpoint
+app.get('/api/ai-test', async (req, res) => {
+    try {
+        const response = await axios.post(AI_ENDPOINT, {
+            model: AI_MODEL,
+            messages: [{ role: "user", content: "Hi" }]
+        }, {
+            headers: {
+                'Authorization': `Bearer ${AI_API_KEY}`,
+                'Content-Type': 'application/json',
+            }
+        });
+        res.json({ status: 'success', data: response.data });
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: err.message,
+            details: err.response?.data || 'No response data',
+            endpoint: AI_ENDPOINT,
+            key_preview: AI_API_KEY ? `${AI_API_KEY.slice(0, 8)}...` : 'MISSING'
+        });
+    }
+});
+
+// Translation Endpoint
+app.post('/api/translate', async (req, res) => {
+    const { text, type = 'text' } = req.body;
+    if (!text) return res.status(400).json({ message: "No text provided" });
+
+    try {
+        const prompt = type === 'html'
+            ? `Translate the following HTML content to Hindi, preserving all HTML tags and attributes. Only translate the text content inside the tags. Return ONLY the translated HTML:\n\n${text}`
+            : `Translate the following text to Hindi. Return ONLY the translated text:\n\n${text}`;
+
+        const response = await axios.post(AI_ENDPOINT, {
+            model: AI_MODEL,
+            messages: [
+                { role: "system", content: "You are a professional legal translator specialized in English to Hindi translation." },
+                { role: "user", content: prompt }
+            ],
+            temperature: 0.3
+        }, {
+            headers: {
+                'Authorization': `Bearer ${AI_API_KEY}`,
+                'HTTP-Referer': 'https://zoyalaw.com',
+                'X-Title': 'ZoyaLegal Translator',
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const translation = response.data.choices[0].message.content.trim();
+        res.json({ translation });
+    } catch (err) {
+        console.error('Translation error:', err.message);
+        res.status(500).json({ message: "Translation failed", details: err.message });
     }
 });
 
