@@ -63,8 +63,8 @@ export default function ESignServices() {
                         </h1>
 
                         <p className="text-xl md:text-2xl text-gray-400 mb-12 animate-fade-in-delay leading-relaxed font-medium">
-                            India me IT Act, 2000 ke under Aadhaar eSign fully valid hai.
-                            Rent Agreements, Notices, aur Affidavits ko digitally sign karein—bilkul legal aur safe.
+                            Aadhaar eSign is fully valid under India’s IT Act 2000.
+                            Digitally sign Rent Agreements, Notices, and Affidavits legally, securely, and hassle-free.
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-8 animate-slide-up">
@@ -118,7 +118,7 @@ export default function ESignServices() {
                             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 mb-2">Applications_</p>
                             <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter">Perfect for all <br />Legal Services_</h2>
                         </div>
-                        <p className="text-gray-500 max-w-md font-medium">Ye services aapki website ke legal flow me seamless integrate hoti hain.</p>
+
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -146,21 +146,7 @@ export default function ESignServices() {
                         <p className="text-gray-500 font-bold uppercase tracking-widest">Client → Document → eSign → Download</p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-                        {[
-                            { num: '01', title: 'Details', text: 'Client form fill karega with basic details like name, phone and document type.' },
-                            { num: '02', title: 'Preview', text: 'Backend se PDF generate hogi aur client screen par preview dikhega.' },
-                            { num: '03', title: 'OTP Check', text: 'Aadhaar linked phone par OTP aayega, verify hote hi digital sign lag jayega.' }
-                        ].map((step, idx) => (
-                            <div key={idx} className="relative">
-                                <span className="text-8xl font-black text-white/5 absolute -top-12 -left-4 select-none">{step.num}</span>
-                                <div className="relative z-10">
-                                    <h3 className="text-2xl font-black mb-4 uppercase tracking-tight">{step.title}</h3>
-                                    <p className="text-gray-400 text-sm leading-relaxed font-medium">{step.text}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+
                 </div>
             </section>
 
@@ -195,7 +181,7 @@ export default function ESignServices() {
                             <div className="bg-gray-50 rounded-3xl p-8 border border-gray-100 shadow-inner">
                                 <div className="text-center mb-8">
                                     <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 mb-2">Service Fee</p>
-                                    <p className="text-5xl font-black text-black">₹300<span className="text-sm font-bold text-gray-500">/onwards</span></p>
+                                    <p className="text-5xl font-black text-black">₹500<span className="text-sm font-bold text-gray-500">/onwards</span></p>
                                 </div>
                                 <Link
                                     to="/esign/process"

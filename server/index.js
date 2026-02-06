@@ -143,6 +143,9 @@ const testimonialSchema = new mongoose.Schema({
     location: { type: String },
     content: { type: String, required: true },
     image: { type: String }, // Cloudinary URL
+    mobile: { type: String },
+    email: { type: String },
+    rating: { type: Number, default: 5 },
     createdAt: { type: Date, default: Date.now }
 });
 

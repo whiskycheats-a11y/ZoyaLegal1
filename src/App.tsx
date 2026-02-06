@@ -29,6 +29,7 @@ import ClientPortal from './pages/ClientPortal';
 import CaseStatus from './pages/CaseStatus';
 import ESignServices from './pages/ESignServices';
 import ESignProcess from './pages/ESignProcess';
+import ClientReview from './pages/ClientReview';
 
 // Loading fallback
 const PageLoader = () => (
@@ -131,6 +132,7 @@ function App() {
                 <Route path="/case-status" element={<CaseStatus />} />
                 <Route path="/esign" element={<ESignServices />} />
                 <Route path="/esign/process" element={<ESignProcess />} />
+                <Route path="/write-review" element={<ClientReview />} />
               </Routes>
             </Suspense>
           </main>

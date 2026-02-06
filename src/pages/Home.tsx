@@ -14,7 +14,8 @@ import {
   Award,
   Clock,
   Calendar,
-  Shield
+  Shield,
+  Star
 } from 'lucide-react';
 import { useBlogs } from '../context/BlogContext';
 import AboutSection from '../components/AboutSection';
@@ -116,56 +117,59 @@ export default function Home() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative bg-black text-white py-24 md:py-32 border-b border-gray-800 overflow-hidden">
-        {/* 3D Background Effects */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-900/20 rounded-full blur-[120px] opacity-50 -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-900/20 rounded-full blur-[120px] opacity-50 translate-y-1/2 -translate-x-1/4 pointer-events-none"></div>
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="bg-black text-white pt-24 pb-32 md:pb-48 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-white/5 rounded-full blur-[120px] -mr-96 -mt-96"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 tracking-tighter leading-none animate-fade-in">
-              ZoyaLegal<span className="text-blue-600">_</span>
-            </h1>
-            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold mb-6 text-gray-300 tracking-wide animate-fade-in-delay">
-              CSC + Advocate Multi-Service Centre
-            </h2>
-            <div className="flex flex-col items-center mb-12">
-              <p className="text-lg md:text-xl lg:text-2xl text-gray-400 max-w-3xl mx-auto leading-relaxed animate-slide-up mb-4">
-                AI-Powered Legal Solutions at Your Fingertips
-              </p>
-              {/* Hindi Publicity / Trust Line */}
-              <div className="bg-white/5 border border-white/10 px-6 py-3 rounded-2xl backdrop-blur-md animate-fade-in-delay group hover:border-blue-500 transition-all duration-500 cursor-default">
-                <p className="text-sm md:text-base font-bold text-blue-400 tracking-wide uppercase flex items-center justify-center">
-                  <Shield className="h-4 w-4 mr-2 group-hover:rotate-12 transition-transform" />
-                  लखनऊ का विश्वसनीय केंद्र — High Court Advocates की सीधी देख-रेख और मार्गदर्शन में।
-                </p>
-              </div>
+
+            {/* Pill Badge */}
+            <div className="inline-flex items-center space-x-2 bg-white/10 px-4 py-2 rounded-full mb-8 backdrop-blur-md animate-fade-in">
+              <Shield className="h-5 w-5 text-green-400" />
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-300">CSC + Advocate Centre_</span>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-6 mb-12 text-base md:text-lg animate-fade-in-delay">
-              <div className="flex items-center text-gray-300 font-medium">
-                <CheckCircle className="h-5 w-5 mr-2" />
-                📍 Husain Ganj, Lucknow
-              </div>
-              <div className="flex items-center text-gray-300 font-medium">
-                <CheckCircle className="h-5 w-5 mr-2" />
-                PAN India Digital Support
-              </div>
-            </div>
-            <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6 animate-scale-in">
-              <Link
-                to="/payment"
-                className="bg-white text-black px-10 py-5 rounded-xl font-black text-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-2xl"
-              >
-                Pay Online
-              </Link>
+            {/* Main Heading */}
+            <h1 className="text-5xl md:text-7xl lg:text-9xl font-black mb-8 tracking-tighter leading-none animate-slide-up">
+              ZoyaLegal<span className="text-green-500">_</span> <br />
+              <span className="text-green-500 italic text-4xl md:text-6xl lg:text-7xl block mt-2">Digital Services.</span>
+            </h1>
+
+            <p className="text-xl md:text-2xl text-gray-400 mb-12 animate-fade-in-delay leading-relaxed font-medium max-w-3xl mx-auto">
+              AI-Powered Legal Solutions at Your Fingertips.
+              <span className="block text-gray-500 mt-2 text-lg">High Court Advocates ke margdarshan mein.</span>
+            </p>
+
+            {/* Buttons & Social Proof */}
+            <div className="flex flex-col sm:flex-row items-center justify-center space-y-6 sm:space-y-0 sm:space-x-8 animate-slide-up">
               <Link
                 to="/legal-services"
-                className="border-2 border-white text-white px-10 py-5 rounded-xl font-black text-lg hover:bg-white hover:text-black transition-all duration-300 transform hover:scale-105"
+                className="w-full sm:w-auto bg-green-500 text-black px-12 py-5 rounded-2xl font-black text-lg uppercase tracking-widest hover:bg-green-400 transition-all shadow-[0_0_30px_rgba(34,197,94,0.3)] hover:shadow-[0_0_50px_rgba(34,197,94,0.5)] transform hover:-translate-y-1 flex items-center justify-center group"
               >
                 Explore Services
+                <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Link>
+
+              <div className="flex items-center space-x-4">
+                <div className="flex -space-x-3">
+                  {[1, 2, 3, 4].map(i => (
+                    <div key={i} className="w-10 h-10 rounded-full border-2 border-black bg-gray-800 flex items-center justify-center overflow-hidden">
+                      <img src={`https://i.pravatar.cc/100?img=${i + 15}`} alt="user" />
+                    </div>
+                  ))}
+                </div>
+                <div className="text-left">
+                  <div className="flex items-center mb-1">
+                    {[1, 2, 3, 4, 5].map(s => (
+                      <Star key={s} className="h-3 w-3 text-green-500 fill-current" />
+                    ))}
+                  </div>
+                  <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">
+                    <span className="text-white">5,000+ Happy Clients_</span>
+                  </p>
+                </div>
+              </div>
             </div>
+
           </div>
         </div>
       </section>

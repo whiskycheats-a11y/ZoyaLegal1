@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useBlogs } from '../context/BlogContext';
-import { Quote, ChevronLeft, ChevronRight, User, Star } from 'lucide-react';
+import { Quote, ChevronLeft, ChevronRight, User, Star, ArrowRight } from 'lucide-react';
 
 const TestimonialsSection: React.FC = () => {
     const { testimonials, language } = useBlogs();
@@ -120,19 +121,37 @@ const TestimonialsSection: React.FC = () => {
                             </div>
 
                             {/* Indicators */}
-                            <div className="flex space-x-3 mt-8">
-                                {testimonials.map((_, i) => (
-                                    <button
-                                        key={i}
-                                        onClick={() => {
-                                            setCurrentIndex(i);
-                                            setIsAutoPlaying(false);
-                                        }}
-                                        className={`h-1 transition-all duration-500 rounded-full ${i === currentIndex ? 'w-12 bg-black' : 'w-4 bg-gray-200'
-                                            }`}
-                                    />
-                                ))}
+                            <div className="flex items-center justify-between mt-10 border-t border-gray-100 pt-8">
+                                <div className="flex space-x-3">
+                                    {testimonials.map((_, i) => (
+                                        <button
+                                            key={i}
+                                            onClick={() => {
+                                                setCurrentIndex(i);
+                                                setIsAutoPlaying(false);
+                                            }}
+                                            className={`h-1 transition-all duration-500 rounded-full ${i === currentIndex ? 'w-12 bg-black' : 'w-4 bg-gray-200'
+                                                }`}
+                                        />
+                                    ))}
+                                </div>
+
+                                <Link
+                                    to="/write-review"
+                                    className="hidden md:flex items-center text-sm font-black uppercase tracking-widest text-black hover:text-blue-600 transition-colors group"
+                                >
+                                    Share Your Experience
+                                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                                </Link>
                             </div>
+
+                            {/* Mobile Only Button */}
+                            <Link
+                                to="/write-review"
+                                className="md:hidden mt-8 w-full bg-black text-white py-4 rounded-xl flex items-center justify-center font-bold uppercase tracking-widest text-sm"
+                            >
+                                Share Your Experience
+                            </Link>
                         </div>
                     </div>
                 </div>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Shield, ArrowLeft, CheckCircle2, Fingerprint, FileText, Smartphone, Download, ChevronRight } from 'lucide-react';
+import { Shield, ArrowLeft, CheckCircle2, Fingerprint, Smartphone, Download, ChevronRight, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ESignRequestForm from '../components/esign/ESignRequestForm';
 import ESignPreview from '../components/esign/ESignPreview';

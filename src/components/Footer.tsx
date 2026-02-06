@@ -34,6 +34,8 @@ export default function Footer() {
               <li><Link to="/business-support" className="text-gray-400 hover:text-white transition-colors">Business Support</Link></li>
               <li><Link to="/digital-services" className="text-gray-400 hover:text-white transition-colors">Digital Services</Link></li>
               <li><Link to="/gulf-jobs-visa" className="text-gray-400 hover:text-white transition-colors">Gulf Jobs & Visa</Link></li>
+              <li><Link to="/contact" className="text-gray-400 hover:text-white transition-colors flex items-center group"><span className="w-1.5 h-1.5 bg-gray-700 rounded-full mr-2 group-hover:bg-white transition-colors"></span>Contact Us</Link></li>
+              <li><Link to="/write-review" className="text-gray-400 hover:text-white transition-colors flex items-center group"><span className="w-1.5 h-1.5 bg-gray-700 rounded-full mr-2 group-hover:bg-yellow-400 transition-colors"></span>Write a Review</Link></li>
             </ul>
           </div>
 
