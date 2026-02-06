@@ -136,7 +136,7 @@ const categories = [
             { name: "UPI / Wallet Dispute Resolution", url: "https://www.npci.org.in/what-we-do/upi/dispute-redressal-mechanism", icon: Smartphone },
             { name: "CKYC – Bank KYC Status Check", url: "https://www.ckycindia.in/", icon: Search },
             { name: "CIBIL – Credit Report & Score", url: "https://www.cibil.com/", icon: TrendingUp },
-            { name: "TRAI Telecom Complaint Portal", url: "https://consumercomplaints.trai.gov.in/", icon: Phone },
+            { name: "TRAI Telecom Complaint Portal", url: "https://tccms.trai.gov.in/", icon: Phone },
             { name: "Lost / Stolen Mobile Block (CEIR)", url: "https://www.ceir.gov.in/", icon: Smartphone },
         ]
     },
@@ -149,7 +149,7 @@ const categories = [
             { name: "Birth & Death Certificate – CRS", url: "https://crsorgi.gov.in/", icon: FileText },
             { name: "e-SHRAM Card – Unorganised Workers", url: "https://eshram.gov.in/", icon: Users },
             { name: "EPFO – PF, Pension & UAN Services", url: "https://www.epfindia.gov.in/", icon: Building2 },
-            { name: "National Social Assistance (NSAP)", url: "https://nsap.nic.in/", icon: Heart },
+            { name: "National Social Assistance (NSAP)", url: "https://nsap.gov.in/", icon: Heart },
         ]
     },
     {

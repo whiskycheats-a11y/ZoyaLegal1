@@ -1,4 +1,21 @@
 User-agent: *
 Allow: /
 
+# Specifically allow AI crawlers to help with Generative Engine Optimization (GEO)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+# Sitemap
 Sitemap: https://zoyalegal.com/sitemap.xml

@@ -25,9 +25,14 @@ export default function AboutSection() {
                                     </div>
                                 </div>
 
-                                <p className="text-gray-600 font-bold leading-relaxed mb-10 text-xl tracking-tight">
-                                    Based in <span className="text-black bg-blue-50 px-2 py-0.5 rounded-lg border border-blue-100 uppercase italic text-lg">Husain Ganj, Lucknow</span>, we provide specialized multi-service support through a network of verified professionals.
-                                </p>
+                                <div className="space-y-4 mb-10">
+                                    <p className="text-gray-700 font-medium leading-relaxed text-lg tracking-tight">
+                                        Headquartered in <span className="text-black bg-blue-50 px-2 py-0.5 rounded-lg border border-blue-100 uppercase italic text-base font-bold">Husain Ganj, Lucknow</span>, ZoyaLegal is a <span className="font-bold text-black">Government Authorized CSC & Legal Aid Centre</span> operating under the direct supervision of <span className="font-bold text-black">High Court Advocates</span>.
+                                    </p>
+                                    <p className="text-gray-600 font-bold leading-relaxed text-base italic border-l-4 border-blue-600 pl-4 py-2 bg-blue-50/30 rounded-r-xl">
+                                        ZoyaLegal, लखनऊ (हुसैन गंज) स्थित एक Government Authorized CSC & Legal Aid Centre है, जो High Court Advocate के निर्देशन में कार्य करता है। हम नागरिकों को डिजिटल और कानूनी सेवाएँ पूरी transparency और जिम्मेदारी के साथ उपलब्ध कराते हैं।
+                                    </p>
+                                </div>
 
                                 <div className="grid grid-cols-2 gap-5">
                                     {[

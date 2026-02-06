@@ -1,5 +1,6 @@
-import { Suspense, lazy } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { CameraOff } from 'lucide-react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import AIChatbot from './components/AIChatbot';
@@ -7,27 +8,26 @@ import LegalDisclaimer from './components/LegalDisclaimer';
 import TopProgressBar from './components/TopProgressBar';
 import { BlogProvider } from './context/BlogContext';
 
-// Lazy load pages for better performance
-const Home = lazy(() => import('./pages/Home'));
-const LegalServices = lazy(() => import('./pages/LegalServices'));
-const CSCServices = lazy(() => import('./pages/CSCServices'));
-const BusinessSupport = lazy(() => import('./pages/BusinessSupport'));
-const DigitalServices = lazy(() => import('./pages/DigitalServices'));
-const GulfJobsVisa = lazy(() => import('./pages/GulfJobsVisa'));
-const TravelTransport = lazy(() => import('./pages/TravelTransport'));
-const LoadRecovery = lazy(() => import('./pages/LoadRecovery'));
-const MedicalHelp = lazy(() => import('./pages/MedicalHelp'));
-const SpecialCampaigns = lazy(() => import('./pages/SpecialCampaigns'));
-const Contact = lazy(() => import('./pages/Contact'));
-const Payment = lazy(() => import('./pages/Payment'));
-const Advocates = lazy(() => import('./pages/Advocates'));
-const AdvocateRegistration = lazy(() => import('./pages/AdvocateRegistration'));
-const Blogs = lazy(() => import('./pages/Blogs'));
-const BlogDetail = lazy(() => import('./pages/BlogDetail'));
-const Admin = lazy(() => import('./pages/Admin'));
-const ActsJudgments = lazy(() => import('./pages/ActsJudgments'));
-const ClientPortal = lazy(() => import('./pages/ClientPortal'));
-const CaseStatus = lazy(() => import('./pages/CaseStatus'));
+import Home from './pages/Home';
+import LegalServices from './pages/LegalServices';
+import CSCServices from './pages/CSCServices';
+import BusinessSupport from './pages/BusinessSupport';
+import DigitalServices from './pages/DigitalServices';
+import GulfJobsVisa from './pages/GulfJobsVisa';
+import TravelTransport from './pages/TravelTransport';
+import LoadRecovery from './pages/LoadRecovery';
+import MedicalHelp from './pages/MedicalHelp';
+import SpecialCampaigns from './pages/SpecialCampaigns';
+import Contact from './pages/Contact';
+import Payment from './pages/Payment';
+import Advocates from './pages/Advocates';
+import AdvocateRegistration from './pages/AdvocateRegistration';
+import Blogs from './pages/Blogs';
+import BlogDetail from './pages/BlogDetail';
+import Admin from './pages/Admin';
+import ActsJudgments from './pages/ActsJudgments';
+import ClientPortal from './pages/ClientPortal';
+import CaseStatus from './pages/CaseStatus';
 
 // Loading fallback
 const PageLoader = () => (
@@ -40,10 +40,84 @@ const PageLoader = () => (
 );
 
 function App() {
+  const [screenshotWarning, setScreenshotWarning] = useState(false);
+  const [isBlurred, setIsBlurred] = useState(false);
+
+  useEffect(() => {
+    // 1. Disable Right Click
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault();
+    };
+
+    // 2. Disable Key Shortcuts (Copy, View Source, Save, PrintScreen)
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Disable Ctrl+C, Ctrl+V, Ctrl+U, Ctrl+S, Ctrl+P, F12
+      if (
+        (e.ctrlKey && (e.key === 'c' || e.key === 'C')) ||
+        (e.ctrlKey && (e.key === 'v' || e.key === 'V')) ||
+        (e.ctrlKey && (e.key === 'u' || e.key === 'U')) ||
+        (e.ctrlKey && (e.key === 's' || e.key === 'S')) ||
+        (e.ctrlKey && (e.key === 'p' || e.key === 'P')) ||
+        e.key === 'F12'
+      ) {
+        e.preventDefault();
+        return false;
+      }
+
+      if (e.key === 'PrintScreen') {
+        setScreenshotWarning(true);
+        setTimeout(() => setScreenshotWarning(false), 3000);
+        e.preventDefault();
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === 'PrintScreen') {
+        setScreenshotWarning(true);
+        setTimeout(() => setScreenshotWarning(false), 3000);
+      }
+    };
+
+    // 3. Disable Focus Capture attempt (Blur content)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        document.title = "Protected Content | ZoyaLegal";
+        setIsBlurred(true);
+      } else {
+        document.title = "ZoyaLegal - CSC + Advocate Multi-Service Centre";
+        setIsBlurred(false);
+      }
+    };
+
+    const handleBlur = () => {
+      setIsBlurred(true);
+    };
+
+    const handleFocus = () => {
+      setIsBlurred(false);
+    };
+
+    document.addEventListener('contextmenu', handleContextMenu);
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keyup', handleKeyUp);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('blur', handleBlur);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keyup', handleKeyUp);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('blur', handleBlur);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, []);
+
   return (
     <BlogProvider>
       <Router>
-        <div className="min-h-screen bg-gray-50 flex flex-col">
+        <div className={`min-h-screen bg-gray-50 flex flex-col transition-all duration-300 ${isBlurred ? 'blur-3xl' : ''}`}>
           <TopProgressBar />
           <Header />
           <main className="flex-grow">
@@ -76,6 +150,26 @@ function App() {
           <AIChatbot />
           <LegalDisclaimer />
         </div>
+
+        {/* Screenshot Warning Overlay */}
+        {screenshotWarning && (
+          <div className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center p-6 animate-fade-in">
+            <div className="text-center max-w-md">
+              <div className="bg-red-500/10 p-6 rounded-full w-24 h-24 mx-auto mb-6 flex items-center justify-center border border-red-500/20">
+                <CameraOff className="h-12 w-12 text-red-500 animate-pulse" />
+              </div>
+              <h2 className="text-3xl font-black text-white uppercase tracking-tighter mb-4">
+                Screenshot <span className="text-red-500">Protected_</span>
+              </h2>
+              <p className="text-gray-400 font-medium leading-relaxed">
+                ZoyaLegal content is encrypted and protected. Unauthorized screen captures are disabled to ensure legal document security.
+              </p>
+              <div className="mt-8 pt-8 border-t border-white/10 text-[10px] text-gray-500 uppercase tracking-[0.3em]">
+                System ID: ZLY-PRO-001
+              </div>
+            </div>
+          </div>
+        )}
       </Router>
     </BlogProvider>
   );

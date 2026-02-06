@@ -13,7 +13,8 @@ import {
   Users,
   Award,
   Clock,
-  Calendar
+  Calendar,
+  Shield
 } from 'lucide-react';
 import { useBlogs } from '../context/BlogContext';
 import AboutSection from '../components/AboutSection';
@@ -114,19 +115,32 @@ export default function Home() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative bg-black text-white py-24 md:py-32 border-b border-gray-800">
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-900 to-black opacity-90"></div>
+      <section className="relative bg-black text-white py-24 md:py-32 border-b border-gray-800 overflow-hidden">
+        {/* 3D Background Effects */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-900/20 rounded-full blur-[120px] opacity-50 -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-900/20 rounded-full blur-[120px] opacity-50 translate-y-1/2 -translate-x-1/4 pointer-events-none"></div>
+
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 tracking-tighter leading-none animate-fade-in">
-              ZoyaLegal
+              ZoyaLegal<span className="text-blue-600">_</span>
             </h1>
             <h2 className="text-xl md:text-2xl lg:text-3xl font-bold mb-6 text-gray-300 tracking-wide animate-fade-in-delay">
               CSC + Advocate Multi-Service Centre
             </h2>
-            <p className="text-lg md:text-xl lg:text-2xl mb-12 text-gray-400 max-w-3xl mx-auto leading-relaxed animate-slide-up">
-              AI-Powered Legal Solutions at Your Fingertips
-            </p>
+            <div className="flex flex-col items-center mb-12">
+              <p className="text-lg md:text-xl lg:text-2xl text-gray-400 max-w-3xl mx-auto leading-relaxed animate-slide-up mb-4">
+                AI-Powered Legal Solutions at Your Fingertips
+              </p>
+              {/* Hindi Publicity / Trust Line */}
+              <div className="bg-white/5 border border-white/10 px-6 py-3 rounded-2xl backdrop-blur-md animate-fade-in-delay group hover:border-blue-500 transition-all duration-500 cursor-default">
+                <p className="text-sm md:text-base font-bold text-blue-400 tracking-wide uppercase flex items-center justify-center">
+                  <Shield className="h-4 w-4 mr-2 group-hover:rotate-12 transition-transform" />
+                  लखनऊ का विश्वसनीय केंद्र — High Court Advocates की सीधी देख-रेख और मार्गदर्शन में।
+                </p>
+              </div>
+            </div>
+
             <div className="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-6 mb-12 text-base md:text-lg animate-fade-in-delay">
               <div className="flex items-center text-gray-300 font-medium">
                 <CheckCircle className="h-5 w-5 mr-2" />
@@ -164,18 +178,19 @@ export default function Home() {
             {stats.map((stat, index) => (
               <div
                 key={index}
-                className="text-center group p-8 rounded-[2rem] hover:bg-gray-50 transition-all duration-500 hover:shadow-[0_20px_40px_rgba(0,0,0,0.03)] transform hover:-translate-y-2 animate-fade-in"
+                className="text-center group p-8 rounded-[2.5rem] glass-card hover:bg-white transition-all duration-500 hover:shadow-[0_30px_60px_rgba(37,99,235,0.1)] transform hover:-translate-y-3 animate-fade-in border border-white/50"
                 style={{ animationDelay: `${index * 150}ms` }}
               >
                 <div className="flex justify-center mb-6">
-                  <div className="p-4 bg-gray-100 rounded-2xl group-hover:bg-black group-hover:text-white transition-all duration-500 transform group-hover:rotate-12 group-hover:scale-110 shadow-sm">
-                    <stat.icon className="h-8 w-8 text-black group-hover:text-white transition-colors duration-500" />
+                  <div className="p-5 bg-gradient-to-br from-gray-50 to-white rounded-3xl group-hover:bg-black group-hover:text-white transition-all duration-500 transform group-hover:rotate-12 group-hover:scale-110 shadow-sm border border-gray-100">
+                    <stat.icon className="h-9 w-9 text-black group-hover:text-white transition-colors duration-500" />
                   </div>
                 </div>
-                <div className="text-4xl font-black text-black mb-2 tracking-tighter transform transition-all group-hover:scale-110">
+                <div className="text-5xl font-black text-black mb-2 tracking-tighter transform transition-all group-hover:scale-110 group-hover:text-blue-600">
                   {stat.number}
                 </div>
-                <div className="text-gray-400 font-black uppercase text-[10px] tracking-[0.2em] group-hover:text-black transition-colors duration-500">
+                <div className="text-gray-400 font-extrabold uppercase text-[10px] tracking-[0.3em] group-hover:text-black transition-colors duration-500 flex items-center justify-center">
+                  <span className="h-1.5 w-1.5 bg-blue-500 rounded-full mr-2 opacity-0 group-hover:opacity-100 transition-opacity"></span>
                   {stat.label}_
                 </div>
               </div>
@@ -196,43 +211,53 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          <div className="flex flex-wrap justify-center gap-8">
             {services.map((service, index) => (
-              <Link
-                key={index}
-                to={service.link}
-                className="group bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100"
-              >
-                <div className="p-4 bg-gray-100 rounded-xl w-fit mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <service.icon className="h-8 w-8 text-black" />
-                </div>
+              <div key={index} className="card-3d-wrap w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.33%-1.5rem)] xl:w-[calc(25%-1.5rem)] min-w-[300px] max-w-[350px]">
+                <Link
+                  to={service.link}
+                  className="group relative flex flex-col h-full glass-card rounded-[2.5rem] p-8 hover-premium-shadow transition-all duration-500 card-3d-inner overflow-hidden border border-white/50"
+                >
+                  {/* Premium Accent Line */}
+                  <div className="accent-line"></div>
 
-                <h3 className="text-xl font-bold text-black mb-2">
-                  {service.title}
-                </h3>
-                <p className="text-sm text-gray-600 font-bold mb-3">
-                  {service.hindi}
-                </p>
-                <p className="text-gray-600 mb-4 text-sm leading-relaxed">
-                  {service.description}
-                </p>
-
-                <div className="space-y-2 mb-4">
-                  {service.features.map((feature, idx) => (
-                    <div key={idx} className="flex items-center text-sm text-gray-500">
-                      <CheckCircle className="h-4 w-4 text-black mr-2 flex-shrink-0" />
-                      {feature}
+                  {/* Glowing Icon Container */}
+                  <div className="relative mb-6 w-fit">
+                    <div className="p-5 bg-gradient-to-br from-gray-50 to-white rounded-3xl shadow-sm group-hover:shadow-blue-500/20 group-hover:shadow-2xl transition-all duration-500 glow-icon">
+                      <service.icon className="h-9 w-9 text-black group-hover:text-blue-600 transition-colors duration-500" />
                     </div>
-                  ))}
-                </div>
+                  </div>
 
-                <div className="flex items-center justify-between">
-                  <span className="text-black font-bold group-hover:text-gray-700">
-                    Learn More
-                  </span>
-                  <ArrowRight className="h-5 w-5 text-black group-hover:translate-x-1 transition-transform duration-300" />
-                </div>
-              </Link>
+                  <h3 className="text-2xl font-black text-black mb-1 tracking-tight group-hover:text-blue-600 transition-colors">
+                    {service.title}
+                  </h3>
+                  <p className="text-xs text-blue-500 font-black uppercase tracking-[0.2em] mb-4 opacity-80">
+                    {service.hindi}_
+                  </p>
+
+                  <p className="text-gray-500 mb-6 text-sm font-medium leading-relaxed flex-grow">
+                    {service.description}
+                  </p>
+
+                  <div className="space-y-3 mb-8">
+                    {service.features.map((feature, idx) => (
+                      <div key={idx} className="flex items-center text-[11px] font-bold text-gray-400 uppercase tracking-wider group-hover:text-gray-600 transition-colors">
+                        <div className="h-1.5 w-1.5 rounded-full bg-blue-500/30 mr-3 group-hover:bg-blue-600 transition-colors"></div>
+                        {feature}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center justify-between mt-auto pt-6 border-t border-gray-100">
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-black group-hover:translate-x-1 transition-transform">
+                      Explore Solutions
+                    </span>
+                    <div className="h-10 w-10 rounded-full bg-black flex items-center justify-center text-white group-hover:bg-blue-600 transition-all transform group-hover:rotate-45 shadow-lg">
+                      <ArrowRight className="h-5 w-5" />
+                    </div>
+                  </div>
+                </Link>
+              </div>
             ))}
           </div>
         </div>

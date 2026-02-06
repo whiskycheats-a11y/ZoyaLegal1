@@ -1,4 +1,5 @@
-import { } from 'react';
+import React from 'react';
+
 
 declare global {
   interface Window {
@@ -135,10 +136,10 @@ export default function Contact() {
               <div
                 key={index}
                 className={`text-center p-6 bg-white rounded-xl hover:shadow-xl border border-gray-200 hover:border-black transition-all duration-300 min-h-[260px] flex flex-col transform hover:-translate-y-1 ${info.title === 'Email'
-                    ? 'lg:col-start-2'
-                    : info.title === 'Business Registrations'
-                      ? 'lg:col-start-3'
-                      : ''
+                  ? 'lg:col-start-2'
+                  : info.title === 'Business Registrations'
+                    ? 'lg:col-start-3'
+                    : ''
                   }`}
               >
                 <div className="p-4 bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">

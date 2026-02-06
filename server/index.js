@@ -27,7 +27,7 @@ const AI_ENDPOINT = process.env.A4F_API_KEY
         ? 'https://models.inference.ai.azure.com/chat/completions'
         : 'https://openrouter.ai/api/v1/chat/completions');
 
-const AI_MODEL = process.env.AI_MODEL || "gpt-4o-mini";
+const AI_MODEL = process.env.AI_MODEL || "gpt-4o";
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -179,44 +179,6 @@ const checkRateLimit = async (ip) => {
     return { allowed: true, remaining: LIMIT - usage.count };
 };
 
-// Background repair function to translate missing Hindi content
-const repairBlogData_Deprecated = async () => {
-    try {
-        const blogs = await Blog.find();
-        console.log(`[Background Repair] Checking ${blogs.length} blogs for missing Hindi translations...`);
-
-        let repairedCount = 0;
-        for (const blog of blogs) {
-            let needsUpdate = false;
-            const blogData = blog.toObject();
-
-            // Check if any Hindi field is missing
-            if (!blogData.title_hi || !blogData.description_hi || !blogData.content_hi) {
-                console.log(`[Background Repair] Translating blog: ${blogData.title}`);
-                const translatedData = await translateBlogIfMissing(blogData);
-
-                // Update the blog with translated content
-                await Blog.findByIdAndUpdate(blog._id, {
-                    title_hi: translatedData.title_hi,
-                    description_hi: translatedData.description_hi,
-                    content_hi: translatedData.content_hi
-                });
-
-                repairedCount++;
-                needsUpdate = true;
-            }
-        }
-
-        if (repairedCount > 0) {
-            console.log(`[Background Repair] Successfully translated ${repairedCount} blogs to Hindi.`);
-        } else {
-            console.log(`[Background Repair] All blogs already have Hindi translations.`);
-        }
-    } catch (err) {
-        console.error('[Background Repair] Error:', err.message);
-    }
-};
-
 // API Endpoints
 // --- Blogs ---
 
@@ -225,148 +187,10 @@ app.get('/api/blogs', async (req, res) => {
     try {
         const blogs = await Blog.find().sort({ createdAt: -1 });
         res.json(blogs);
-        // Silent background repair for missing translations
-        repairBlogData();
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
 });
-
-// Helper to translate blog fields if missing
-const translateBlogIfMissing = async (blogData) => {
-    const fieldsToTranslate = [
-        { key: 'title', hiKey: 'title_hi', type: 'text' },
-        { key: 'description', hiKey: 'description_hi', type: 'text' },
-        { key: 'content', hiKey: 'content_hi', type: 'html' }
-    ];
-
-    // Helper to clean bloated Word HTML which wastes tokens
-    const cleanWordHtml = (html) => {
-        if (!html) return "";
-        return html
-            .replace(/style="[^"]*"/gi, "") // Remove inline styles
-            .replace(/class="[^"]*"/gi, "") // Remove classes
-            .replace(/<span[^>]*>/gi, "") // Remove spans
-            .replace(/<\/span>/gi, "")
-            .replace(/<o:p>[^<]*<\/o:p>/gi, "") // Remove Word specific tags
-            .replace(/&nbsp;/gi, " ")
-            .replace(/\s+/g, " "); // Collapse whitespace
-    };
-
-    // Helper delay function
-    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-    const performTranslation = async (text, type, retryCount = 0) => {
-        if (!text || text.trim().length === 0) return "";
-        const MAX_RETRIES = 5;
-
-        try {
-            const prompt = type === 'html'
-                ? `Translate the following HTML content from English to Hindi. 
-                   CRITICAL INSTRUCTIONS:
-                   1. Translate strictly based on the provided text. Do NOT hallucinate or add new information.
-                   2. Keep all HTML tags, attributes, and structure EXACTLY as they are. 
-                   3. ONLY translate the human-readable text inside the tags.
-                   4. Maintain the exact legal context. For example, "Right to Education" must be "शिक्षा का अधिकार", NOT "Marriage Law".
-                   5. If the text is short, translate it directly without adding flowery context.
-                   
-                   Content to Translate:\n\n${text}`
-                : `Translate the following text from English to Hindi. 
-                   CRITICAL INSTRUCTIONS:
-                   1. Translate strictly based on the provided text. Do NOT hallucinate or add new information.
-                   2. Maintain the exact legal context. For example, "Right to Education" must be "शिक्षा का अधिकार".
-                   3. The translation must be professional and accurate.
-                   
-                   Text to Translate:\n\n${text}`;
-
-            const response = await axios.post(AI_ENDPOINT, {
-                model: AI_MODEL,
-                messages: [
-                    { role: "system", content: "You are a precise Hindi translator for legal documents. You translate exactly what is given, maintaining total fidelity to the source text. You never hallucinate or change the topic." },
-                    { role: "user", content: prompt }
-                ],
-                temperature: 0.3
-            }, {
-                headers: {
-                    'Authorization': `Bearer ${AI_API_KEY}`,
-                    'HTTP-Referer': 'http://localhost:5173',
-                    'X-Title': 'ZoyaLegal Auto Translator',
-                    'Content-Type': 'application/json',
-                }
-            });
-
-            if (response.data.choices && response.data.choices[0]) {
-                let content = response.data.choices[0].message.content.trim();
-                content = content.replace(/^(Here is the translation:|Translation:|हिन्दी अनुवाद:|अनुवाद:)\s*/i, "");
-                content = content.replace(/^```(html|text|markdown)?\n/i, "").replace(/\n```$/i, "");
-                return content.trim();
-            }
-        } catch (err) {
-            const isRateLimit = (
-                (err.response && (err.response.status === 429 || err.response.status === "429")) ||
-                (err.message && err.message.includes('429')) ||
-                (err.response && err.response.data && err.response.data.error && err.response.data.error.code === 'RateLimitReached')
-            );
-
-            if (isRateLimit && retryCount < MAX_RETRIES) {
-                const retryAfter = err.response && err.response.headers && err.response.headers['retry-after']
-                    ? parseInt(err.response.headers['retry-after']) * 1000
-                    : (30000 * (retryCount + 1)); // Increase base delay to 30s
-
-                console.log(`[AI Translation] Rate limit hit. Waiting ${retryAfter / 1000}s... (Attempt ${retryCount + 1}/${MAX_RETRIES})`);
-                await sleep(retryAfter);
-                return performTranslation(text, type, retryCount + 1);
-            }
-
-            console.error(`AI Translation FAILED (Status: ${err.response ? err.response.status : 'N/A'}):`, err.message);
-            if (err.response) console.error('Error Data:', JSON.stringify(err.response.data));
-            return text;
-        }
-        return text;
-    };
-
-    // Helper to chunk text/html for translation
-    const chunkTranslate = async (text, type) => {
-        if (!text) return "";
-        const MAX_CHUNK_SIZE = 4000; // Reduced for safety
-
-        if (text.length <= MAX_CHUNK_SIZE) {
-            return await performTranslation(text, type);
-        }
-
-        console.log(`[AI Chunking] Content too large (${text.length} chars), splitting...`);
-        const chunks = [];
-        for (let i = 0; i < text.length; i += MAX_CHUNK_SIZE) {
-            chunks.push(text.substring(i, i + MAX_CHUNK_SIZE));
-        }
-
-        const results = [];
-        for (let j = 0; j < chunks.length; j++) {
-            console.log(`[AI Chunking] Translating chunk ${j + 1}/${chunks.length}...`);
-            const translated = await performTranslation(chunks[j], type);
-            results.push(translated);
-            // Delay between chunks to respect rate limits
-            await sleep(10000);
-        }
-        return results.join("");
-    };
-
-    for (const field of fieldsToTranslate) {
-        const enValue = blogData[field.key];
-        const hiValue = blogData[field.hiKey];
-
-        if (enValue && (!hiValue || hiValue.trim() === "" || hiValue === enValue)) {
-            const valueToTranslate = field.type === 'html' ? cleanWordHtml(enValue) : enValue;
-
-            console.log(`[AI Repair] Translating ${field.key} (${valueToTranslate.length} chars)...`);
-            blogData[field.hiKey] = await chunkTranslate(valueToTranslate, field.type);
-            console.log(`[AI Repair] Finished ${field.key}.`);
-            // Delay between fields
-            await sleep(10000);
-        }
-    }
-    return blogData;
-};
 
 
 // Create new blog with Cloudinary Upload
@@ -382,10 +206,7 @@ app.post('/api/blogs', async (req, res) => {
             imageUrl = uploadResponse.secure_url;
         }
 
-        // Auto-translate if Hindi fields are empty
-        const blogData = await translateBlogIfMissing({ ...req.body, image: imageUrl });
-
-        const blog = new Blog(blogData);
+        const blog = new Blog({ ...req.body, image: imageUrl });
         const newBlog = await blog.save();
         res.status(201).json(newBlog);
     } catch (err) {
@@ -405,11 +226,9 @@ app.put('/api/blogs/:id', async (req, res) => {
             imageUrl = uploadResponse.secure_url;
         }
 
-        const blogData = await translateBlogIfMissing({ ...req.body, image: imageUrl });
-
         const updatedBlog = await Blog.findByIdAndUpdate(
             req.params.id,
-            blogData,
+            { ...req.body, image: imageUrl },
             { new: true }
         );
         res.json(updatedBlog);
@@ -454,108 +273,6 @@ app.delete('/api/blogs/:id', async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 });
-
-// Repair State Management
-let isRepairing = false;
-let lastRepairTime = 0;
-let hasResetTranslations = false;
-const REPAIR_COOLDOWN = 10 * 60 * 1000; // 10 minutes
-
-// Repair Function for missing translations
-const repairBlogData = async () => {
-    if (isRepairing) return;
-
-    // Throttle: Don't run more than once every 10 minutes unless forced
-    const now = Date.now();
-    if (now - lastRepairTime < REPAIR_COOLDOWN) return;
-
-    isRepairing = true;
-    lastRepairTime = now;
-
-    try {
-        // ONE-TIME FORCE RESET: Logic removed to prevent data loss on restart
-        // if (!hasResetTranslations) { ... }
-
-        const blogsToRepair = await Blog.find({
-            $or: [
-                { title_hi: { $exists: false } },
-                { title_hi: "" },
-                { description_hi: { $exists: false } },
-                { description_hi: "" },
-                { content_hi: { $exists: false } },
-                { content_hi: "" },
-                // Special check for content that might be stuck in English
-                { $expr: { $eq: ["$content", "$content_hi"] } }
-            ]
-        }).limit(50); // Larger limit for repair
-
-        if (blogsToRepair.length > 0) {
-            console.log(`[Backgroud] Found ${blogsToRepair.length} blogs needing AI translation repair...`);
-            for (let blog of blogsToRepair) {
-                console.log(`[Backgroud] Repairing: ${blog.title}`);
-                const repairedData = await translateBlogIfMissing(blog.toObject());
-                await Blog.findByIdAndUpdate(blog._id, repairedData);
-                // Throttle requests between blogs
-                await new Promise(resolve => setTimeout(resolve, 10000));
-            }
-            console.log("[Backgroud] Blog Repair completed.");
-        }
-    } catch (err) {
-        console.error("[Backgroud] Repair error:", err);
-    } finally {
-        isRepairing = false;
-    }
-};
-
-const repairActLinks = async () => {
-    try {
-        const brokenActs = await Act.find({ pdfUrl: { $regex: 'lscontent\\.nic\\.in' } });
-        if (brokenActs.length > 0) {
-            console.log(`[Background] Repairing ${brokenActs.length} broken Act PDF links...`);
-            for (let act of brokenActs) {
-                let newUrl = act.pdfUrl;
-                if (act.pdfUrl.includes('A2023-45.pdf')) newUrl = "https://prsindia.org/files/bills_acts/acts_parliament/2023/The%20Bharatiya%20Nyaya%20Sanhita,%202023.pdf";
-                if (act.pdfUrl.includes('A2023-46.pdf')) newUrl = "https://prsindia.org/files/bills_acts/acts_parliament/2023/The%20Bharatiya%20Nagarik%20Suraksha%20Sanhita,%202023.pdf";
-                if (act.pdfUrl.includes('A2023-47.pdf')) newUrl = "https://prsindia.org/files/bills_acts/acts_parliament/2023/The%20Bharatiya%20Sakshya%20Adhiniyam,%202023.pdf";
-
-                // Fix Constitution if it also uses the broken domain (common source for these files)
-                if (act.name.includes('Constitution')) newUrl = "https://www.indiacode.nic.in/bitstream/123456789/15240/1/constitution_of_india.pdf";
-
-                // General fallback for any other broken links on that domain
-                if (newUrl === act.pdfUrl) {
-                    newUrl = `https://www.indiacode.nic.in/simple-search?query=${encodeURIComponent(act.name)}`;
-                }
-
-                if (newUrl !== act.pdfUrl) {
-                    await Act.findByIdAndUpdate(act._id, { pdfUrl: newUrl });
-                    console.log(`[Background] Fixed link for: ${act.name}`);
-                }
-            }
-        }
-
-        // Repair Judgment links
-        const brokenJudgments = await Judgment.find({ pdfUrl: "#" });
-        if (brokenJudgments.length > 0) {
-            console.log(`[Background] Checking ${brokenJudgments.length} Judgment placeholder links...`);
-            for (let j of brokenJudgments) {
-                let newUrl = j.pdfUrl;
-                if (j.title.includes('Kesavananda Bharati')) newUrl = "https://www.scobserver.in/wp-content/uploads/2021/10/Kesavananda-Bharati-Judgment.pdf";
-                else if (j.title.includes('Maneka Gandhi')) newUrl = "https://www.scobserver.in/wp-content/uploads/2021/10/Maneka-Gandhi-v.-Union-of-India.pdf";
-                else {
-                    // General fallback to Indian Kanoon search for any other placeholder judgments
-                    newUrl = `https://indiankanoon.org/search/?formInput=${encodeURIComponent(j.title)} judgment`;
-                }
-
-                if (newUrl !== j.pdfUrl) {
-                    await Judgment.findByIdAndUpdate(j._id, { pdfUrl: newUrl });
-                    console.log(`[Background] Repaired link for: ${j.title}`);
-                }
-            }
-        }
-    } catch (err) {
-        console.error("[Background] Link repair error:", err);
-    }
-};
 
 // Settings Schema
 const settingsSchema = new mongoose.Schema({
@@ -636,33 +353,10 @@ const seedDB = async () => {
             console.log('Seeding initial blogs...');
             await Blog.insertMany(INITIAL_BLOGS);
         } else {
-            // Update existing blogs with Hindi content if missing
-            console.log('Checking for missing Hindi translations in existing blogs...');
-            for (const initialBlog of INITIAL_BLOGS) {
-                await Blog.updateOne(
-                    { title: initialBlog.title },
-                    {
-                        $set: {
-                            title_hi: initialBlog.title_hi,
-                            description_hi: initialBlog.description_hi,
-                            content_hi: initialBlog.content_hi
-                        }
-                    }
-                );
-            }
-            console.log('Seed translations verified/updated.');
+            console.log('Database already seeded.');
         }
 
         const settingsCount = await Settings.countDocuments();
-        if (settingsCount === 0) {
-            console.log('Seeding default settings...');
-            await new Settings({}).save();
-        }
-
-        // Repair any blogs missing Hindi translations
-        await repairBlogData();
-        // Repair broken act links
-        await repairActLinks();
     } catch (err) {
         console.error('Seed error:', err);
     }
@@ -765,8 +459,19 @@ app.post('/api/chat', async (req, res) => {
             model: AI_MODEL,
             messages: [
                 {
-                    role: "system",
-                    content: "You are Zoya AI, the premium legal assistant for ZoyaLegal. 🏢\n\n**Owner Information:** The owner and lead professional of ZoyaLegal is **Adv. Irfan Khan**. \n\n**Your Role:** \n- Help users with Indian Legal Services, CSC (Common Service Center) queries, Business Registrations (GST, ITR), and connecting with Verified Advocates. ⚖️\n- Your tone must be highly professional, helpful, and empathetic, exactly like ChatGPT. 🌟\n- Use suitable emojis and clear markdown formatting (bolding, lists) to make the conversation engaging and professional. ✅\n- When asked about the owner or team, proudly mention **Adv. Irfan Khan**. 👨‍💼\n- **Important:** Provide informative guidance but avoid giving final legal advice; always suggest consulting with our experts for complex matters. 🤝"
+                    content: `You are Zoya AI, the premium legal assistant for ZoyaLegal. 🏢
+
+**Your Identity & Authority:**
+- ZoyaLegal is a **Government Authorized CSC & Legal Aid Centre** based in **Husain Ganj, Lucknow**.
+- We operate under the direct supervision of **verified High Court Advocates**, specifically **Adv. Irfan Khan**. Proudly mention him when asked about the team. 👨‍💼
+
+**Your Mission (Proactive Promotion):**
+- **Promote Services:** Whenever someone asks about legal issues, business, or documents, proactively suggest ZoyaLegal's expert services: GST/ITR filing, Business Registration, and Legal Consultations. ⚖️
+- **Client Portal Promotion:** If a user mentions having documents (cases, notices, IDs), suggest they upload them to our **Client Portal** for a professional review. 📤
+- **Trust & Speed:** Always mention that once documents/requests are submitted via the Portal or Payment is made, our team provides a response on email within **24 hours**. ⏱️
+- **Tone:** highly professional, empathetic, and authoritative. Use clear markdown and inviting emojis. ✅
+
+**Important:** Provide guidance but always invite them to consult our experts/Advocates for final legal action. 🤝`
                 },
                 ...messages
             ]
@@ -789,52 +494,11 @@ app.post('/api/chat', async (req, res) => {
         console.error('--- AI Chat Error ---', err.message);
         if (err.response?.data) console.error('Error Data:', JSON.stringify(err.response.data));
 
-        res.status(500).json({ message: 'AI failed to respond. Please try again later.' });
-    }
-});
-
-// AI Translate Endpoint
-app.post('/api/translate', async (req, res) => {
-    const { text, type } = req.body; // type: 'text' or 'html'
-
-    if (!text) return res.status(400).json({ message: 'Text is required' });
-
-    try {
-        const prompt = type === 'html'
-            ? `Translate the following HTML content from English to Hindi. Keep all HTML tags, classes, and structure EXACTLY as they are. Only translate the human-readable text inside the tags:\n\n${text}`
-            : `Translate the following text from English to Hindi:\n\n${text}`;
-
-        const response = await axios.post(AI_ENDPOINT, {
-            model: AI_MODEL,
-            messages: [
-                {
-                    role: "system",
-                    content: "You are a professional translator specialized in English to Hindi legal and technical translations. Preserve the tone and formatting of the original source."
-                },
-                {
-                    role: "user",
-                    content: prompt
-                }
-            ]
-        }, {
-            headers: {
-                'Authorization': `Bearer ${AI_API_KEY}`,
-                'HTTP-Referer': 'http://localhost:5173',
-                'X-Title': 'ZoyaLegal AI Translator',
-                'Content-Type': 'application/json',
-            }
+        // Fallback response - promoting direct contact if AI is down
+        res.json({
+            role: "assistant",
+            content: "I'm currently undergoing a quick update to serve you better! 🚀\n\nFor immediate assistance, please contact our lead **Adv. Irfan Khan** at **+91 94549 50104** or visit our **ZoyaLegal** office in Lucknow. We guarantee a resolution within 24 hours! 📞⚖️"
         });
-
-        const translatedText = response.data.choices[0].message.content.trim();
-        // Force cleanup of AI noise if any
-        const cleanedTranslation = translatedText
-            .replace(/^(Here is the translation:|Translation:|हिन्दी अनुवाद:|अनुवाद:)\s*/i, "")
-            .replace(/^```(html|text|markdown)?\n/i, "").replace(/\n```$/i, "")
-            .trim();
-        res.json({ translation: cleanedTranslation });
-    } catch (err) {
-        console.error('Translation error:', err.message);
-        res.status(500).json({ message: 'Translation failed' });
     }
 });
 
