@@ -175,8 +175,8 @@ export default function ESignProcess({ adminMode }: { adminMode?: boolean }) {
             </section>
 
             {/* Content Area */}
-            <section className="flex-grow flex items-start justify-center px-4 -mt-16 pb-20 relative z-20">
-                <div className="w-full max-w-4xl bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100 min-h-[500px]">
+            <section className="flex-grow flex items-start justify-center px-4 -mt-16 pb-20 relative z-20" style={{ touchAction: 'auto' }}>
+                <div className="w-full max-w-4xl bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100 min-h-[500px] relative">
 
                     {loading && (
                         <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
@@ -225,8 +225,8 @@ export default function ESignProcess({ adminMode }: { adminMode?: boolean }) {
                                         <input required type="text" value={userData.city} onChange={e => setUserData({ ...userData, city: e.target.value })} className="w-full bg-gray-50 border-2 border-transparent focus:border-black rounded-xl p-4 font-bold outline-none" placeholder="Lucknow" />
                                     </div>
                                 </div>
-                                <button type="submit" className="w-full bg-black text-white py-4 rounded-xl font-black uppercase tracking-widest hover:bg-gray-800 transition-all flex items-center justify-center group">
-                                    Next: Document Details <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1" />
+                                <button type="submit" className="w-full bg-black text-white py-4 rounded-xl font-black uppercase tracking-widest hover:bg-gray-800 transition-all flex items-center justify-center group relative z-10" style={{ touchAction: 'manipulation' }}>
+                                    Next: Document Details <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                                 </button>
                             </form>
                         )}
@@ -261,8 +261,8 @@ export default function ESignProcess({ adminMode }: { adminMode?: boolean }) {
                                 </div>
                                 <div className="flex space-x-4">
                                     <button type="button" onClick={() => setCurrentStep(1)} className="flex-1 bg-gray-100 text-black py-4 rounded-xl font-black uppercase tracking-widest hover:bg-gray-200">Back</button>
-                                    <button type="submit" className="flex-[2] bg-black text-white py-4 rounded-xl font-black uppercase tracking-widest hover:bg-gray-800 flex items-center justify-center group">
-                                        Next: Payment <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1" />
+                                    <button type="submit" className="flex-[2] bg-black text-white py-4 rounded-xl font-black uppercase tracking-widest hover:bg-gray-800 flex items-center justify-center group relative z-10" style={{ touchAction: 'manipulation' }}>
+                                        Next: Payment <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                                     </button>
                                 </div>
                             </form>
