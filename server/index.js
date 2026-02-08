@@ -200,20 +200,7 @@ if (process.env.CLOUDINARY_URL) {
 }
 
 
-const advocateSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    name_hi: { type: String },
-    phone: { type: String, required: true },
-    court: { type: String, required: true },
-    post: { type: String, required: true },
-    post_hi: { type: String },
-    image: { type: String },
-    barCouncilId: { type: String },
-    photo: { type: String },
-    createdAt: { type: Date, default: Date.now }
-});
-
-const Advocate = mongoose.model('Advocate', advocateSchema);
+// Advocate Model (MOVED TO TOP)
 
 // Blog Schema
 const blogSchema = new mongoose.Schema({
@@ -297,7 +284,7 @@ const Testimonial = mongoose.model('Testimonial', testimonialSchema);
 
 
 
-// Order Schema (MOVED TO TOP)
+// Order Model (MOVED TO TOP)
 
 // ESign Log Schema
 const esignLogSchema = new mongoose.Schema({
