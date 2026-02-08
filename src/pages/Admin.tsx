@@ -937,7 +937,7 @@ export default function Admin() {
                                                         </div>
                                                     </div>
                                                     <a
-                                                        href={`http://localhost:5000/api/download/${sub._id}/${i}`}
+                                                        href={`${API_BASE_URL}/api/download/${sub._id}/${i}`}
                                                         className="p-2 bg-white rounded-xl text-black hover:bg-black hover:text-white transition-all shadow-sm border border-gray-100"
                                                         title={`Download ${file.fileName}`}
                                                     >

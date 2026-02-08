@@ -3,7 +3,7 @@ import { Search, Eye, Stamp, Truck, CheckCircle, Clock, AlertCircle, User, Finge
 import axios from 'axios';
 import { generateLegalPDF } from '../utils/pdfGenerator';
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export default function AdminESignOrders() {
     const [orders, setOrders] = useState<any[]>([]);
