@@ -200,26 +200,7 @@ if (process.env.CLOUDINARY_URL) {
 }
 
 
-// Advocate Model (MOVED TO TOP)
-
-// Blog Schema
-const blogSchema = new mongoose.Schema({
-    title: { type: String, required: true },
-    title_hi: { type: String },
-    description: { type: String, required: true },
-    description_hi: { type: String },
-    content: { type: String, required: true },
-    content_hi: { type: String },
-    image: { type: String }, // Cloudinary URL
-    category: { type: String, required: true },
-    author: { type: String, required: true },
-    date: { type: String, required: true },
-    readTime: { type: String, required: true },
-    pdfUrl: { type: String }, // PDF document link
-    createdAt: { type: Date, default: Date.now }
-});
-
-const Blog = mongoose.model('Blog', blogSchema);
+// Advocate Model Definitions (MOVED TO TOP)
 
 // Act Schema
 const actSchema = new mongoose.Schema({
