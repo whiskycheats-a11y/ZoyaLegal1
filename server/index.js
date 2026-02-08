@@ -20,7 +20,73 @@ app.use((req, res, next) => {
     next();
 });
 
-// Aadhaar E-Sign Order Routes (Prioritize to avoid 404s)
+// --- MODELS & SCHEMAS (Must be before routes) ---
+
+// Advocate Schema
+const advocateSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    name_hi: { type: String },
+    phone: { type: String, required: true },
+    court: { type: String, required: true },
+    post: { type: String, required: true },
+    post_hi: { type: String },
+    image: { type: String },
+    barCouncilId: { type: String },
+    photo: { type: String },
+    createdAt: { type: Date, default: Date.now }
+});
+const Advocate = mongoose.model('Advocate', advocateSchema);
+
+// Order Schema
+const orderSchema = new mongoose.Schema({
+    userId: { type: String },
+    userData: {
+        name: { type: String, required: true },
+        email: { type: String, required: true },
+        mobile: { type: String, required: true },
+        state: { type: String, required: true },
+        city: { type: String, required: true }
+    },
+    serviceType: { type: String, required: true },
+    formData: { type: Object },
+    status: {
+        type: String,
+        enum: [
+            'INITIATED', 'FORM_SUBMITTED', 'DRAFT_GENERATED', 'PAYMENT_SUCCESS',
+            'PROCESSING', 'ESIGN_PENDING', 'ESIGN_COMPLETED', 'NOTARY_ASSIGNED',
+            'NOTARY_APPROVED', 'IN_COURIER', 'COMPLETED'
+        ],
+        default: 'INITIATED'
+    },
+    documents: {
+        draftPdf: { type: String },
+        uploadedSignature: { type: String },
+        signedPdf: { type: String },
+        finalPdf: { type: String }
+    },
+    payment: {
+        transactionId: { type: String },
+        amount: { type: Number },
+        status: { type: String, default: 'PENDING' }
+    },
+    esign: {
+        transactionId: { type: String },
+        status: { type: String, default: 'PENDING' },
+        timestamp: { type: Date }
+    },
+    notary: {
+        notaryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Advocate' },
+        status: { type: String, default: 'UNASSIGNED' },
+        assignmentDate: { type: Date },
+        notarizedDate: { type: Date }
+    },
+    createdAt: { type: Date, default: Date.now }
+});
+const Order = mongoose.model('Order', orderSchema);
+
+// Other models (Blog, Act, etc. defined downstream or moved here if needed)
+
+// --- AADHAAR E-SIGN ROUTES (High Priority) ---
 app.post(['/api/orders', '/orders'], async (req, res) => {
     try {
         console.log(`[ESIGN-SERVER] Creating order for:`, req.body.userData?.email);
@@ -231,61 +297,7 @@ const Testimonial = mongoose.model('Testimonial', testimonialSchema);
 
 
 
-// Order Schema
-const orderSchema = new mongoose.Schema({
-    userId: { type: String }, // Optional, can be IP or session if no auth
-    userData: {
-        name: { type: String, required: true },
-        email: { type: String, required: true },
-        mobile: { type: String, required: true },
-        state: { type: String, required: true },
-        city: { type: String, required: true }
-    },
-    serviceType: { type: String, required: true }, // e.g., 'Affidavit', 'Rent Agreement'
-    formData: { type: Object }, // Dynamic fields for the specific document
-    status: {
-        type: String,
-        enum: [
-            'INITIATED',
-            'FORM_SUBMITTED',
-            'DRAFT_GENERATED',
-            'PAYMENT_SUCCESS',
-            'PROCESSING',
-            'ESIGN_PENDING',
-            'ESIGN_COMPLETED',
-            'NOTARY_ASSIGNED',
-            'NOTARY_APPROVED',
-            'IN_COURIER',
-            'COMPLETED'
-        ],
-        default: 'INITIATED'
-    },
-    documents: {
-        draftPdf: { type: String },
-        uploadedSignature: { type: String }, // New field for user signature photo
-        signedPdf: { type: String },
-        finalPdf: { type: String }
-    },
-    payment: {
-        transactionId: { type: String },
-        amount: { type: Number },
-        status: { type: String, default: 'PENDING' }
-    },
-    esign: {
-        transactionId: { type: String },
-        status: { type: String, default: 'PENDING' },
-        timestamp: { type: Date }
-    },
-    notary: {
-        notaryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Advocate' },
-        status: { type: String, default: 'UNASSIGNED' },
-        assignmentDate: { type: Date },
-        notarizedDate: { type: Date }
-    },
-    createdAt: { type: Date, default: Date.now }
-});
-
-const Order = mongoose.model('Order', orderSchema);
+// Order Schema (MOVED TO TOP)
 
 // ESign Log Schema
 const esignLogSchema = new mongoose.Schema({
