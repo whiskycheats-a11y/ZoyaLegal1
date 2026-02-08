@@ -20,6 +20,23 @@ app.use((req, res, next) => {
     next();
 });
 
+// Aadhaar E-Sign Order Routes (Prioritize to avoid 404s)
+app.post('/api/orders', async (req, res) => {
+    try {
+        console.log(`[ESIGN-SERVER] Creating order for:`, req.body.userData?.email);
+        const order = new Order({
+            userData: req.body.userData,
+            serviceType: req.body.serviceType,
+            status: 'INITIATED'
+        });
+        const newOrder = await order.save();
+        res.status(201).json(newOrder);
+    } catch (err) {
+        console.error(`[ESIGN-SERVER] Order creation failed:`, err.message);
+        res.status(400).json({ message: err.message });
+    }
+});
+
 // MongoDB Connection String
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://babahacket4_db_user:ZoyaLegal123@cluster0.snwxmtr.mongodb.net/zoyaDB?appName=Cluster0";
 
@@ -1032,20 +1049,7 @@ app.delete('/api/testimonials/:id', async (req, res) => {
 
 // --- Aadhaar eSign Workflow Endpoints ---
 
-// 1. Create Order
-app.post('/api/orders', async (req, res) => {
-    try {
-        const order = new Order({
-            userData: req.body.userData,
-            serviceType: req.body.serviceType,
-            status: 'INITIATED'
-        });
-        const newOrder = await order.save();
-        res.status(201).json(newOrder);
-    } catch (err) {
-        res.status(400).json({ message: err.message });
-    }
-});
+// 1. Create Order (MOVED TO TOP)
 
 // 2. Submit Form Data
 app.put('/api/orders/:id/form', async (req, res) => {
@@ -1215,4 +1219,9 @@ app.listen(PORT, () => {
 // SPA Catch-all (Must be after everything)
 app.get('*all', (req, res) => {
     res.sendFile(path.join(__dirname, '../dist/index.html'));
+});
+
+// 404 API Handler (Last resort for /api to prevent HTML response)
+app.all('/api/*all', (req, res) => {
+    res.status(404).json({ error: 'API Route Not Found', path: req.originalUrl });
 });

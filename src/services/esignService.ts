@@ -1,5 +1,5 @@
 const isProd = import.meta.env.PROD;
-const API_URL = import.meta.env.VITE_API_URL || (isProd ? '/api' : 'http://127.0.0.1:5000/api');
+const API_URL = import.meta.env.VITE_API_URL || (isProd ? `${window.location.origin}/api` : 'http://127.0.0.1:5000/api');
 
 export const esignService = {
     async createOrder(userData: any, serviceType: string) {
