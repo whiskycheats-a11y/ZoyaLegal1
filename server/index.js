@@ -84,7 +84,113 @@ const orderSchema = new mongoose.Schema({
 });
 const Order = mongoose.model('Order', orderSchema);
 
-// Other models (Blog, Act, etc. defined downstream or moved here if needed)
+// Blog Schema
+const blogSchema = new mongoose.Schema({
+    title: { type: String, required: true },
+    title_hi: { type: String },
+    description: { type: String, required: true },
+    description_hi: { type: String },
+    content: { type: String, required: true },
+    content_hi: { type: String },
+    image: { type: String }, // Cloudinary URL
+    category: { type: String, required: true },
+    author: { type: String, required: true },
+    date: { type: String, required: true },
+    readTime: { type: String, required: true },
+    pdfUrl: { type: String }, // PDF document link
+    createdAt: { type: Date, default: Date.now }
+});
+const Blog = mongoose.model('Blog', blogSchema);
+
+// Usage Schema
+const usageSchema = new mongoose.Schema({
+    ip: { type: String, required: true },
+    count: { type: Number, default: 0 },
+    lastRequestDate: { type: String },
+    updatedAt: { type: Date, default: Date.now }
+});
+const Usage = mongoose.model('Usage', usageSchema);
+
+// Act Schema
+const actSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    name_hi: { type: String },
+    sections: { type: String },
+    sections_hi: { type: String },
+    category: { type: String, enum: ['Central', 'State'], default: 'Central' },
+    category_hi: { type: String },
+    description: { type: String },
+    description_hi: { type: String },
+    pdfUrl: { type: String },
+    createdAt: { type: Date, default: Date.now }
+});
+const Act = mongoose.model('Act', actSchema);
+
+// Judgment Schema
+const judgmentSchema = new mongoose.Schema({
+    title: { type: String, required: true },
+    title_hi: { type: String },
+    court: { type: String, required: true },
+    court_hi: { type: String },
+    date: { type: String },
+    date_hi: { type: String },
+    simpleExplanation: { type: String },
+    simpleExplanation_hi: { type: String },
+    pdfUrl: { type: String },
+    createdAt: { type: Date, default: Date.now }
+});
+const Judgment = mongoose.model('Judgment', judgmentSchema);
+
+// Client Submission Schema
+const submissionSchema = new mongoose.Schema({
+    clientName: { type: String, required: true },
+    description: { type: String },
+    files: [{
+        url: { type: String, required: true },
+        public_id: { type: String, required: true },
+        fileName: { type: String },
+        fileType: { type: String }
+    }],
+    createdAt: { type: Date, default: Date.now }
+});
+const ClientSubmission = mongoose.model('ClientSubmission', submissionSchema);
+
+// Testimonial Schema
+const testimonialSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    location: { type: String },
+    content: { type: String, required: true },
+    image: { type: String },
+    mobile: { type: String },
+    email: { type: String },
+    rating: { type: Number, default: 5 },
+    createdAt: { type: Date, default: Date.now }
+});
+const Testimonial = mongoose.model('Testimonial', testimonialSchema);
+
+// ESign Log Schema
+const esignLogSchema = new mongoose.Schema({
+    orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },
+    transactionId: { type: String },
+    status: { type: String },
+    details: { type: Object },
+    timestamp: { type: Date, default: Date.now }
+});
+const ESignLog = mongoose.model('ESignLog', esignLogSchema);
+
+// Settings Schema
+const settingsSchema = new mongoose.Schema({
+    whatsapp: { type: String, default: "919454950104" },
+    phone: { type: String, default: "+91 94549 50104" },
+    email: { type: String, default: "info@zoyalegal.com" },
+    address: { type: String, default: "Husain Ganj, Lucknow, UP" },
+    socialLinks: {
+        instagram: { type: String, default: "" },
+        twitter: { type: String, default: "" },
+        facebook: { type: String, default: "" }
+    }
+});
+const Settings = mongoose.model('Settings', settingsSchema);
 
 // --- AADHAAR E-SIGN ROUTES (High Priority) ---
 app.post(['/api/orders', '/orders'], async (req, res) => {
@@ -200,83 +306,6 @@ if (process.env.CLOUDINARY_URL) {
 }
 
 
-// Advocate Model Definitions (MOVED TO TOP)
-
-// Act Schema
-const actSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    name_hi: { type: String },
-    sections: { type: String }, // Can be a summary or specific sections
-    sections_hi: { type: String },
-    category: { type: String, enum: ['Central', 'State'], default: 'Central' },
-    category_hi: { type: String },
-    description: { type: String },
-    description_hi: { type: String },
-    pdfUrl: { type: String },
-    createdAt: { type: Date, default: Date.now }
-});
-
-const Act = mongoose.model('Act', actSchema);
-
-// Judgment Schema
-const judgmentSchema = new mongoose.Schema({
-    title: { type: String, required: true },
-    title_hi: { type: String },
-    court: { type: String, required: true }, // e.g., Supreme Court, High Court Allahabad
-    court_hi: { type: String },
-    date: { type: String },
-    date_hi: { type: String },
-    simpleExplanation: { type: String },
-    simpleExplanation_hi: { type: String },
-    pdfUrl: { type: String },
-    createdAt: { type: Date, default: Date.now }
-});
-
-const Judgment = mongoose.model('Judgment', judgmentSchema);
-
-// Client Submission Schema
-const submissionSchema = new mongoose.Schema({
-    clientName: { type: String, required: true },
-    description: { type: String },
-    files: [{
-        url: { type: String, required: true },
-        public_id: { type: String, required: true },
-        fileName: { type: String },
-        fileType: { type: String }
-    }],
-    createdAt: { type: Date, default: Date.now }
-});
-
-const ClientSubmission = mongoose.model('ClientSubmission', submissionSchema);
-
-// Testimonial Schema
-const testimonialSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    location: { type: String },
-    content: { type: String, required: true },
-    image: { type: String }, // Cloudinary URL
-    mobile: { type: String },
-    email: { type: String },
-    rating: { type: Number, default: 5 },
-    createdAt: { type: Date, default: Date.now }
-});
-
-const Testimonial = mongoose.model('Testimonial', testimonialSchema);
-
-
-
-// Order Model (MOVED TO TOP)
-
-// ESign Log Schema
-const esignLogSchema = new mongoose.Schema({
-    orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },
-    transactionId: { type: String },
-    status: { type: String },
-    details: { type: Object },
-    timestamp: { type: Date, default: Date.now }
-});
-
-const ESignLog = mongoose.model('ESignLog', esignLogSchema);
 
 // Helper to check and increment usage
 const checkRateLimit = async (ip) => {
@@ -409,20 +438,6 @@ app.delete('/api/blogs/:id', async (req, res) => {
     }
 });
 
-// Settings Schema
-const settingsSchema = new mongoose.Schema({
-    whatsapp: { type: String, default: "919454950104" },
-    phone: { type: String, default: "+91 94549 50104" },
-    email: { type: String, default: "info@zoyalegal.com" },
-    address: { type: String, default: "Husain Ganj, Lucknow, UP" },
-    socialLinks: {
-        instagram: { type: String, default: "" },
-        twitter: { type: String, default: "" },
-        facebook: { type: String, default: "" }
-    }
-});
-
-const Settings = mongoose.model('Settings', settingsSchema);
 
 // Initial Blog Data for Seeding
 const INITIAL_BLOGS = [
