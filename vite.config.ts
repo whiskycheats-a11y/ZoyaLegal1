@@ -5,19 +5,21 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   define: {
-    'process.env': {}
+    'process.env': {},
+    'global': {},
+  },
+  resolve: {
+    dedupe: ['react', 'react-dom'],
   },
   optimizeDeps: {
-    exclude: ['lucide-react'],
+    include: ['react', 'react-dom', 'react-router-dom'],
   },
   build: {
     outDir: 'dist',
-    sourcemap: false,
+    chunkSizeWarningLimit: 2000,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-        },
+        manualChunks: undefined, // Let Vite handle chunking automatically for safer build
       },
     },
   },

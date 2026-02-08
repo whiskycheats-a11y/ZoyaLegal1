@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Upload, X, FileText, CheckCircle, AlertCircle, Loader2, ShieldCheck, ArrowRight, Search, CheckSquare, CreditCard, Download, Clock, Truck } from 'lucide-react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
