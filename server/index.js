@@ -14,8 +14,11 @@ app.use(cors());
 app.use(express.json({ limit: '500mb' }));
 app.use(express.urlencoded({ limit: '500mb', extended: true }));
 
-// Serve static files from the frontend build directory
-app.use(express.static(path.join(__dirname, '../dist')));
+// Request Logger
+app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    next();
+});
 
 // MongoDB Connection String
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://babahacket4_db_user:ZoyaLegal123@cluster0.snwxmtr.mongodb.net/zoyaDB?appName=Cluster0";
@@ -1201,12 +1204,15 @@ app.delete('/api/orders/:id', async (req, res) => {
     }
 });
 
+// Serve static files from the frontend build directory (MUST be after API routes)
+app.use(express.static(path.join(__dirname, '../dist')));
+
 app.listen(PORT, () => {
-    console.log(`[ZOYALEGAL-SERVER] v1.4.0 - Running on ${PORT}`);
+    console.log(`[ZOYALEGAL-SERVER] v1.4.1 - Running on ${PORT}`);
     console.log(`[MONGODB] Connected & Ready for E-Sign Workflow`);
 });
 
-// SPA Catch-all (Must be after all API routes)
+// SPA Catch-all (Must be after everything)
 app.get('*all', (req, res) => {
     res.sendFile(path.join(__dirname, '../dist/index.html'));
 });

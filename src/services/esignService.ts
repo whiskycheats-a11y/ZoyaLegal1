@@ -3,11 +3,19 @@ const API_URL = import.meta.env.VITE_API_URL || (isProd ? '/api' : 'http://127.0
 
 export const esignService = {
     async createOrder(userData: any, serviceType: string) {
+        console.log(`[ESIGN-FRONTEND] Creating order at: ${API_URL}/orders`);
         const response = await fetch(`${API_URL}/orders`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userData, serviceType })
         });
+
+        if (!response.ok || !response.headers.get("content-type")?.includes("application/json")) {
+            const text = await response.text();
+            console.error("[ESIGN-FRONTEND] Invalid response from server:", text.slice(0, 500));
+            throw new Error(`Server Error (${response.status}): Expected JSON but got ${response.headers.get("content-type") || "unknown"}. Check console for details.`);
+        }
+
         return response.json();
     },
 
