@@ -21,7 +21,7 @@ app.use((req, res, next) => {
 });
 
 // Aadhaar E-Sign Order Routes (Prioritize to avoid 404s)
-app.post('/api/orders', async (req, res) => {
+app.post(['/api/orders', '/orders'], async (req, res) => {
     try {
         console.log(`[ESIGN-SERVER] Creating order for:`, req.body.userData?.email);
         const order = new Order({
@@ -52,13 +52,23 @@ const AI_ENDPOINT = process.env.A4F_API_KEY
 
 const AI_MODEL = process.env.AI_MODEL || (AI_API_KEY?.startsWith('ghp_') ? "gpt-4o" : "google/gemini-2.0-flash-lite-preview-02-05:free");
 
-// Health check endpoint
+// Health check & Version Info
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', message: 'Server is running' });
+    res.json({
+        status: 'ok',
+        version: '1.4.2',
+        time: new Date().toISOString(),
+        env: process.env.NODE_ENV
+    });
 });
 
+// Robust dist path resolution
+const distPath = path.resolve(__dirname, '../dist');
+console.log(`[SERVER-CONFIG] Serving static files from: ${distPath}`);
+
 // 9. Upload Signature (to Cloudinary) - MOVED TO TOP FOR PRIORITY
-app.post('/api/orders/:id/signature', async (req, res) => {
+// Support both /api/orders and /orders for backward compatibility
+app.post(['/api/orders/:id/signature', '/orders/:id/signature'], async (req, res) => {
     try {
         const { signatureData } = req.body; // Base64 image
         console.log(`[SIGNATURE-ROUTE-MATCH] POST /api/orders/${req.params.id}/signature`);
@@ -1052,7 +1062,7 @@ app.delete('/api/testimonials/:id', async (req, res) => {
 // 1. Create Order (MOVED TO TOP)
 
 // 2. Submit Form Data
-app.put('/api/orders/:id/form', async (req, res) => {
+app.put(['/api/orders/:id/form', '/orders/:id/form'], async (req, res) => {
     try {
         const order = await Order.findById(req.params.id);
         if (!order) return res.status(404).json({ message: 'Order not found' });
@@ -1068,7 +1078,7 @@ app.put('/api/orders/:id/form', async (req, res) => {
 });
 
 // 3. Record Payment
-app.post('/api/orders/:id/payment', async (req, res) => {
+app.post(['/api/orders/:id/payment', '/orders/:id/payment'], async (req, res) => {
     try {
         const order = await Order.findById(req.params.id);
         if (!order) return res.status(404).json({ message: 'Order not found' });
@@ -1208,17 +1218,22 @@ app.delete('/api/orders/:id', async (req, res) => {
     }
 });
 
-// Serve static files from the frontend build directory (MUST be after API routes)
-app.use(express.static(path.join(__dirname, '../dist')));
+// Serve static files from the frontend build directory
+app.use(express.static(distPath));
 
 app.listen(PORT, () => {
-    console.log(`[ZOYALEGAL-SERVER] v1.4.1 - Running on ${PORT}`);
+    console.log(`[ZOYALEGAL-SERVER] v1.4.2 - Running on ${PORT}`);
     console.log(`[MONGODB] Connected & Ready for E-Sign Workflow`);
 });
 
 // SPA Catch-all (Must be after everything)
 app.get('*all', (req, res) => {
-    res.sendFile(path.join(__dirname, '../dist/index.html'));
+    const indexPath = path.join(distPath, 'index.html');
+    if (require('fs').existsSync(indexPath)) {
+        res.sendFile(indexPath);
+    } else {
+        res.status(404).send('Frontend build (dist) not found. Please run build command.');
+    }
 });
 
 // 404 API Handler (Last resort for /api to prevent HTML response)
