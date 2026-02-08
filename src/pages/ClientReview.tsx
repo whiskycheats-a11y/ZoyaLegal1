@@ -3,7 +3,8 @@ import { Star, Upload, User, MapPin, Phone, Mail, Send, CheckCircle2, ChevronRig
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const isProd = import.meta.env.PROD;
+const API_BASE_URL = import.meta.env.VITE_API_URL || (isProd ? '' : 'http://localhost:5000');
 
 export default function ClientReview() {
     const [formData, setFormData] = useState({

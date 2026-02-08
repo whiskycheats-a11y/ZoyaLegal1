@@ -3,7 +3,8 @@ import { Shield, FileCheck, Upload, CheckCircle, Clock, User, Fingerprint, Alert
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const isProd = import.meta.env.PROD;
+const API_BASE_URL = import.meta.env.VITE_API_URL || (isProd ? '' : 'http://localhost:5000');
 
 export default function NotaryDashboard() {
     const [tasks, setTasks] = useState<any[]>([]);

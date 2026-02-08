@@ -11,7 +11,8 @@ import axios from 'axios';
 import ESignProcess from './ESignProcess';
 import AdminESignOrders from './AdminESignOrders';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const isProd = import.meta.env.PROD;
+const API_BASE_URL = import.meta.env.VITE_API_URL || (isProd ? '' : 'http://localhost:5000');
 
 
 const EDITOR_STYLES = `
