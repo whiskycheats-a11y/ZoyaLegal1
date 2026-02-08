@@ -34,27 +34,72 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', message: 'Server is running' });
 });
 
+// 9. Upload Signature (to Cloudinary) - MOVED TO TOP FOR PRIORITY
+app.post('/api/orders/:id/signature', async (req, res) => {
+    try {
+        const { signatureData } = req.body; // Base64 image
+        console.log(`[SIGNATURE-ROUTE-MATCH] POST /api/orders/${req.params.id}/signature`);
+
+        if (!signatureData) {
+            console.error("[SIGNATURE-ROUTE-ERROR] No data received");
+            return res.status(400).json({ message: 'Signature data is required' });
+        }
+
+        console.log(`[SIGNATURE-ROUTE-LOG] Attempting Cloudinary upload...`);
+        let uploadResponse;
+        try {
+            uploadResponse = await cloudinary.uploader.upload(signatureData, {
+                folder: 'zoyalegal/signatures'
+            });
+        } catch (cloudErr) {
+            console.error("[SIGNATURE-ROUTE-CLOUDINARY-FAIL]", cloudErr);
+            if (cloudErr.message.includes('Invalid Signature') || cloudErr.http_code === 401) {
+                return res.status(500).json({
+                    message: "Cloudinary Authentication Failed. Please check API_KEY and API_SECRET in .env file."
+                });
+            }
+            throw cloudErr;
+        }
+        console.log(`[SIGNATURE-ROUTE-LOG] Cloudinary success: ${uploadResponse.secure_url}`);
+
+        const order = await Order.findById(req.params.id);
+        if (!order) {
+            console.error("[SIGNATURE-ROUTE-ERROR] Order not found:", req.params.id);
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        order.documents.uploadedSignature = uploadResponse.secure_url;
+        order.status = 'ESIGN_COMPLETED';
+        await order.save();
+        console.log(`[SIGNATURE-ROUTE-MATCH] Database updated for order: ${req.params.id}`);
+
+        res.json({ message: 'Signature uploaded successfully', url: uploadResponse.secure_url });
+    } catch (err) {
+        console.error("[SIGNATURE-ROUTE-CRITICAL] Error:", err);
+        res.status(500).json({ message: err.message });
+    }
+});
+
 // Cloudinary Configuration
 if (process.env.CLOUDINARY_URL) {
-    cloudinary.config(true); // Automatically uses CLOUDINARY_URL from env
+    cloudinary.config(true);
     console.log('Cloudinary: Using CLOUDINARY_URL configuration');
+} else if (process.env.CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_API_KEY) {
+    cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET
+    });
+    console.log('Cloudinary: Using environment variable configuration');
 } else {
     cloudinary.config({
         cloud_name: 'dbcpxmyap',
         api_key: '966966841754795',
         api_secret: '9jTMIAOA5dOXcflnICxwiOCgqT4'
     });
+    console.log('Cloudinary: Using hardcoded fallback configuration');
 }
 
-// Detailed Diagnostic for Debugging
-console.log('--- Cloudinary Diagnostic ---');
-console.log('CLOUDINARY_CLOUD_NAME:', process.env.CLOUDINARY_CLOUD_NAME || 'MISSING');
-console.log('CLOUDINARY_API_KEY:', process.env.CLOUDINARY_API_KEY ? 'SET (Ends in ' + process.env.CLOUDINARY_API_KEY.slice(-4) + ')' : 'MISSING');
-console.log('CLOUDINARY_API_SECRET:', process.env.CLOUDINARY_API_SECRET ? 'SET (Length: ' + process.env.CLOUDINARY_API_SECRET.length + ')' : 'MISSING');
-console.log('CLOUDINARY_URL:', process.env.CLOUDINARY_URL ? 'SET' : 'NOT SET');
-console.log('AI_API_KEY:', AI_API_KEY ? `SET (${AI_API_KEY.startsWith('ghp_') ? 'GitHub' : 'OpenRouter'})` : 'MISSING');
-console.log('AI_ENDPOINT:', AI_ENDPOINT);
-console.log('---------------------------');
 
 const advocateSchema = new mongoose.Schema({
     name: { type: String, required: true },
@@ -151,15 +196,74 @@ const testimonialSchema = new mongoose.Schema({
 
 const Testimonial = mongoose.model('Testimonial', testimonialSchema);
 
-// Usage Schema to track free tier limits
-const usageSchema = new mongoose.Schema({
-    ip: { type: String, required: true, unique: true },
-    count: { type: Number, default: 0 },
-    lastRequestDate: { type: String, required: true }, // Format: YYYY-MM-DD
-    updatedAt: { type: Date, default: Date.now }
+
+
+// Order Schema
+const orderSchema = new mongoose.Schema({
+    userId: { type: String }, // Optional, can be IP or session if no auth
+    userData: {
+        name: { type: String, required: true },
+        email: { type: String, required: true },
+        mobile: { type: String, required: true },
+        state: { type: String, required: true },
+        city: { type: String, required: true }
+    },
+    serviceType: { type: String, required: true }, // e.g., 'Affidavit', 'Rent Agreement'
+    formData: { type: Object }, // Dynamic fields for the specific document
+    status: {
+        type: String,
+        enum: [
+            'INITIATED',
+            'FORM_SUBMITTED',
+            'DRAFT_GENERATED',
+            'PAYMENT_SUCCESS',
+            'PROCESSING',
+            'ESIGN_PENDING',
+            'ESIGN_COMPLETED',
+            'NOTARY_ASSIGNED',
+            'NOTARY_APPROVED',
+            'IN_COURIER',
+            'COMPLETED'
+        ],
+        default: 'INITIATED'
+    },
+    documents: {
+        draftPdf: { type: String },
+        uploadedSignature: { type: String }, // New field for user signature photo
+        signedPdf: { type: String },
+        finalPdf: { type: String }
+    },
+    payment: {
+        transactionId: { type: String },
+        amount: { type: Number },
+        status: { type: String, default: 'PENDING' }
+    },
+    esign: {
+        transactionId: { type: String },
+        status: { type: String, default: 'PENDING' },
+        timestamp: { type: Date }
+    },
+    notary: {
+        notaryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Advocate' },
+        status: { type: String, default: 'UNASSIGNED' },
+        assignmentDate: { type: Date },
+        notarizedDate: { type: Date }
+    },
+    createdAt: { type: Date, default: Date.now }
 });
 
-const Usage = mongoose.model('Usage', usageSchema);
+const Order = mongoose.model('Order', orderSchema);
+
+// ESign Log Schema
+const esignLogSchema = new mongoose.Schema({
+    orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },
+    transactionId: { type: String },
+    status: { type: String },
+    details: { type: Object },
+    timestamp: { type: Date, default: Date.now }
+});
+
+const ESignLog = mongoose.model('ESignLog', esignLogSchema);
 
 // Helper to check and increment usage
 const checkRateLimit = async (ip) => {
@@ -920,6 +1024,181 @@ app.delete('/api/testimonials/:id', async (req, res) => {
     }
 });
 
+// --- Aadhaar eSign Workflow Endpoints ---
+
+// 1. Create Order
+app.post('/api/orders', async (req, res) => {
+    try {
+        const order = new Order({
+            userData: req.body.userData,
+            serviceType: req.body.serviceType,
+            status: 'INITIATED'
+        });
+        const newOrder = await order.save();
+        res.status(201).json(newOrder);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+});
+
+// 2. Submit Form Data
+app.put('/api/orders/:id/form', async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id);
+        if (!order) return res.status(404).json({ message: 'Order not found' });
+
+        order.formData = req.body.formData;
+        order.status = 'FORM_SUBMITTED';
+
+        await order.save();
+        res.json(order);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+});
+
+// 3. Record Payment
+app.post('/api/orders/:id/payment', async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id);
+        if (!order) return res.status(404).json({ message: 'Order not found' });
+
+        order.payment = {
+            transactionId: req.body.transactionId,
+            amount: req.body.amount,
+            status: 'SUCCESS'
+        };
+        order.status = 'PAYMENT_SUCCESS';
+        await order.save();
+        res.json(order);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+});
+
+// 4. Initiate eSign (Mock)
+app.post('/api/orders/:id/esign/initiate', async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id);
+        if (!order) return res.status(404).json({ message: 'Order not found' });
+
+        // In real world, call Setu/Signzy API here
+        order.status = 'ESIGN_PENDING';
+        order.esign.transactionId = `ESIGN_${Date.now()}`;
+        await order.save();
+
+        res.json({
+            status: 'success',
+            esignUrl: `https://mock-esign-gateway.com/sign/${order.esign.transactionId}`,
+            transactionId: order.esign.transactionId
+        });
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+});
+
+// 5. Verify eSign (Mock)
+app.post('/api/orders/:id/esign/verify', async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id);
+        if (!order) return res.status(404).json({ message: 'Order not found' });
+
+        // Simulate verification logic
+        order.status = 'ESIGN_COMPLETED';
+        order.esign.status = 'COMPLETED';
+        order.esign.timestamp = new Date();
+        order.documents.signedPdf = `https://res.cloudinary.com/demo/image/upload/v1/sample.pdf`;
+
+        await order.save();
+
+        const log = new ESignLog({
+            orderId: order._id,
+            transactionId: order.esign.transactionId,
+            status: 'COMPLETED',
+            details: { ip: req.ip, userAgent: req.headers['user-agent'] }
+        });
+        await log.save();
+
+        res.json(order);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+});
+
+// 6. Admin: Get Orders
+app.get('/api/orders', async (req, res) => {
+    try {
+        const orders = await Order.find().sort({ createdAt: -1 });
+        res.json(orders);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// 7. Admin: Get Single Order
+app.get('/api/orders/:id', async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id).populate('notary.notaryId');
+        if (!order) return res.status(404).json({ message: 'Order not found' });
+        res.json(order);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// 8. Admin/Notary: Update Status (Assign Notary, Approve, etc.)
+app.put('/api/orders/:id/status', async (req, res) => {
+    try {
+        const { status, notaryId, finalPdf, draftPdf } = req.body;
+        const order = await Order.findById(req.params.id);
+        if (!order) return res.status(404).json({ message: 'Order not found' });
+
+        if (draftPdf) {
+            order.documents.draftPdf = draftPdf;
+        }
+
+        if (req.body.uploadedSignature) {
+            order.documents.uploadedSignature = req.body.uploadedSignature;
+        }
+
+        if (notaryId) {
+            order.notary.notaryId = notaryId;
+            order.notary.status = 'ASSIGNED'; // This makes sense to keep as internal notary status
+            order.notary.assignmentDate = new Date();
+        }
+
+        if (finalPdf) {
+            order.documents.finalPdf = finalPdf;
+            order.notary.status = 'COMPLETED'; // Internal notary status
+            order.notary.notarizedDate = new Date();
+        }
+
+        // ONLY update status if explicitly sent from frontend
+        if (status) {
+            order.status = status;
+        }
+
+        await order.save();
+        res.json(order);
+    } catch (err) {
+        console.error("DEBUG: Status update failed:", err.message);
+        res.status(400).json({ message: err.message });
+    }
+});
+
+
+// 9. Delete Order
+app.delete('/api/orders/:id', async (req, res) => {
+    try {
+        const order = await Order.findByIdAndDelete(req.params.id);
+        if (!order) return res.status(404).json({ message: 'Order not found' });
+        res.json({ message: 'Order deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`[ZOYALEGAL-SERVER] v1.4.0 - Running on ${PORT}`);
+    console.log(`[MONGODB] Connected & Ready for E-Sign Workflow`);
 });

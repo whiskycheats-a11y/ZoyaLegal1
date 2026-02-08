@@ -1,11 +1,16 @@
-import { Eye, FileCheck, ChevronLeft, ShieldCheck } from 'lucide-react';
+import { Eye, FileCheck, ChevronLeft, ShieldCheck, Download } from 'lucide-react';
+import { generateLegalPDF } from '../../utils/pdfGenerator';
 
 interface FormData {
     name: string;
     mobile: string;
     email: string;
     docType: string;
-    details: string;
+    affidavitType?: string;
+    purpose?: string;
+    address?: string;
+    state?: string;
+    city?: string;
 }
 
 interface Props {
@@ -24,7 +29,7 @@ export default function ESignPreview({ data, onNext, onBack }: Props) {
     return (
         <div className="animate-fade-in">
             <div className="mb-8">
-                <h2 className="text-2xl font-black text-black uppercase tracking-tight mb-2">Step 2: Document Preview_</h2>
+                <h2 className="text-2xl font-black text-black uppercase tracking-tight mb-2">Step 3: Document Review_</h2>
                 <p className="text-gray-500 text-sm font-medium uppercase tracking-widest">Review your document details before digital signing.</p>
             </div>
 
@@ -40,7 +45,8 @@ export default function ESignPreview({ data, onNext, onBack }: Props) {
                     <div className="border-b-2 border-black pb-6 mb-8 flex justify-between items-start">
                         <div>
                             <h1 className="text-2xl font-black uppercase tracking-tighter text-black">{data.docType}</h1>
-                            <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Ref: ZLY-2026-SIGN-{(Math.random() * 1000).toFixed(0)}</p>
+                            {data.affidavitType && <p className="text-xs font-black text-gray-500 uppercase mt-1">{data.affidavitType}</p>}
+                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Ref: ZLY-2026-SIGN-{(Math.random() * 1000).toFixed(0)}</p>
                         </div>
                         <div className="text-right">
                             <p className="text-sm font-black text-black">{currentDate}</p>
@@ -57,9 +63,12 @@ export default function ESignPreview({ data, onNext, onBack }: Props) {
 
                             <p className="mb-4">The party has requested the drafting and digital execution of a <span className="font-bold text-black italic">{data.docType}</span> based on the following provided details:</p>
 
-                            <div className="bg-gray-50 p-6 rounded-xl border border-gray-100 italic text-gray-700">
-                                "{data.details}"
+                            <div className="bg-gray-50 p-6 rounded-xl border border-gray-100 italic text-gray-700 whitespace-pre-wrap mb-4">
+                                "{data.purpose}"
                             </div>
+
+                            <p className="mb-4">Location: <span className="font-bold text-black">{data.city}, {data.state}</span></p>
+                            <p className="mb-4">Delivery Address: <span className="font-bold text-black">{data.address}</span></p>
                         </div>
 
                         <p>
@@ -82,19 +91,35 @@ export default function ESignPreview({ data, onNext, onBack }: Props) {
             </div>
 
             {/* Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <button
                     onClick={onBack}
                     className="bg-white border-2 border-black text-black py-4 rounded-xl font-black text-lg uppercase tracking-widest hover:bg-gray-50 transition-all active:scale-[0.98] flex items-center justify-center"
                 >
                     <ChevronLeft className="mr-2 h-5 w-5" />
-                    Edit Details
+                    Back
+                </button>
+                <button
+                    onClick={() => {
+                        generateLegalPDF({
+                            orderId: 'TEMP-' + (Math.random() * 1000).toFixed(0),
+                            userName: data.name,
+                            docType: data.docType,
+                            date: currentDate,
+                            formData: data,
+                            isDraft: true
+                        });
+                    }}
+                    className="bg-gray-100 text-black py-4 rounded-xl font-black uppercase tracking-widest hover:bg-gray-200 transition-all flex items-center justify-center group"
+                >
+                    <Download className="mr-2 h-4 w-4 group-hover:bounce" />
+                    Download Draft
                 </button>
                 <button
                     onClick={onNext}
                     className="bg-black text-white py-4 rounded-xl font-black text-lg uppercase tracking-widest hover:bg-gray-800 shadow-xl hover:shadow-2xl transition-all active:scale-[0.98] flex items-center justify-center transform hover:-translate-y-1 group"
                 >
-                    Sign Digitally (Aadhaar)
+                    Start Aadhaar eSign
                     <FileCheck className="ml-2 h-5 w-5 group-hover:rotate-12 transition-transform" />
                 </button>
             </div>

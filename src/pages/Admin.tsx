@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import ESignProcess from './ESignProcess';
+import AdminESignOrders from './AdminESignOrders';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -32,7 +33,7 @@ export default function Admin() {
         testimonials, addTestimonial, deleteTestimonial,
         updateSettings, translateText, cleanHindi
     } = useBlogs();
-    const [activeTab, setActiveTab] = useState<'blogs' | 'settings' | 'advocates' | 'acts' | 'judgments' | 'submissions' | 'testimonials' | 'esign-test'>('blogs');
+    const [activeTab, setActiveTab] = useState<'blogs' | 'settings' | 'advocates' | 'acts' | 'judgments' | 'submissions' | 'testimonials' | 'esign-test' | 'esign-orders'>('blogs');
     const [submissions, setSubmissions] = useState<any[]>([]);
     const [isSubmissionsLoading, setIsSubmissionsLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -458,6 +459,14 @@ export default function Admin() {
                     </button>
 
                     <button
+                        onClick={() => setActiveTab('esign-orders')}
+                        className={`w-full flex items-center space-x-4 p-4 rounded-2xl transition-all duration-300 group ${activeTab === 'esign-orders' ? 'bg-white text-black shadow-[0_10px_30px_rgba(255,255,255,0.1)]' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}
+                    >
+                        <Shield className={`h-5 w-5 transition-transform duration-300 group-hover:scale-110 ${activeTab === 'esign-orders' ? 'text-black' : 'text-gray-500'}`} />
+                        <span className="font-extrabold uppercase text-[10px] tracking-[0.2em]">E-Sign Orders</span>
+                    </button>
+
+                    <button
                         onClick={() => setActiveTab('esign-test')}
                         className={`w-full flex items-center space-x-4 p-4 rounded-2xl transition-all duration-300 group ${activeTab === 'esign-test' ? 'bg-white text-black shadow-[0_10px_30px_rgba(255,255,255,0.1)]' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}
                     >
@@ -487,7 +496,8 @@ export default function Admin() {
                     { id: 'judgments', label: 'Judgments', icon: Scale },
                     { id: 'submissions', label: 'Files', icon: Folder },
                     { id: 'testimonials', label: 'Testimonials', icon: Sparkles },
-                    { id: 'esign-test', label: 'E-Sign', icon: Fingerprint },
+                    { id: 'esign-orders', label: 'E-Sign Orders', icon: Shield },
+                    { id: 'esign-test', label: 'E-Sign Test', icon: Fingerprint },
                     { id: 'settings', label: 'Settings', icon: SettingsIcon }
                 ].map((tab) => (
                     <button
@@ -653,8 +663,12 @@ export default function Admin() {
                                 Payment Bypassed Mode (Admin Only)
                             </p>
                         </div>
-                        <ESignProcess isAdmin={true} />
+                        <ESignProcess adminMode={true} />
                     </div>
+                )}
+
+                {activeTab === 'esign-orders' && (
+                    <AdminESignOrders />
                 )}
 
                 {activeTab === 'advocates' && (

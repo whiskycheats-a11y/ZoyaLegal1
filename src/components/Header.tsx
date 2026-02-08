@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Shield, Menu, X, Phone, MapPin, ChevronDown, Scale, Building2, TrendingUp, Smartphone, Globe, Gavel, BookOpen, Newspaper, Search, ExternalLink, Landmark, Library, ShieldCheck, Users, Map, FileText, Fingerprint, Building, ArrowRight } from 'lucide-react';
+import { Shield, Menu, X, Phone, MapPin, ChevronDown, Scale, Building2, TrendingUp, Smartphone, Globe, Gavel, BookOpen, Newspaper, Search, ShieldCheck, Fingerprint, ArrowRight } from 'lucide-react';
 import { useBlogs } from '../context/BlogContext';
 
 export default function Header() {
@@ -63,6 +63,10 @@ export default function Header() {
             </div>
           </div>
           <div className="flex items-center space-x-4 mt-1 sm:mt-0">
+            <Link to="/admin" className="flex items-center text-gray-400 hover:text-white transition-colors">
+              <Shield className="h-3 w-3 mr-1" />
+              <span>Admin Panel</span>
+            </Link>
             <div className="flex items-center font-bold">
               <Phone className="h-3 w-3 md:h-4 md:w-4 mr-1 text-gray-400" />
               <span>{settings?.phone || "+91-9454950104"}</span>
@@ -177,6 +181,8 @@ export default function Header() {
               >
                 Case Status
               </Link>
+
+
 
               {mainLinks.slice(1).map((item) => (
                 <Link

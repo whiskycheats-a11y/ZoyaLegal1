@@ -2,22 +2,70 @@ import { Shield, CreditCard, Lock, Smartphone, ChevronRight, ChevronLeft, CheckC
 import { useState } from 'react';
 
 interface Props {
-    amount: string;
-    onNext: () => void;
+    amount: number;
+    onNext: (transactionId: string) => void;
     onBack: () => void;
     docType: string;
+    userData?: {
+        name: string;
+        email: string;
+        mobile: string;
+    };
+    adminMode?: boolean;
 }
 
-export default function ESignPayment({ amount, onNext, onBack, docType }: Props) {
+export default function ESignPayment({ amount, onNext, onBack, docType, userData, adminMode }: Props) {
     const [isProcessing, setIsProcessing] = useState(false);
 
-    const handlePayment = () => {
+    const loadRazorpayScript = () => {
+        return new Promise<void>((resolve, reject) => {
+            if ((window as any).Razorpay) return resolve();
+            const script = document.createElement('script');
+            script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+            script.async = true;
+            script.onload = () => resolve();
+            script.onerror = () => reject(new Error('Failed to load Razorpay'));
+            document.body.appendChild(script);
+        });
+    };
+
+    const handlePayment = async () => {
         setIsProcessing(true);
-        // Simulate payment gateway
-        setTimeout(() => {
+        try {
+            await loadRazorpayScript();
+
+            const key = (import.meta.env.VITE_RAZORPAY_KEY_ID as string | undefined) || 'rzp_live_RbGJzVOXdIIOWm';
+
+            const options = {
+                key,
+                amount: amount * 100, // Amount in paise
+                currency: 'INR',
+                name: 'ZoyaLegal',
+                description: `${docType} Service Fee`,
+                image: '/logo.png',
+                handler: function (response: any) {
+                    onNext(response.razorpay_payment_id);
+                },
+                prefill: {
+                    name: userData?.name || '',
+                    email: userData?.email || '',
+                    contact: userData?.mobile || ''
+                },
+                theme: {
+                    color: '#000000'
+                },
+                modal: {
+                    ondismiss: () => setIsProcessing(false)
+                }
+            };
+
+            const rzp = new (window as any).Razorpay(options);
+            rzp.open();
+        } catch (error) {
+            console.error('Payment initialization failed:', error);
+            alert('Could not initialize payment. Please check your connection.');
             setIsProcessing(false);
-            onNext();
-        }, 2000);
+        }
     };
 
     return (
@@ -66,23 +114,34 @@ export default function ESignPayment({ amount, onNext, onBack, docType }: Props)
                     <ChevronLeft className="mr-2 h-5 w-5" />
                     Back
                 </button>
-                <button
-                    disabled={isProcessing}
-                    onClick={handlePayment}
-                    className="bg-black text-white py-4 rounded-xl font-black text-lg uppercase tracking-widest hover:bg-gray-800 shadow-xl hover:shadow-2xl transition-all active:scale-[0.98] flex items-center justify-center transform hover:-translate-y-1 group disabled:bg-gray-400"
-                >
-                    {isProcessing ? (
-                        <div className="flex items-center">
-                            <span className="mr-2">Verifying</span>
-                            <div className="animate-spin h-4 w-4 border-2 border-white/20 border-t-white rounded-full"></div>
-                        </div>
-                    ) : (
-                        <>
-                            Secure Pay Now
-                            <ChevronRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                        </>
+                <div className="flex flex-col space-y-2">
+                    <button
+                        disabled={isProcessing}
+                        onClick={handlePayment}
+                        className="w-full bg-black text-white py-4 rounded-xl font-black text-lg uppercase tracking-widest hover:bg-gray-800 shadow-xl hover:shadow-2xl transition-all active:scale-[0.98] flex items-center justify-center transform hover:-translate-y-1 group disabled:bg-gray-400"
+                    >
+                        {isProcessing ? (
+                            <div className="flex items-center">
+                                <span className="mr-2">Verifying</span>
+                                <div className="animate-spin h-4 w-4 border-2 border-white/20 border-t-white rounded-full"></div>
+                            </div>
+                        ) : (
+                            <>
+                                Secure Pay Now
+                                <ChevronRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                            </>
+                        )}
+                    </button>
+
+                    {adminMode && (
+                        <button
+                            onClick={() => onNext(`BYPASS_ADMIN_${Date.now()}`)}
+                            className="w-full py-2 bg-red-100 text-red-600 rounded-lg font-bold text-xs uppercase tracking-widest hover:bg-red-200 transition-colors"
+                        >
+                            ⚠️ Admin Bypass (Test Mode)
+                        </button>
                     )}
-                </button>
+                </div>
             </div>
 
             <div className="mt-12 grid grid-cols-3 gap-4">

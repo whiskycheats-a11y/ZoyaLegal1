@@ -1,6 +1,5 @@
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { CameraOff } from 'lucide-react';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import LegalDisclaimer from './components/LegalDisclaimer';
@@ -29,6 +28,7 @@ import ClientPortal from './pages/ClientPortal';
 import CaseStatus from './pages/CaseStatus';
 import ESignServices from './pages/ESignServices';
 import ESignProcess from './pages/ESignProcess';
+import NotaryDashboard from './pages/NotaryDashboard';
 import ClientReview from './pages/ClientReview';
 
 // Loading fallback
@@ -42,61 +42,23 @@ const PageLoader = () => (
 );
 
 function App() {
-  const [screenshotWarning, setScreenshotWarning] = useState(false);
 
   useEffect(() => {
-    // 1. Disable Right Click
-    const handleContextMenu = (e: MouseEvent) => {
-      e.preventDefault();
-    };
+    // Standard standard browser behavior restored. 
+    // Removed restrictive contextmenu and keydown handlers.
 
-    // 2. Disable Key Shortcuts (Copy, View Source, Save, PrintScreen)
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Disable Ctrl+C, Ctrl+V, Ctrl+U, Ctrl+S, Ctrl+P, F12
-      if (
-        (e.ctrlKey && (e.key === 'c' || e.key === 'C')) ||
-        (e.ctrlKey && (e.key === 'v' || e.key === 'V')) ||
-        (e.ctrlKey && (e.key === 'u' || e.key === 'U')) ||
-        (e.ctrlKey && (e.key === 's' || e.key === 'S')) ||
-        (e.ctrlKey && (e.key === 'p' || e.key === 'P')) ||
-        e.key === 'F12'
-      ) {
-        e.preventDefault();
-        return false;
-      }
-
-      if (e.key === 'PrintScreen') {
-        setScreenshotWarning(true);
-        setTimeout(() => setScreenshotWarning(false), 3000);
-        e.preventDefault();
-      }
-    };
-
-    const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.key === 'PrintScreen') {
-        setScreenshotWarning(true);
-        setTimeout(() => setScreenshotWarning(false), 3000);
-      }
-    };
-
-    // 3. Document Protection Logic
+    // 1. Tab visibility logic (harmless but premium touch)
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
-        document.title = "Protected Content | ZoyaLegal";
+        document.title = "ZoyaLegal - Secure";
       } else {
         document.title = "ZoyaLegal - CSC + Advocate Multi-Service Centre";
       }
     };
 
-    document.addEventListener('contextmenu', handleContextMenu);
-    document.addEventListener('keydown', handleKeyDown);
-    document.addEventListener('keyup', handleKeyUp);
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
-      document.removeEventListener('contextmenu', handleContextMenu);
-      document.removeEventListener('keydown', handleKeyDown);
-      document.removeEventListener('keyup', handleKeyUp);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
@@ -132,6 +94,7 @@ function App() {
                 <Route path="/case-status" element={<CaseStatus />} />
                 <Route path="/esign" element={<ESignServices />} />
                 <Route path="/esign/process" element={<ESignProcess />} />
+                <Route path="/notary/dashboard" element={<NotaryDashboard />} />
                 <Route path="/write-review" element={<ClientReview />} />
               </Routes>
             </Suspense>
@@ -140,25 +103,6 @@ function App() {
           <LegalDisclaimer />
         </div>
 
-        {/* Screenshot Warning Overlay */}
-        {screenshotWarning && (
-          <div className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center p-6 animate-fade-in">
-            <div className="text-center max-w-md">
-              <div className="bg-red-500/10 p-6 rounded-full w-24 h-24 mx-auto mb-6 flex items-center justify-center border border-red-500/20">
-                <CameraOff className="h-12 w-12 text-red-500 animate-pulse" />
-              </div>
-              <h2 className="text-3xl font-black text-white uppercase tracking-tighter mb-4">
-                Screenshot <span className="text-red-500">Protected_</span>
-              </h2>
-              <p className="text-gray-400 font-medium leading-relaxed">
-                ZoyaLegal content is encrypted and protected. Unauthorized screen captures are disabled to ensure legal document security.
-              </p>
-              <div className="mt-8 pt-8 border-t border-white/10 text-[10px] text-gray-500 uppercase tracking-[0.3em]">
-                System ID: ZLY-PRO-001
-              </div>
-            </div>
-          </div>
-        )}
       </Router>
     </BlogProvider>
   );
