@@ -249,6 +249,9 @@ export default function ESignProcess({ adminMode }: { adminMode?: boolean }) {
                                             <label className="text-[10px] font-black uppercase text-gray-400 ml-1">Affidavit Type</label>
                                             <select required value={formData.affidavitType} onChange={e => setFormData({ ...formData, affidavitType: e.target.value })} className="w-full bg-gray-50 border-2 border-transparent focus:border-black rounded-xl p-4 font-bold outline-none">
                                                 <option value="">Select Type</option>
+                                                <option value="Affidavit">Affidavit</option>
+                                                <option value="Rent Agreement">Rent Agreement</option>
+                                                <option value="Legal Notice">Legal Notice</option>
                                                 <option value="Gap Year">Gap Year Affidavit</option>
                                                 <option value="Name Change">Name Change</option>
                                                 <option value="Address Proof">Address Proof</option>
